@@ -2,6 +2,7 @@
  * Vuetify theme configuration with custom color scheme
  */
 
+import 'vuetify/styles'
 import '@mdi/font/css/materialdesignicons.css'
 import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
@@ -56,6 +57,11 @@ const lightTheme = {
     background: '#f7f9fb',
     'on-background': '#191c1e',
     'surface-variant': '#e0e3e5',
+    
+    // Your exact custom greens for the dashboard
+    success: '#10b981',
+    'success-light': '#dcfce3',
+    'success-button': '#6ee7b7',
   },
 }
 
