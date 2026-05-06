@@ -15,7 +15,7 @@ const drawer = computed({
 })
 
 const navigationItems = [
-  { title: 'Dashboard', icon: 'mdi-view-dashboard-outline', path: '/dashboard' },
+  { title: 'Dashboard', icon: 'mdi-view-dashboard-outline', path: '/' },
   { title: 'Asset Inventory', icon: 'mdi-archive-outline', path: '/assets' },
   { title: 'Employee Directory', icon: 'mdi-card-account-details-outline', path: '/employees' },
   { title: 'Assignment History', icon: 'mdi-history', path: '/history' },
@@ -27,15 +27,15 @@ const navigationItems = [
   <v-navigation-drawer 
     v-model="drawer" 
     color="#171b29" 
-    width="260" 
+    width="220" 
     border="0"
   >
-    <div class="pa-6">
-      <div class="text-white text-h5 font-weight-bold tracking-tight">Shelf</div>
-      <div class="text-grey-lighten-1 text-caption">Asset Management</div>
+    <div class="pa-4">
+      <div class="text-white text-h6 font-weight-bold tracking-tight">Shelf</div>
+      <div class="text-grey-lighten-1" style="font-size: 11px;">Asset Management</div>
     </div>
 
-    <v-list nav class="px-3">
+    <v-list nav density="compact" class="px-2">
       <v-list-item
         v-for="item in navigationItems"
         :key="item.path"
@@ -44,20 +44,19 @@ const navigationItems = [
         :title="item.title"
         color="success-button"
         base-color="grey-lighten-1"
-        rounded="lg"
-        class="mb-1 font-weight-medium"
+        rounded="md"
+        class="mb-1 font-weight-medium text-body-2"
       ></v-list-item>
     </v-list>
 
     <template v-slot:append>
-      <div class="pa-4">
+      <div class="pa-3">
         <v-btn
           block
           color="success-button"
           prepend-icon="mdi-plus"
           class="text-black font-weight-bold text-none"
-          size="large"
-          rounded="lg"
+          rounded="md"
           elevation="0"
         >
           New Assignment
