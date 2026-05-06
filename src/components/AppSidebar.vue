@@ -15,7 +15,7 @@ const drawer = computed({
 })
 
 const navigationItems = [
-  { title: 'Dashboard', icon: 'mdi-view-dashboard-outline', path: '/' },
+  { title: 'Dashboard', icon: 'mdi-view-dashboard-outline', path: '/dashboard' },
   { title: 'Asset Inventory', icon: 'mdi-archive-outline', path: '/assets' },
   { title: 'Employee Directory', icon: 'mdi-card-account-details-outline', path: '/employees' },
   { title: 'Assignment History', icon: 'mdi-history', path: '/history' },
