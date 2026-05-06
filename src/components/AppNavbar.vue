@@ -19,11 +19,12 @@ const handleLogout = async () => {
 </script>
 
 <template>
-  <v-app-bar color="white" elevation="0" border="b" height="72">
+  <v-app-bar color="white" elevation="0" border="b" height="56">
     <v-app-bar-nav-icon 
       color="black" 
       @click="$emit('toggle-drawer')" 
       class="d-lg-none ml-1"
+      size="small"
     ></v-app-bar-nav-icon>
     
     <div class="w-100 px-4 d-flex align-center">
@@ -42,40 +43,40 @@ const handleLogout = async () => {
 
       <v-spacer></v-spacer>
 
-      <v-btn icon color="black" class="mr-2">
+      <v-btn icon size="small" color="black" class="mr-1">
         <v-badge dot color="error">
-          <v-icon>mdi-bell-outline</v-icon>
+          <v-icon size="20">mdi-bell-outline</v-icon>
         </v-badge>
       </v-btn>
-      <v-btn icon color="black" class="mr-4">
-        <v-icon>mdi-cog-outline</v-icon>
+      <v-btn icon size="small" color="black" class="mr-3">
+        <v-icon size="20">mdi-cog-outline</v-icon>
       </v-btn>
 
-      <v-divider vertical class="my-3 mr-4 d-none d-sm-block"></v-divider>
+      <v-divider vertical class="my-2 mr-3 d-none d-sm-block"></v-divider>
 
       <v-menu offset-y>
         <template #activator="{ props }">
           <div v-bind="props" class="d-flex align-center cursor-pointer">
-            <div class="text-right mr-3 d-none d-sm-block">
-              <div class="text-body-2 font-weight-bold text-black">
+            <div class="text-right mr-2 d-none d-sm-block">
+              <div class="text-caption font-weight-bold text-black" style="line-height: 1.2;">
                 {{ authStore.user?.name || 'Admin User' }}
               </div>
-              <div class="text-caption text-medium-emphasis">
+              <div class="text-medium-emphasis" style="font-size: 10px;">
                 System Administrator
               </div>
             </div>
-            <v-avatar size="40">
+            <v-avatar size="32">
               <v-img src="https://i.pravatar.cc/150?img=11" alt="User Avatar"></v-img>
             </v-avatar>
           </div>
         </template>
         
-        <v-list>
+        <v-list density="compact">
           <v-list-item @click="handleLogout">
             <template #prepend>
-              <v-icon>mdi-logout</v-icon>
+              <v-icon size="small">mdi-logout</v-icon>
             </template>
-            <v-list-item-title>Logout</v-list-item-title>
+            <v-list-item-title class="text-body-2">Logout</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-menu>

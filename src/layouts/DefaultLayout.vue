@@ -13,7 +13,7 @@ const drawer = ref(true)
     <AppNavbar @toggle-drawer="drawer = !drawer" />
 
     <v-main>
-      <div class="pa-8 h-100">
+      <div class="pa-4 h-100">
         <router-view />
       </div>
     </v-main>
