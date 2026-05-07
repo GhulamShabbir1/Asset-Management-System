@@ -21,6 +21,7 @@ const navigationItems = [
   { title: 'Assignment History', icon: 'mdi-history', path: '/assignment-history' },
   { title: 'Reports', icon: 'mdi-file-chart-outline', path: '/reports' },
   { title: 'User Management', icon: 'mdi-account-multiple-outline', path: '/users' },
+  { title: 'App Settings', icon: 'mdi-cog-outline', path: '/settings' },
 ]
 </script>
 

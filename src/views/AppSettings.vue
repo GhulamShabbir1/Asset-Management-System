@@ -1,18 +1,18 @@
 <template>
-  <v-container max-width="1200" class="py-8 bg-background" fluid>
+  <v-container max-width="1200" class="py-5 bg-background settings-view" fluid>
     
-    <v-row class="mb-6">
+    <v-row class="mb-4">
       <v-col cols="12">
-        <h2 class="text-h4 font-weight-bold text-high-emphasis mb-2">System Settings</h2>
-        <p class="text-body-1 text-medium-emphasis">
+        <h2 class="settings-page-title font-weight-bold text-high-emphasis mb-1">System Settings</h2>
+        <p class="settings-copy text-medium-emphasis">
           Manage your personal profile, app preferences, and authentication credentials.
         </p>
       </v-col>
     </v-row>
 
-    <v-tabs v-model="activeTab" color="primary" class="mb-6 border-b">
-      <v-tab value="general" prepend-icon="mdi-tune">General & Profile</v-tab>
-      <v-tab value="auth" prepend-icon="mdi-shield-account">Authentication</v-tab>
+    <v-tabs v-model="activeTab" color="primary" class="mb-4 border-b compact-tabs" density="comfortable">
+      <v-tab value="general" prepend-icon="mdi-tune" class="settings-tab">General & Profile</v-tab>
+      <v-tab value="auth" prepend-icon="mdi-shield-account" class="settings-tab">Authentication</v-tab>
     </v-tabs>
 
     <v-window v-model="activeTab">
@@ -20,18 +20,18 @@
       <v-window-item value="general">
         <v-row>
           <v-col cols="12" md="6">
-            <v-card rounded="xl" elevation="2" border class="fill-height d-flex flex-column">
-              <v-card-title class="pa-6 pb-2">
-                <div class="text-h6 font-weight-bold">Update Profile</div>
-                <div class="text-body-2 text-medium-emphasis">Update your personal information and avatar.</div>
+            <v-card rounded="xl" elevation="2" border class="fill-height d-flex flex-column compact-settings-card">
+              <v-card-title class="pa-4 pb-2">
+                <div class="settings-card-title font-weight-bold">Update Profile</div>
+                <div class="settings-copy text-medium-emphasis">Update your personal information and avatar.</div>
               </v-card-title>
               
-              <v-card-text class="flex-grow-1 px-6">
-                <div class="d-flex align-center mb-6 mt-2">
-                  <v-avatar size="72" color="grey-lighten-3" class="mr-4 border">
+              <v-card-text class="flex-grow-1 px-4">
+                <div class="d-flex align-center mb-4 mt-1">
+                  <v-avatar size="56" color="grey-lighten-3" class="mr-3 border">
                     <v-img src="https://i.pravatar.cc/150?img=11"></v-img>
                   </v-avatar>
-                  <v-btn variant="outlined" color="primary" size="small" prepend-icon="mdi-camera">
+                  <v-btn variant="outlined" color="primary" size="x-small" prepend-icon="mdi-camera" class="compact-action-btn">
                     Change Photo
                   </v-btn>
                 </div>
@@ -42,7 +42,8 @@
                   variant="outlined"
                   color="primary"
                   prepend-inner-icon="mdi-account"
-                  class="mb-4"
+                  class="mb-3 compact-field"
+                  density="compact"
                   hide-details
                 ></v-text-field>
 
@@ -52,23 +53,25 @@
                   variant="outlined"
                   color="primary"
                   prepend-inner-icon="mdi-briefcase"
+                  class="compact-field"
+                  density="compact"
                   hide-details
                 ></v-text-field>
               </v-card-text>
 
-              <v-card-actions class="pa-6 pt-0 justify-end">
-                <v-btn color="primary" variant="flat" rounded="lg" class="px-6">Save Profile</v-btn>
+              <v-card-actions class="pa-4 pt-0 justify-end">
+                <v-btn color="primary" variant="flat" rounded="lg" class="px-4 compact-action-btn">Save Profile</v-btn>
               </v-card-actions>
             </v-card>
           </v-col>
 
           <v-col cols="12" md="6">
-            <v-card rounded="xl" elevation="2" border class="mb-6">
-              <v-card-title class="pa-6 pb-2">
-                <div class="text-h6 font-weight-bold">Company Organization</div>
-                <div class="text-body-2 text-medium-emphasis">Assign your primary reporting department.</div>
+            <v-card rounded="xl" elevation="2" border class="mb-4 compact-settings-card">
+              <v-card-title class="pa-4 pb-2">
+                <div class="settings-card-title font-weight-bold">Company Organization</div>
+                <div class="settings-copy text-medium-emphasis">Assign your primary reporting department.</div>
               </v-card-title>
-              <v-card-text class="px-6">
+              <v-card-text class="px-4">
                 <v-select
                   v-model="appSettings.department"
                   :items="['Information Technology', 'Human Resources', 'Operations', 'Finance', 'Executive']"
@@ -76,20 +79,22 @@
                   variant="outlined"
                   color="primary"
                   prepend-inner-icon="mdi-domain"
+                  class="compact-field"
+                  density="compact"
                   hide-details
                 ></v-select>
               </v-card-text>
-              <v-card-actions class="pa-6 pt-0 justify-end">
-                <v-btn color="primary" variant="flat" rounded="lg" class="px-6">Update Department</v-btn>
+              <v-card-actions class="pa-4 pt-0 justify-end">
+                <v-btn color="primary" variant="flat" rounded="lg" class="px-4 compact-action-btn">Update Department</v-btn>
               </v-card-actions>
             </v-card>
 
-            <v-card rounded="xl" elevation="2" border>
-              <v-card-title class="pa-6 pb-2">
-                <div class="text-h6 font-weight-bold">App Settings</div>
-                <div class="text-body-2 text-medium-emphasis">Configure local system preferences.</div>
+            <v-card rounded="xl" elevation="2" border class="compact-settings-card">
+              <v-card-title class="pa-4 pb-2">
+                <div class="settings-card-title font-weight-bold">App Settings</div>
+                <div class="settings-copy text-medium-emphasis">Configure local system preferences.</div>
               </v-card-title>
-              <v-card-text class="px-6">
+              <v-card-text class="px-4">
                 <v-select
                   v-model="appSettings.timezone"
                   :items="['UTC (Coordinated Universal Time)', 'EST (Eastern Standard Time)', 'PST (Pacific Standard Time)']"
@@ -97,7 +102,8 @@
                   variant="outlined"
                   color="primary"
                   prepend-inner-icon="mdi-earth"
-                  class="mb-4"
+                  class="mb-3 compact-field"
+                  density="compact"
                   hide-details
                 ></v-select>
                 
@@ -108,11 +114,13 @@
                   variant="outlined"
                   color="primary"
                   prepend-inner-icon="mdi-calendar"
+                  class="compact-field"
+                  density="compact"
                   hide-details
                 ></v-select>
               </v-card-text>
-              <v-card-actions class="pa-6 pt-0 justify-end">
-                <v-btn color="primary" variant="flat" rounded="lg" class="px-6">Save Preferences</v-btn>
+              <v-card-actions class="pa-4 pt-0 justify-end">
+                <v-btn color="primary" variant="flat" rounded="lg" class="px-4 compact-action-btn">Save Preferences</v-btn>
               </v-card-actions>
             </v-card>
           </v-col>
@@ -122,18 +130,19 @@
       <v-window-item value="auth">
         <v-row>
           <v-col cols="12" md="6">
-            <v-card rounded="xl" elevation="2" border class="fill-height d-flex flex-column">
-              <v-card-title class="pa-6 pb-2">
-                <div class="text-h6 font-weight-bold">Account Identities</div>
-                <div class="text-body-2 text-medium-emphasis">Update your system username and access role.</div>
+            <v-card rounded="xl" elevation="2" border class="fill-height d-flex flex-column compact-settings-card">
+              <v-card-title class="pa-4 pb-2">
+                <div class="settings-card-title font-weight-bold">Account Identities</div>
+                <div class="settings-copy text-medium-emphasis">Update your system username and access role.</div>
               </v-card-title>
               
-              <v-card-text class="flex-grow-1 px-6">
+              <v-card-text class="flex-grow-1 px-4">
                 <v-alert
                   type="info"
                   variant="tonal"
-                  class="mb-6 text-body-2"
+                  class="mb-4 settings-alert"
                   icon="mdi-information"
+                  density="compact"
                 >
                   Email modifications are restricted by the enterprise administrator.
                 </v-alert>
@@ -144,7 +153,8 @@
                   variant="outlined"
                   color="primary"
                   prepend-inner-icon="mdi-badge-account"
-                  class="mb-4"
+                  class="mb-3 compact-field"
+                  density="compact"
                   hide-details
                 ></v-text-field>
 
@@ -155,24 +165,26 @@
                   variant="outlined"
                   color="primary"
                   prepend-inner-icon="mdi-security"
+                  class="compact-field"
+                  density="compact"
                   hide-details
                 ></v-select>
               </v-card-text>
 
-              <v-card-actions class="pa-6 pt-0 justify-end">
-                <v-btn color="primary" variant="flat" rounded="lg" class="px-6">Update Identity</v-btn>
+              <v-card-actions class="pa-4 pt-0 justify-end">
+                <v-btn color="primary" variant="flat" rounded="lg" class="px-4 compact-action-btn">Update Identity</v-btn>
               </v-card-actions>
             </v-card>
           </v-col>
 
           <v-col cols="12" md="6">
-            <v-card rounded="xl" elevation="2" border class="fill-height d-flex flex-column">
-              <v-card-title class="pa-6 pb-2">
-                <div class="text-h6 font-weight-bold">Change Password</div>
-                <div class="text-body-2 text-medium-emphasis">Ensure your account uses a strong, secure password.</div>
+            <v-card rounded="xl" elevation="2" border class="fill-height d-flex flex-column compact-settings-card">
+              <v-card-title class="pa-4 pb-2">
+                <div class="settings-card-title font-weight-bold">Change Password</div>
+                <div class="settings-copy text-medium-emphasis">Ensure your account uses a strong, secure password.</div>
               </v-card-title>
               
-              <v-card-text class="flex-grow-1 px-6">
+              <v-card-text class="flex-grow-1 px-4">
                 <v-text-field
                   v-model="auth.currentPassword"
                   label="Current Password"
@@ -180,7 +192,8 @@
                   variant="outlined"
                   color="primary"
                   prepend-inner-icon="mdi-lock"
-                  class="mb-4"
+                  class="mb-3 compact-field"
+                  density="compact"
                   hide-details
                 ></v-text-field>
 
@@ -191,7 +204,8 @@
                   variant="outlined"
                   color="primary"
                   prepend-inner-icon="mdi-key-plus"
-                  class="mb-4"
+                  class="mb-3 compact-field"
+                  density="compact"
                   hide-details
                 ></v-text-field>
 
@@ -202,16 +216,18 @@
                   variant="outlined"
                   color="primary"
                   prepend-inner-icon="mdi-check-circle"
+                  class="compact-field"
+                  density="compact"
                   hide-details
                 ></v-text-field>
               </v-card-text>
 
-              <v-card-actions class="pa-6 pt-0 justify-end">
+              <v-card-actions class="pa-4 pt-0 justify-end">
                 <v-btn 
                   color="primary" 
                   variant="flat" 
                   rounded="lg" 
-                  class="px-6"
+                  class="px-4 compact-action-btn"
                   :disabled="!isPasswordValid"
                 >
                   Update Password
@@ -263,8 +279,60 @@ const isPasswordValid = computed(() => {
 </script>
 
 <style scoped>
-/* Vuetify handles most styling, keeping scoped CSS clean */
 .border {
   border: 1px solid rgba(0, 0, 0, 0.12) !important;
+}
+
+.settings-page-title {
+  font-size: 1.45rem;
+  line-height: 1.15;
+}
+
+.settings-card-title {
+  font-size: 0.92rem;
+  line-height: 1.2;
+}
+
+.settings-copy {
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.compact-settings-card {
+  border-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+.settings-tab {
+  min-height: 38px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  text-transform: none;
+}
+
+.compact-action-btn {
+  font-size: 0.72rem;
+  min-height: 32px;
+}
+
+.compact-field :deep(.v-field) {
+  --v-field-input-padding-top: 8px;
+  --v-field-input-padding-bottom: 8px;
+}
+
+.compact-field :deep(.v-label),
+.compact-field :deep(input),
+.compact-field :deep(.v-field__input),
+.compact-field :deep(.v-select__selection-text) {
+  font-size: 0.76rem;
+}
+
+.settings-alert {
+  font-size: 0.74rem;
+  line-height: 1.35;
+}
+
+.settings-alert :deep(.v-alert__content) {
+  font-size: 0.74rem;
+  line-height: 1.35;
 }
 </style>
