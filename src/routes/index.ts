@@ -15,6 +15,18 @@ const router = createRouter({
       component: () => import('@/views/AssetsView.vue'),
       meta: { requiresAuth: true },
     },
+    {
+      path: '/assignment-history',
+      name: 'assignment-history',
+      component: () => import('@/views/AssetsView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/reports',
+      name: 'reports',
+      component: () => import('@/views/ReportsView.vue'),
+      meta: { requiresAuth: true },
+    },
     // {
     //   path: '/login',
     //   name: 'login',
