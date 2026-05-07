@@ -54,18 +54,60 @@ export const useAuthStore = defineStore(
       }
     }
 
-    const register = async (
-      payload: authService.RegisterPayload
-    ): Promise<authService.AuthResponse> => {
+    const signup = async (payload: authService.SignupPayload): Promise<unknown> => {
       loading.value = true
       clearError()
 
       try {
-        const response = await authService.register(payload)
-        setSession(response.user, response.token)
-        return response
+        return await authService.signup(payload)
       } catch (err) {
         error.value = err instanceof ApiError ? err.message : 'Registration failed'
+        throw err
+      } finally {
+        loading.value = false
+      }
+    }
+
+    const verifySignup = async (payload: authService.VerifySignupPayload): Promise<unknown> => {
+      loading.value = true
+      clearError()
+
+      try {
+        return await authService.verifySignup(payload)
+      } catch (err) {
+        error.value = err instanceof ApiError ? err.message : 'Verification failed'
+        throw err
+      } finally {
+        loading.value = false
+      }
+    }
+
+    const forgetPassword = async (
+      payload: authService.ForgetPasswordPayload
+    ): Promise<unknown> => {
+      loading.value = true
+      clearError()
+
+      try {
+        return await authService.forgetPassword(payload)
+      } catch (err) {
+        error.value = err instanceof ApiError ? err.message : 'Failed to send reset code'
+        throw err
+      } finally {
+        loading.value = false
+      }
+    }
+
+    const resetPassword = async (
+      payload: authService.ResetPasswordPayload
+    ): Promise<unknown> => {
+      loading.value = true
+      clearError()
+
+      try {
+        return await authService.resetPassword(payload)
+      } catch (err) {
+        error.value = err instanceof ApiError ? err.message : 'Failed to reset password'
         throw err
       } finally {
         loading.value = false
@@ -117,7 +159,10 @@ export const useAuthStore = defineStore(
       error,
       isAuthenticated,
       login,
-      register,
+      signup,
+      verifySignup,
+      forgetPassword,
+      resetPassword,
       fetchUser,
       logout,
       clearError,

@@ -3,8 +3,8 @@
 </script>
 
 <template>
-  <v-app class="bg-background">
-    <v-main>
+  <v-app class="bg-background" style="height: 100vh; overflow: hidden;">
+    <v-main style="height: 100vh; overflow: hidden;">
       <router-view />
     </v-main>
   </v-app>

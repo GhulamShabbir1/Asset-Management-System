@@ -3,17 +3,17 @@ import { ref } from 'vue'
 import AppSidebar from '@/components/AppSidebar.vue'
 import AppNavbar from '@/components/AppNavbar.vue'
 
-// Keep drawer open by default on desktop
 const drawer = ref(true)
+const rail = ref(false)
 </script>
 
 <template>
   <v-app class="bg-background">
-    <AppSidebar v-model="drawer" />
-    <AppNavbar @toggle-drawer="drawer = !drawer" />
+    <AppSidebar v-model="drawer" v-model:rail="rail" />
+    <AppNavbar />
 
     <v-main>
-      <div class="pa-4 h-100">
+      <div class="px-4 pt-1 pb-0 h-100">
         <router-view />
       </div>
     </v-main>

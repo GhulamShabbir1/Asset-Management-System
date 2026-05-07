@@ -2,7 +2,7 @@ import axios from 'axios'
 import { handleApiError } from '@/utils/errorHandler'
 
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
   timeout: Number(import.meta.env.VITE_API_TIMEOUT || 30000),
   headers: {
     'Content-Type': 'application/json',
