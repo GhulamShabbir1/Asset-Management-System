@@ -166,8 +166,7 @@ const validateAndLogin = async () => {
 
     await authStore.login(payload)
 
-    const redirect = (router.currentRoute.value.query.redirect as string) || '/dashboard'
-    router.push(redirect)
+    router.push('/dashboard')
   } catch (error: any) {
     alertMessage.value =
       error?.response?.data?.message || error.message || 'Failed to login. Please check your credentials.'
