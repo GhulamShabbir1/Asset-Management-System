@@ -65,26 +65,32 @@ const router = createRouter({
     {
       path: '/assignment-history',
       name: 'assignment-history',
-      component: () => import('@/views/AssetsView.vue'),
-      meta: { requiresAuth: true },
+      component: () => import('@/views/HistoryView.vue'),
+      meta: { requiresAuth: true, layout: 'DefaultLayout' },
+    },
+    {
+      path: '/history',
+      name: 'history',
+      component: () => import('@/views/HistoryView.vue'),
+      meta: { requiresAuth: true, layout: 'DefaultLayout' },
     },
     {
       path: '/reports',
       name: 'reports',
       component: () => import('@/views/ReportsView.vue'),
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, layout: 'DefaultLayout' },
     },
     {
       path: '/users',
       name: 'users',
       component: () => import('@/views/UserManagement.vue'),
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, layout: 'DefaultLayout' },
     },
     {
       path: '/settings',
       name: 'settings',
       component: () => import('@/views/AppSettings.vue'),
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, layout: 'DefaultLayout' },
     },
     // {
     //   path: '/login',
