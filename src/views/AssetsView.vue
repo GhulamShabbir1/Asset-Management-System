@@ -1,4 +1,16 @@
 <script setup lang="ts">
+import { ref } from 'vue'
+import AssetHistory from '@/components/History/AssetHistory.vue'
+import AssetSearch from '@/components/History/AssetSearch.vue'
+
+const currentAsset = ref<string | null>(null)
+
+const loadAssetData = (query: string) => {
+  currentAsset.value = query
+}
+
+const resetAsset = () => {
+  currentAsset.value = null
 import { ref, computed } from 'vue'
 
 // Import Modals

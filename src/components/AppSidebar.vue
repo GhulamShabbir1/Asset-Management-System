@@ -39,8 +39,11 @@ const navigationItems = [
   { title: 'Dashboard', icon: 'mdi-view-dashboard-outline', path: '/dashboard' },
   { title: 'Assets', icon: 'mdi-archive-outline', path: '/assets' },
   { title: 'Employee Directory', icon: 'mdi-card-account-details-outline', path: '/employees' },
+  { title: 'Assignment History', icon: 'mdi-history', path: '/assignment-history' },
+  { title: 'Reports', icon: 'mdi-file-chart-outline', path: '/reports' },
   { title: 'History', icon: 'mdi-history', path: '/history' },
   { title: 'User Management', icon: 'mdi-account-multiple-outline', path: '/users' },
+  { title: 'App Settings', icon: 'mdi-cog-outline', path: '/settings' },
 ]
 </script>
 
@@ -132,21 +135,3 @@ const navigationItems = [
     </template>
   </v-navigation-drawer>
 </template>
-
-<style scoped>
-.custom-drawer {
-  overflow: visible !important;
-}
-:deep(.v-navigation-drawer__content) {
-  overflow: visible !important;
-}
-
-.rail-toggle-btn {
-  position: absolute;
-  top: 24px;
-  right: -12px;
-  z-index: 1000;
-  border: 1px solid #e0e0e0 !important;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
-}
-</style>

@@ -62,6 +62,35 @@ const router = createRouter({
       component: () => import('@/views/404.vue'),
       meta: { requiresAuth: false, layout: 'AuthLayout' },
     },
+    {
+      path: '/assignment-history',
+      name: 'assignment-history',
+      component: () => import('@/views/AssetsView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/reports',
+      name: 'reports',
+      component: () => import('@/views/ReportsView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/users',
+      name: 'users',
+      component: () => import('@/views/UserManagement.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/settings',
+      name: 'settings',
+      component: () => import('@/views/AppSettings.vue'),
+      meta: { requiresAuth: true },
+    },
+    // {
+    //   path: '/login',
+    //   name: 'login',
+    //   component: () => import('@/views/LoginView.vue'),
+    // },
   ],
 })
 
