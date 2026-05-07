@@ -1,9 +1,27 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 
+// Import Modals
+import CreateAssignmentModal from '@/components/modals/CreateAssignModal.vue'
+import CreateAssetModal from '@/components/modals/CreateAssetModal.vue'
+
+// Modal States & Handlers
+const showAssignmentModal = ref(false)
+const showAssetModal = ref(false)
+
+const handleAssignmentSave = (data: any) => {
+  console.log('Assignment Saved:', data)
+}
+
+const handleAssetSave = (data: any) => {
+  console.log('New Asset Saved:', data)
+}
+
+// Table Filters
 const filters = ['All', 'Available', 'Assigned', 'Maintenance']
 const activeFilter = ref('All')
 
+// Mock Data
 const assets = [
   { id: 'AST-99201', category: 'IT Hardware', model: 'MacBook Pro 16" (M3 Max)', status: 'AVAILABLE', statusColor: 'primary', statusBg: 'primary-light', custodian: null },
   { id: 'AST-88124', category: 'IT Hardware', model: 'Dell UltraSharp 32" 4K', status: 'ASSIGNED', statusColor: 'blue-darken-2', statusBg: 'blue-lighten-5', custodian: { name: 'Sarah Henderson', initials: 'SH', color: 'blue-grey' } },
@@ -23,7 +41,7 @@ const summaryCards = [
   { title: 'ASSET VALUE', value: '$428,500', subtitle: 'Total depreciated value', icon: 'mdi-cash-multiple', iconColor: 'primary', bg: 'bg-primary-light', btnText: 'Financial Report' },
 ]
 
-// Handlers for your buttons
+// Table Action Handlers
 const editAsset = (id: string) => {
   console.log('Edit asset:', id)
 }
@@ -39,10 +57,12 @@ const deleteAsset = (id: string) => {
     <div class="d-flex justify-space-between align-end mb-2">
       <div>
         <h1 class="text-h5 font-weight-bold mb-0" style="line-height: 1.1;">Assets</h1>
+        <p class="text-caption text-medium-emphasis mt-n1">Manage and track enterprise hardware across all departments.</p>
       </div>
       
       <div class="d-flex align-center pb-1">
         <v-btn 
+          @click="showAssignmentModal = true"
           color="primary" 
           variant="tonal" 
           size="small" 
@@ -50,9 +70,10 @@ const deleteAsset = (id: string) => {
           class="text-none font-weight-bold mr-3 rounded-md" 
           elevation="0"
         >
-          Assign Asset
+          Add Assignment
         </v-btn>
         <v-btn 
+          @click="showAssetModal = true"
           color="primary" 
           variant="flat" 
           size="small" 
@@ -209,4 +230,7 @@ const deleteAsset = (id: string) => {
     </v-row>
 
   </v-container>
+
+  <CreateAssignmentModal v-model="showAssignmentModal" @submit="handleAssignmentSave" />
+  <CreateAssetModal v-model="showAssetModal" @submit="handleAssetSave" />
 </template>
