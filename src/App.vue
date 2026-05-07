@@ -6,7 +6,7 @@ import AuthLayout from '@/layouts/AuthLayout.vue'
 
 const route = useRoute()
 const layout = computed(() => {
-  return route.meta.layout === 'auth' ? AuthLayout : DefaultLayout
+  return route.meta.layout === 'AuthLayout' ? AuthLayout : DefaultLayout
 })
 </script>
 
