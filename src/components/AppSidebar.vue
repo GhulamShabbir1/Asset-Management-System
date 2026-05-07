@@ -26,13 +26,13 @@ const navigationItems = [
 <template>
   <v-navigation-drawer 
     v-model="drawer" 
-    color="#171b29" 
+    color="white" 
     width="220" 
-    border="0"
+    border="r"
   >
     <div class="pa-4">
-      <div class="text-white text-h6 font-weight-bold tracking-tight">Shelf</div>
-      <div class="text-grey-lighten-1" style="font-size: 11px;">Asset Management</div>
+      <div class="text-black text-h6 font-weight-bold tracking-tight">Shelf</div>
+      <div class="text-medium-emphasis" style="font-size: 11px;">Asset Management</div>
     </div>
 
     <v-list nav density="compact" class="px-2">
@@ -42,8 +42,8 @@ const navigationItems = [
         :to="item.path"
         :prepend-icon="item.icon"
         :title="item.title"
-        color="success-button"
-        base-color="grey-lighten-1"
+        color="primary"
+        base-color="grey-darken-2"
         rounded="md"
         class="mb-1 font-weight-medium text-body-2"
       ></v-list-item>
@@ -53,9 +53,9 @@ const navigationItems = [
       <div class="pa-3">
         <v-btn
           block
-          color="success-button"
+          color="primary"
           prepend-icon="mdi-plus"
-          class="text-black font-weight-bold text-none"
+          class="text-white font-weight-bold text-none"
           rounded="md"
           elevation="0"
         >

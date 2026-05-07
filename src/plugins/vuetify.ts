@@ -10,9 +10,9 @@ import * as directives from 'vuetify/directives'
 
 const lightTheme = {
   colors: {
-    surface: '#f7f9fb',
+    surface: '#ffffff', // Crisp white
     'surface-dim': '#d8dadc',
-    'surface-bright': '#f7f9fb',
+    'surface-bright': '#ffffff', // Crisp white
     'surface-container-lowest': '#ffffff',
     'surface-container-low': '#f2f4f6',
     'surface-container': '#eceef0',
@@ -24,12 +24,15 @@ const lightTheme = {
     'inverse-on-surface': '#eff1f3',
     outline: '#76777d',
     'outline-variant': '#c6c6cd',
-    'surface-tint': '#565e74',
-    primary: '#000000',
+    'surface-tint': '#71b084', // Updated to your green
+    
+    // Core accent changes
+    primary: '#71b084', // Your exact highlight color
     'on-primary': '#ffffff',
-    'primary-container': '#131b2e',
-    'on-primary-container': '#7c839b',
+    'primary-container': '#eaf3ed', // Soft pale green for backgrounds/hovers
+    'on-primary-container': '#1a3323',
     'inverse-primary': '#bec6e0',
+    
     secondary: '#505f76',
     'on-secondary': '#ffffff',
     'secondary-container': '#d0e1fb',
@@ -54,14 +57,16 @@ const lightTheme = {
     'tertiary-fixed-dim': '#4ae176',
     'on-tertiary-fixed': '#002109',
     'on-tertiary-fixed-variant': '#005321',
-    background: '#f7f9fb',
+    
+    background: '#ffffff', // Crisp white background
     'on-background': '#191c1e',
     'surface-variant': '#e0e3e5',
     
-    // Your exact custom greens for the dashboard
-    success: '#10b981',
-    'success-light': '#dcfce3',
-    'success-button': '#6ee7b7',
+    // Custom dashboard greens mapped to your highlight color
+    success: '#71b084',
+    'success-light': '#eaf3ed', // Soft tint for chips/avatars
+    'success-button': '#71b084',
+    'primary-light': '#eaf3ed',
   },
 }
 
