@@ -8,6 +8,9 @@ import CreateUserModal from '@/components/modals/CreateUserModal.vue'
 
 const authStore = useAuthStore()
 
+// --- Global Search State ---
+const globalSearchQuery = ref('')
+
 const showAssetModal = ref(false)
 const showEmployeeModal = ref(false)
 const showUserModal = ref(false)
@@ -18,6 +21,14 @@ const createMenuOptions = [
   { title: 'User', icon: 'mdi-account-plus-outline', action: () => showUserModal.value = true },
 ]
 
+// --- Handlers ---
+const handleGlobalSearch = () => {
+  if (!globalSearchQuery.value.trim()) return
+  
+  // TODO: Hook this up to your global search API or routing logic
+  console.log('Executing universal search for:', globalSearchQuery.value)
+}
+
 const handleAssetSave = (data: any) => { console.log('Saving Asset:', data) }
 const handleEmployeeSave = (data: any) => { console.log('Saving Employee:', data) }
 const handleUserSave = (data: any) => { console.log('Saving User:', data) }
@@ -27,6 +38,31 @@ const handleUserSave = (data: any) => { console.log('Saving User:', data) }
   <v-app-bar color="white" elevation="0" border="b" height="56">
     <div class="w-100 px-4 d-flex align-center">
       
+      <v-spacer class="d-none d-md-block"></v-spacer>
+
+      <v-text-field
+        v-model="globalSearchQuery"
+        placeholder="Search assets, users, or serial numbers..."
+        variant="solo-filled"
+        flat
+        density="compact"
+        hide-details
+        single-line
+        clearable
+        bg-color="grey-lighten-4"
+        rounded="md"
+        class="custom-search mx-4 d-none d-sm-block text-caption"
+        style="max-width: 450px; width: 100%;"
+        @keyup.enter="handleGlobalSearch"
+      >
+        <template v-slot:prepend-inner>
+          <v-icon size="small" class="opacity-60">mdi-magnify</v-icon>
+        </template>
+        <template v-slot:clear="{ props }">
+          <v-icon v-bind="props" size="small" class="opacity-60">mdi-close-circle</v-icon>
+        </template>
+      </v-text-field>
+
       <v-spacer></v-spacer>
 
       <v-menu offset-y>
@@ -83,3 +119,18 @@ const handleUserSave = (data: any) => { console.log('Saving User:', data) }
   <CreateEmployeeModal v-model="showEmployeeModal" @submit="handleEmployeeSave" />
   <CreateUserModal v-model="showUserModal" @submit="handleUserSave" />
 </template>
+
+<style scoped>
+/* Vuetify's default compact height is 40px. 
+  Reducing it by exactly 10% brings it down to 36px.
+*/
+.custom-search :deep(.v-field) {
+  min-height: 36px !important;
+}
+
+.custom-search :deep(.v-field__input) {
+  min-height: 36px !important;
+  padding-top: 6px !important;
+  padding-bottom: 6px !important;
+}
+</style>

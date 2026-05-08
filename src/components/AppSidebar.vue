@@ -35,14 +35,14 @@ const handleLogout = async () => {
   router.push({ name: 'login' })
 }
 
+// Removed 'App Settings' from here to avoid duplication
 const navigationItems = [
   { title: 'Dashboard', icon: 'mdi-view-dashboard-outline', path: '/dashboard' },
   { title: 'Assets', icon: 'mdi-archive-outline', path: '/assets' },
   { title: 'Employee Directory', icon: 'mdi-card-account-details-outline', path: '/employees' },
-  { title: 'User Management', icon: 'mdi-account-multiple-outline', path: '/users' },
   { title: 'History', icon: 'mdi-history', path: '/history' },
   { title: 'Reports', icon: 'mdi-file-chart-outline', path: '/reports' },
-  { title: 'App Settings', icon: 'mdi-cog-outline', path: '/settings' },
+  { title: 'User Management', icon: 'mdi-account-multiple-outline', path: '/users' },
 ]
 </script>
 
@@ -52,14 +52,14 @@ const navigationItems = [
     :rail="isRail"
     color="white" 
     width="220" 
-    border="r"
-    class="custom-drawer"
+    class="custom-drawer border-r"
   >
     <v-btn
       icon
       size="24"
-      variant="flat"
-      class="rail-toggle-btn bg-white"
+      elevation="2"
+      class="position-absolute bg-white border"
+      style="top: 24px; right: -12px; z-index: 1000;"
       @click="toggleRail"
     >
       <v-icon size="16" color="black">{{ isRail ? 'mdi-chevron-right' : 'mdi-chevron-left' }}</v-icon>
@@ -107,6 +107,9 @@ const navigationItems = [
             <template v-slot:activator="{ props: tooltipProps }">
               <v-list-item
                 v-bind="tooltipProps"
+                to="/settings"
+                color="primary"
+                active-class="bg-primary-light"
                 prepend-icon="mdi-cog-outline"
                 title="Settings"
                 base-color="grey-darken-2"
@@ -134,3 +137,13 @@ const navigationItems = [
     </template>
   </v-navigation-drawer>
 </template>
+
+<style scoped>
+.custom-drawer {
+  overflow: visible !important;
+}
+
+.custom-drawer :deep(.v-navigation-drawer__content) {
+  overflow: visible !important;
+}
+</style>
