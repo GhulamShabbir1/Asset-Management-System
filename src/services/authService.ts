@@ -44,6 +44,12 @@ export interface ResetPasswordPayload {
   confirm_password: string
 }
 
+export interface UpdatePasswordPayload {
+  old_password: string
+  new_password: string
+  confirm_password: string
+}
+
 export interface BackendLoginResponse {
   success: boolean
   message: string
@@ -99,6 +105,12 @@ export const verifySignup = (data: VerifySignupPayload) =>
 export const resetPassword = (data: ResetPasswordPayload) =>
   api.post('/auth/reset-password', data)
 
+/**
+ * Update password (requires authentication token)
+ */
+export const updatePassword = (data: UpdatePasswordPayload) =>
+  api.patch('/auth/update-password', data)
+
 export default {
   login,
   signup,
@@ -107,4 +119,5 @@ export default {
   forgetPassword,
   verifySignup,
   resetPassword,
+  updatePassword,
 }
