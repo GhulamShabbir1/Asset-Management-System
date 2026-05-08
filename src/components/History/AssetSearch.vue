@@ -24,16 +24,17 @@ const handleSearch = () => {
       class="pa-6 pa-sm-8 text-center mx-auto"
       max-width="600"
       width="100%"
-      elevation="4"
+      elevation="0"
+      border
       rounded="xl"
     >
       <v-icon icon="mdi-laptop-account" size="64" color="primary" class="mb-4" />
 
-      <v-card-title class="text-h4 font-weight-bold mb-2">
+      <v-card-title class="text-h5 font-weight-bold mb-2" style="line-height: 1.1;">
         Asset Lookup
       </v-card-title>
 
-      <v-card-text class="text-body-1 text-medium-emphasis mb-6">
+      <v-card-text class="text-caption text-medium-emphasis mb-6">
         Enter an asset name, tag number, or serial number to view its complete lifecycle
         history and details.
       </v-card-text>

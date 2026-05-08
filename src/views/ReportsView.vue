@@ -1,10 +1,10 @@
 <template>
-  <v-container max-width="1600" class="py-8 bg-background" fluid>
+  <v-container max-width="1600" class="py-4 bg-background" fluid>
     
     <v-row class="mb-4 align-end">
       <v-col cols="12" md="8">
-        <h2 class="text-h4 font-weight-bold text-high-emphasis">System Reports</h2>
-        <p class="text-body-1 text-medium-emphasis mt-2">
+        <h1 class="text-h5 font-weight-bold text-high-emphasis mb-0" style="line-height: 1.1;">System Reports</h1>
+        <p class="text-caption text-medium-emphasis mt-1">
           Comprehensive analytics, employee assignments, and lifecycle tracking.
         </p>
       </v-col>
@@ -71,7 +71,7 @@
 
     <v-row class="mb-8">
       <v-col cols="12" md="4">
-        <v-card class="pa-6 d-flex flex-column justify-space-between fill-height" rounded="xl" elevation="2">
+        <v-card class="pa-4 d-flex flex-column justify-space-between fill-height" rounded="xl" elevation="0" border>
           <div class="d-flex justify-space-between align-start mb-4">
             <v-avatar color="primary" variant="tonal" rounded>
               <v-icon icon="mdi-laptop-mac"></v-icon>
@@ -81,14 +81,14 @@
             </v-chip>
           </div>
           <div>
-            <div class="text-overline text-medium-emphasis mb-1">Total Assets</div>
-            <div class="text-h3 font-weight-black text-high-emphasis">1,245</div>
+            <div class="text-medium-emphasis mb-1" style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Total Assets</div>
+            <div class="text-h5 font-weight-black text-high-emphasis">1,245</div>
           </div>
         </v-card>
       </v-col>
 
       <v-col cols="12" md="4">
-        <v-card class="pa-6 d-flex flex-column justify-space-between fill-height" rounded="xl" elevation="2">
+        <v-card class="pa-4 d-flex flex-column justify-space-between fill-height" rounded="xl" elevation="0" border>
           <div class="d-flex justify-space-between align-start mb-4">
             <v-avatar color="primary" variant="tonal" rounded>
               <v-icon icon="mdi-account-group"></v-icon>
@@ -98,14 +98,14 @@
             </v-chip>
           </div>
           <div>
-            <div class="text-overline text-medium-emphasis mb-1">Active Employees</div>
-            <div class="text-h3 font-weight-black text-high-emphasis">480</div>
+            <div class="text-medium-emphasis mb-1" style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Active Employees</div>
+            <div class="text-h5 font-weight-black text-high-emphasis">480</div>
           </div>
         </v-card>
       </v-col>
 
       <v-col cols="12" md="4">
-        <v-card class="pa-6 d-flex flex-column justify-space-between fill-height" rounded="xl" elevation="2">
+        <v-card class="pa-4 d-flex flex-column justify-space-between fill-height" rounded="xl" elevation="0" border>
           <div class="d-flex justify-space-between align-start mb-4">
             <v-avatar color="primary" variant="tonal" rounded>
               <v-icon icon="mdi-package-variant-closed"></v-icon>
@@ -115,8 +115,8 @@
             </v-chip>
           </div>
           <div>
-            <div class="text-overline text-medium-emphasis mb-1">Unassigned Assets</div>
-            <div class="text-h3 font-weight-black text-high-emphasis">112</div>
+            <div class="text-medium-emphasis mb-1" style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Unassigned Assets</div>
+            <div class="text-h5 font-weight-black text-high-emphasis">112</div>
           </div>
         </v-card>
       </v-col>
@@ -124,9 +124,9 @@
 
     <v-row class="mb-8">
       <v-col cols="12" lg="7">
-        <v-card class="pa-6 fill-height" rounded="xl" elevation="2">
+        <v-card class="pa-4 fill-height" rounded="xl" elevation="0" border>
           <div class="d-flex justify-space-between align-center mb-6">
-            <h4 class="text-h6 font-weight-bold">Asset Distribution by Category</h4>
+            <h4 class="text-body-1 font-weight-bold">Asset Distribution by Category</h4>
             <v-btn variant="text" color="primary" size="small" class="text-caption font-weight-bold">VIEW FULL DATA</v-btn>
           </div>
           
@@ -153,10 +153,10 @@
       </v-col>
 
       <v-col cols="12" lg="5">
-        <v-card rounded="xl" elevation="2" class="fill-height d-flex flex-column">
+        <v-card rounded="xl" elevation="0" border class="fill-height d-flex flex-column">
           <v-card-title class="pa-6 pb-2 border-b">
-            <div class="text-h6 font-weight-bold">Available Reports</div>
-            <div class="text-body-2 text-medium-emphasis">Export active assignments and audits.</div>
+            <div class="text-body-1 font-weight-bold">Available Reports</div>
+            <div class="text-caption text-medium-emphasis">Export active assignments and audits.</div>
           </v-card-title>
 
           <v-list lines="two" class="flex-grow-1 py-0">
@@ -170,8 +170,8 @@
                   <v-icon :icon="report.icon"></v-icon>
                 </v-avatar>
               </template>
-              <v-list-item-title class="font-weight-bold">{{ report.title }}</v-list-item-title>
-              <v-list-item-subtitle>{{ report.subtitle }}</v-list-item-subtitle>
+              <v-list-item-title class="font-weight-bold text-caption">{{ report.title }}</v-list-item-title>
+              <v-list-item-subtitle class="text-caption">{{ report.subtitle }}</v-list-item-subtitle>
               
               <template v-slot:append>
                 <div class="d-flex gap-2">
@@ -193,29 +193,29 @@
 
     <v-row>
       <v-col cols="12">
-        <h4 class="text-h6 font-weight-bold mb-4">Recent Report Activity</h4>
-        <v-card rounded="xl" elevation="2" border>
+        <h4 class="text-body-1 font-weight-bold mb-4">Recent Report Activity</h4>
+        <v-card rounded="xl" elevation="0" border>
           <v-table hover>
             <thead class="bg-grey-lighten-4">
               <tr>
-                <th class="text-caption font-weight-bold text-medium-emphasis text-uppercase">Timestamp</th>
-                <th class="text-caption font-weight-bold text-medium-emphasis text-uppercase">User</th>
-                <th class="text-caption font-weight-bold text-medium-emphasis text-uppercase">Report Type</th>
-                <th class="text-caption font-weight-bold text-medium-emphasis text-uppercase">Status</th>
-                <th class="text-caption font-weight-bold text-medium-emphasis text-uppercase">Format</th>
+                <th class="font-weight-bold text-medium-emphasis" style="font-size: 10px; text-transform: uppercase;">TIMESTAMP</th>
+                <th class="font-weight-bold text-medium-emphasis" style="font-size: 10px; text-transform: uppercase;">USER</th>
+                <th class="font-weight-bold text-medium-emphasis" style="font-size: 10px; text-transform: uppercase;">REPORT TYPE</th>
+                <th class="font-weight-bold text-medium-emphasis" style="font-size: 10px; text-transform: uppercase;">STATUS</th>
+                <th class="font-weight-bold text-medium-emphasis" style="font-size: 10px; text-transform: uppercase;">FORMAT</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="(log, i) in activityLogs" :key="i">
-                <td class="text-body-2 text-medium-emphasis">{{ log.timestamp }}</td>
-                <td class="text-body-2 font-weight-medium">{{ log.user }}</td>
-                <td class="text-body-2">{{ log.reportType }}</td>
+                <td class="text-caption text-medium-emphasis">{{ log.timestamp }}</td>
+                <td class="text-caption font-weight-medium">{{ log.user }}</td>
+                <td class="text-caption">{{ log.reportType }}</td>
                 <td>
                   <v-chip size="x-small" :color="log.statusColor" class="font-weight-bold text-uppercase">
                     {{ log.status }}
                   </v-chip>
                 </td>
-                <td class="text-body-2 font-weight-bold text-medium-emphasis">{{ log.format }}</td>
+                <td class="text-caption font-weight-bold text-medium-emphasis">{{ log.format }}</td>
               </tr>
             </tbody>
           </v-table>

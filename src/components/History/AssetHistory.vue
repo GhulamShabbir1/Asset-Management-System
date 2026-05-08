@@ -391,13 +391,13 @@ const timelineEvents = ref<TimelineEvent[]>([
 }
 
 .history-event-title {
-  font-size: 0.79rem;
+  font-size: 0.75rem;
   line-height: 1.2;
 }
 
 .history-event-meta,
 .history-event-details {
-  font-size: 0.71rem;
+  font-size: 0.75rem;
   line-height: 1.35;
   color: rgba(0, 0, 0, 0.62);
 }
@@ -420,29 +420,29 @@ const timelineEvents = ref<TimelineEvent[]>([
 }
 
 .compact-kicker {
-  font-size: 0.64rem;
+  font-size: 0.625rem;
   line-height: 1.2;
   letter-spacing: 0.06em;
 }
 
 .compact-section-title {
-  font-size: 0.88rem;
+  font-size: 1rem;
   line-height: 1.2;
 }
 
 .compact-card-title {
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   line-height: 1.2;
 }
 
 .compact-copy {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   line-height: 1.35;
   color: rgba(0, 0, 0, 0.64);
 }
 
 .compact-meta-label {
-  font-size: 0.67rem;
+  font-size: 0.625rem;
   line-height: 1.2;
 }
 
@@ -451,13 +451,13 @@ const timelineEvents = ref<TimelineEvent[]>([
 }
 
 .compact-spec-row :deep(.v-list-item-title) {
-  font-size: 0.74rem;
+  font-size: 0.75rem;
   line-height: 1.2;
   font-weight: 600;
 }
 
 .compact-spec-row :deep(.v-list-item-subtitle) {
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   line-height: 1.25;
 }
 
