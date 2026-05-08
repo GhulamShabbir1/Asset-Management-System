@@ -54,6 +54,12 @@ const router = createRouter({
       component: () => import('@/views/AssetsView.vue'),
       meta: { requiresAuth: true, layout: 'DefaultLayout' },
     },
+    {
+      path: '/employees',
+      name: 'employees',
+      component: () => import('@/views/EmployeeDirectory.vue'),
+      meta: { requiresAuth: true, layout: 'DefaultLayout' },
+    },
 
     // ============= 404 NOT FOUND =============
     {
