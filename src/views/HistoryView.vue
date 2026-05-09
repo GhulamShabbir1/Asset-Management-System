@@ -15,14 +15,15 @@ const resetAsset = () => {
 </script>
 
 <template>
-  <div class="history-view">
+  <v-container fluid class="pa-0 mx-auto history-view" style="max-width: 1400px;">
     <AssetSearch v-if="!currentAsset" @search="loadAssetData" />
     <AssetHistory v-else @reset="resetAsset" />
-  </div>
+  </v-container>
 </template>
 
 <style scoped>
 .history-view {
   min-height: calc(100vh - 120px);
+  padding-block: 4px 8px;
 }
 </style>
