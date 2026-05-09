@@ -159,7 +159,7 @@ const timelineEvents = ref<TimelineEvent[]>([
             </v-col>
 
             <v-col cols="12" md="5" class="pa-3 pa-md-4">
-              <v-card rounded="lg" elevation="2" class="pa-3 bg-white compact-panel">
+              <v-card rounded="lg" elevation="0" border class="pa-3 bg-white compact-panel">
                 <div class="d-flex ga-3 mb-2">
                   <v-avatar color="primary-lighten-4" size="32" rounded="lg">
                     <v-icon icon="mdi-laptop" color="primary" size="17" />
@@ -214,7 +214,7 @@ const timelineEvents = ref<TimelineEvent[]>([
     <v-row class="mt-2">
       <!-- Timeline Column -->
       <v-col cols="12" lg="7">
-        <v-card rounded="lg" elevation="0" class="border-sm pa-4 pa-md-6 h-100">
+        <v-card rounded="lg" elevation="0" class="border-sm pa-4 h-100">
           <div class="d-flex justify-space-between align-center mb-4">
             <div>
               <div class="compact-kicker font-weight-bold text-uppercase">History Feed</div>
@@ -245,7 +245,7 @@ const timelineEvents = ref<TimelineEvent[]>([
                 <div class="text-caption">{{ event.time }}</div>
               </template>
 
-              <v-card rounded="lg" elevation="1" class="history-event-card mb-2">
+              <v-card rounded="lg" elevation="0" class="history-event-card mb-2">
                 <v-card-item class="history-event-header pb-0 pt-2 px-2">
                   <template #title>
                     <div class="d-flex justify-space-between align-start ga-2">

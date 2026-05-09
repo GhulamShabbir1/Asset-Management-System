@@ -19,14 +19,13 @@ const handleSearch = () => {
 </script>
 
 <template>
-  <v-container class="fill-height d-flex align-center justify-center pa-0">
+  <v-container fluid class="pa-0 mx-auto fill-height d-flex align-center justify-center" style="max-width: 1400px;">
     <v-card
-      class="pa-6 pa-sm-8 text-center mx-auto"
+      class="rounded-lg pa-4 text-center mx-auto"
       max-width="600"
       width="100%"
       elevation="0"
       border
-      rounded="xl"
     >
       <v-icon icon="mdi-laptop-account" size="64" color="primary" class="mb-4" />
 
@@ -55,10 +54,9 @@ const handleSearch = () => {
         <v-btn
           type="submit"
           color="primary"
-          size="x-large"
+          size="large"
           block
           rounded="lg"
-          elevation="2"
           :disabled="!searchQuery.trim()"
         >
           Search Asset
