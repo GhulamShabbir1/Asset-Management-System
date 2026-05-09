@@ -111,7 +111,7 @@
       </v-col>
     </v-row>
 
-    <v-row class="mb-3">
+    <v-row class="mb-2">
       <v-col cols="12" lg="7">
         <v-card class="rounded-lg h-100" elevation="0" border>
           <v-card-title class="pa-4 pb-2">
@@ -121,25 +121,25 @@
             </div>
           </v-card-title>
           <div class="px-4 pb-4">
-          <div class="d-flex align-end justify-space-between h-50 gap-4 mt-4 px-2">
-            <div v-for="item in distributionData" :key="item.label" class="d-flex flex-column align-center flex-grow-1">
-              <v-tooltip :text="`${item.count} items`" location="top">
-                <template v-slot:activator="{ props }">
-                  <div 
-                    v-bind="props"
-                    class="w-100 bg-grey-lighten-3 rounded-t-lg position-relative cursor-pointer transition-swing"
-                    style="height: 200px;"
-                  >
+            <div class="d-flex align-end justify-space-between h-50 gap-4 mt-4 px-2">
+              <div v-for="item in distributionData" :key="item.label" class="d-flex flex-column align-center flex-grow-1">
+                <v-tooltip :text="`${item.count} items`" location="top">
+                  <template v-slot:activator="{ props }">
                     <div 
-                      class="position-absolute bottom-0 w-100 rounded-t-lg bg-primary" 
-                      :style="{ height: `${item.percentage}%`, opacity: 0.85 }"
-                    ></div>
-                  </div>
-                </template>
-              </v-tooltip>
-              <span class="text-caption text-medium-emphasis mt-3 font-weight-medium">{{ item.label }}</span>
+                      v-bind="props"
+                      class="w-100 bg-grey-lighten-3 rounded-t-lg position-relative cursor-pointer transition-swing"
+                      style="height: 200px;"
+                    >
+                      <div 
+                        class="position-absolute bottom-0 w-100 rounded-t-lg bg-primary" 
+                        :style="{ height: `${item.percentage}%`, opacity: 0.85 }"
+                      ></div>
+                    </div>
+                  </template>
+                </v-tooltip>
+                <span class="text-caption text-medium-emphasis mt-3 font-weight-medium">{{ item.label }}</span>
+              </div>
             </div>
-          </div>
           </div>
         </v-card>
       </v-col>
@@ -205,7 +205,7 @@
       </v-col>
     </v-row>
 
-    <v-row>
+    <v-row class="mb-2">
       <v-col cols="12">
         <h4 class="text-body-1 font-weight-bold mb-4">Recent Report Activity</h4>
         <v-card rounded="lg" elevation="0" border>
@@ -346,6 +346,14 @@ const activityLogs = ref([
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+.border-b {
+  border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+}
+
+.border-t {
+  border-top: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
 }
 
 /* Minor utility to simulate the hover background color on list items */

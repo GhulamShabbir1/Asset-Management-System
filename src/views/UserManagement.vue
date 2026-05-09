@@ -1,7 +1,7 @@
 <template>
-  <v-container fluid class="bg-background py-4" max-width="1600">
+  <v-container fluid class="pa-0 mx-auto user-management-view" style="max-width: 1400px;">
     <!-- Header -->
-    <v-row class="mb-6 align-center justify-space-between">
+    <v-row class="mb-2 align-center justify-space-between">
       <v-col cols="12" md="6">
         <h1 class="text-h5 font-weight-bold text-high-emphasis mb-0" style="line-height: 1.1;">Role Management</h1>
         <p class="text-caption text-medium-emphasis mt-1">
@@ -42,11 +42,11 @@
     </v-row>
 
     <!-- Roles & Permissions Matrix Section -->
-    <v-row class="mb-6">
+    <v-row class="mb-3">
       <v-col cols="12">
         <v-card rounded="xl" elevation="0" border>
           <!-- Header -->
-          <div class="d-flex justify-space-between align-center pa-6 pb-4 border-b bg-grey-lighten-4 flex-wrap gap-4">
+          <div class="d-flex justify-space-between align-center pa-4 pb-2 border-b bg-grey-lighten-4 flex-wrap gap-4">
             <div>
               <h3 class="text-body-1 font-weight-bold">Role Permissions Matrix</h3>
               <p class="text-caption text-medium-emphasis">Select a role from the left and update its permissions using checkboxes.</p>
@@ -104,7 +104,7 @@
 
             <!-- Permissions Table -->
             <v-col cols="12" md="8" lg="9" class="pa-0">
-              <div class="pa-6 pb-2 d-flex justify-space-between align-center flex-wrap gap-3">
+              <div class="pa-4 pb-2 d-flex justify-space-between align-center flex-wrap gap-3">
                 <div>
                   <h4 class="text-body-1 font-weight-bold mb-1">{{ selectedRoleName }}</h4>
                   <p class="text-caption text-medium-emphasis">
@@ -180,7 +180,7 @@
     </v-row>
 
     <!-- Users List Section -->
-    <v-row class="mb-6">
+    <v-row class="mb-3">
       <v-col cols="12">
         <v-card rounded="xl" elevation="0" border>
           <div class="pa-4 bg-grey-lighten-4 border-b d-flex justify-space-between align-center flex-wrap gap-4">
@@ -274,12 +274,12 @@
     </v-row>
 
     <!-- Governance Footer -->
-    <v-row>
+    <v-row class="mb-2">
       <v-col cols="12" lg="8">
-        <v-card rounded="xl" elevation="0" border color="primary" variant="tonal" class="pa-6 fill-height d-flex align-center">
+        <v-card rounded="xl" elevation="0" border color="primary" variant="tonal" class="pa-4 fill-height d-flex align-center">
           <div class="flex-grow-1 mr-4">
             <h3 class="text-body-1 font-weight-bold text-primary mb-2">RBAC Governance Policy</h3>
-            <p class="text-caption text-medium-emphasis mb-6">
+            <p class="text-caption text-medium-emphasis mb-4">
               You are managing the core access control matrix. Any changes to "Super Admin" or "Custom" roles that include 'Financial Audit' privileges will trigger a mandatory secondary approval flow for ISO 27001 compliance.
             </p>
             <div class="d-flex gap-6">
@@ -298,7 +298,7 @@
       </v-col>
 
       <v-col cols="12" lg="4">
-        <v-card rounded="xl" elevation="0" border class="pa-6 fill-height d-flex flex-column justify-center text-center bg-grey-lighten-4">
+        <v-card rounded="xl" elevation="0" border class="pa-4 fill-height d-flex flex-column justify-center text-center bg-grey-lighten-4">
           <div class="dashboard-kicker text-medium-emphasis mb-2">Security Audit</div>
           <div class="text-h5 font-weight-black mb-2">100% Compliant</div>
           <div class="text-caption text-medium-emphasis mb-4">Access control logs are synchronized with enterprise SIEM.</div>
@@ -780,6 +780,10 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.user-management-view {
+  padding-block: 4px 8px;
+}
+
 .gap-2 { gap: 8px; }
 .gap-3 { gap: 12px; }
 .gap-4 { gap: 16px; }
