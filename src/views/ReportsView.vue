@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <v-container fluid class="pa-0 mx-auto" style="max-width: 1400px;">
     <v-row class="mb-2 align-end">
       <v-col cols="12" md="8">
@@ -366,4 +366,4 @@ const activityLogs = ref([
 .gap-2 {
   gap: 8px;
 }
-</style>
+</style> -->
