@@ -60,13 +60,12 @@ const router = createRouter({
       component: () => import('@/views/EmployeeDirectory.vue'),
       meta: { requiresAuth: true, layout: 'DefaultLayout' },
     },
-
-    // ============= 404 NOT FOUND =============
+    // ---- ADDED DEPARTMENTS ROUTE ----
     {
-      path: '/:pathMatch(.*)*',
-      name: 'notFound',
-      component: () => import('@/views/404.vue'),
-      meta: { requiresAuth: false, layout: 'AuthLayout' },
+      path: '/departments',
+      name: 'departments',
+      component: () => import('@/views/DepartmentsView.vue'),
+      meta: { requiresAuth: true, layout: 'DefaultLayout' },
     },
     {
       path: '/assignment-history',
@@ -98,28 +97,27 @@ const router = createRouter({
       component: () => import('@/views/AppSettings.vue'),
       meta: { requiresAuth: true, layout: 'DefaultLayout' },
     },
-    // {
-    //   path: '/login',
-    //   name: 'login',
-    //   component: () => import('@/views/LoginView.vue'),
-    // },
+    
+    // ============= 404 NOT FOUND =============
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'notFound',
+      component: () => import('@/views/404.vue'),
+      meta: { requiresAuth: false, layout: 'AuthLayout' },
+    },
   ],
 })
 
 // ============= NAVIGATION GUARD =============
-// Protect routes that require authentication
 router.beforeEach((to, from) => {
-  const isAuthenticated = !!localStorage.getItem('auth_token') // Check if user is logged in
+  const isAuthenticated = !!localStorage.getItem('auth_token') 
 
-  // If route requires auth but user is not logged in, redirect to login
   if (to.meta.requiresAuth && !isAuthenticated) {
     return { name: 'login', query: { redirect: to.fullPath } }
   }
-  // If user is logged in and tries to access login/register, redirect to dashboard
   else if (!to.meta.requiresAuth && isAuthenticated && (to.name === 'login' || to.name === 'register')) {
     return { name: 'dashboard' }
   }
-  // Otherwise proceed normally (return undefined)
 })
 
 export default router
