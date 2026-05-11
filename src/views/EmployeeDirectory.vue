@@ -1,319 +1,302 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 interface Employee {
   id: string
   name: string
+  email: string
   department: string
-  assignedAssets: number
-  assets: Array<{
-    icon: string
-    title: string
-  }>
   lastActivity: string
-  status: 'Active' | 'Action Required'
+  status: 'Active' | 'Inactive' | 'Action Required'
+  role: 'Administrator' | 'Manager' | 'Regular User'
   image: string
   hasAlert?: boolean
 }
 
-const selectedDepartment = ref('ALL')
 const searchQuery = ref('')
+const selectedDepartment = ref('All Departments')
+const selectedStatus = ref('All Statuses')
+const selectedRole = ref('All Roles')
+const selectedRows = ref<Employee[]>([])
 
-const departments = ['ALL DEPARTMENTS', 'ENGINEERING', 'PRODUCT', 'SALES']
+const departments = ['All Departments', 'Engineering', 'Product', 'Sales', 'HR']
+const statuses = ['All Statuses', 'Active', 'Inactive', 'Action Required']
+const roles = ['All Roles', 'Administrator', 'Manager', 'Regular User']
+
+const headers = [
+  { title: 'Name', key: 'name', sortable: false },
+  { title: 'Employee ID', key: 'id', sortable: false },
+  { title: 'Department', key: 'department', sortable: false },
+  { title: 'Last Activity', key: 'lastActivity', sortable: false },
+  { title: 'Status', key: 'status', sortable: false },
+  { title: 'Actions', key: 'actions', sortable: false, align: 'end' as const },
+]
 
 const employees: Employee[] = [
   {
     id: 'EMP-2024-001',
     name: 'Sarah Jenkins',
+    email: 'sarah.j@company.com',
     department: 'Engineering',
-    assignedAssets: 4,
-    assets: [
-      { icon: 'mdi-laptop-mac', title: 'MacBook Pro 16' },
-      { icon: 'mdi-cellphone', title: 'iPhone 15 Pro' },
-      { icon: 'mdi-monitor', title: 'Dell UltraSharp 27' },
-      { icon: 'mdi-headphones', title: 'AirPods Pro' },
-    ],
     lastActivity: '2 hours ago',
     status: 'Active',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCBapFrXGhtWu3i0xnGOOZRa-MsI-MLgXkLHdqeR0H8hX3V7VaEHqLXQXeYoQIAbL1oz6wblgrD2RX_OEd-xCvS6FxZMWWI85Zkh_YR6oUbNJ0vOaPP6J0tqf7YWNXyH6EkTwp7nIAyd7HR8_D5YL09ueQek_RA37XIyW1FkF_AbyPCr8QC4PNbdOGAtA0U3aSvZACp4qgXoTpy9WRa6UDKxn_10qUx2Y2iZAKCi2pzb9NAWqzH5G-GK8roZ-xs177DOV2HEdExp2aJ',
+    role: 'Manager',
+    image:
+      'https://lh3.googleusercontent.com/aida-public/AB6AXuCBapFrXGhtWu3i0xnGOOZRa-MsI-MLgXkLHdqeR0H8hX3V7VaEHqLXQXeYoQIAbL1oz6wblgrD2RX_OEd-xCvS6FxZMWWI85Zkh_YR6oUbNJ0vOaPP6J0tqf7YWNXyH6EkTwp7nIAyd7HR8_D5YL09ueQek_RA37XIyW1FkF_AbyPCr8QC4PNbdOGAtA0U3aSvZACp4qgXoTpy9WRa6UDKxn_10qUx2Y2iZAKCi2pzb9NAWqzH5G-GK8roZ-xs177DOV2HEdExp2aJ',
   },
   {
     id: 'EMP-2024-045',
     name: 'Marcus Thorne',
+    email: 'm.thorne@company.com',
     department: 'Product',
-    assignedAssets: 2,
-    assets: [
-      { icon: 'mdi-laptop', title: 'ThinkPad X1 Carbon' },
-      { icon: 'mdi-cellphone', title: 'Galaxy S23' },
-    ],
     lastActivity: 'Yesterday',
     status: 'Active',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDhOlSjmxWo1Wqv5NaUEt8pZpVFj66rGMrhg87tPvFunZKLytIw5zfH_R-03LVzpsPSPe_nwNHJVGMeFx7lB8f5YiJbUsDa-Hmewf13P0qEJPqBjp5B2-IAuPHU1MiAdo6OUuDkX8rNwzjkxsnztgQ3PgiXKYCIXypJ4zmeCZYvA7-fgBrAIjAkepy0wUOnItXvJHeh0Xhhhvb-b0_xjSWbhcfvn5oqBu4bvb-v7i7dY8YUvifWNWzgZfMk4fHeP-vB42kzNWckgSKF',
+    role: 'Regular User',
+    image:
+      'https://lh3.googleusercontent.com/aida-public/AB6AXuDhOlSjmxWo1Wqv5NaUEt8pZpVFj66rGMrhg87tPvFunZKLytIw5zfH_R-03LVzpsPSPe_nwNHJVGMeFx7lB8f5YiJbUsDa-Hmewf13P0qEJPqBjp5B2-IAuPHU1MiAdo6OUuDkX8rNwzjkxsnztgQ3PgiXKYCIXypJ4zmeCZYvA7-fgBrAIjAkepy0wUOnItXvJHeh0Xhhhvb-b0_xjSWbhcfvn5oqBu4bvb-v7i7dY8YUvifWNWzgZfMk4fHeP-vB42kzNWckgSKF',
   },
   {
     id: 'EMP-2023-112',
     name: 'Elena Rodriguez',
+    email: 'elena.r@company.com',
     department: 'HR',
-    assignedAssets: 3,
-    assets: [
-      { icon: 'mdi-laptop-mac', title: 'MacBook Air' },
-      { icon: 'mdi-tablet', title: 'iPad Pro' },
-      { icon: 'mdi-keyboard', title: 'Expired Warranty' },
-    ],
     lastActivity: '5 days ago',
     status: 'Action Required',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBXXcjJh6-HidYMOeQDQTLzfz5327iuJ4LyB-qmAlngfqkcvGWf1tiSa7T4CC_wJJWLto0nTBTY-MYhwN5uGGLnkGo0hT8wXaIJDfkWzvKUwAVO86eVZLtGQiD-G8UHSpj3IdJnJYY4PN2fb1okOhyBz-bzpli0zLAvFvPyJ6ZoDphgNnDGZPGtHCdYuZp13EtADrPY-NE0ZA43cVrI7p9echXXXuRzq_a_uXQ7VqIyYd96h3H8a7L96Bbnsgcx_NRzeIM8Bd-zM2Io',
+    role: 'Administrator',
     hasAlert: true,
+    image:
+      'https://lh3.googleusercontent.com/aida-public/AB6AXuBXXcjJh6-HidYMOeQDQTLzfz5327iuJ4LyB-qmAlngfqkcvGWf1tiSa7T4CC_wJJWLto0nTBTY-MYhwN5uGGLnkGo0hT8wXaIJDfkWzvKUwAVO86eVZLtGQiD-G8UHSpj3IdJnJYY4PN2fb1okOhyBz-bzpli0zLAvFvPyJ6ZoDphgNnDGZPGtHCdYuZp13EtADrPY-NE0ZA43cVrI7p9echXXXuRzq_a_uXQ7VqIyYd96h3H8a7L96Bbnsgcx_NRzeIM8Bd-zM2Io',
   },
   {
-    id: 'EMP-2024-078',
+    id: 'EMP-2024-102',
     name: 'David Chen',
+    email: 'd.chen@company.com',
     department: 'Sales',
-    assignedAssets: 5,
-    assets: [
-      { icon: 'mdi-laptop', title: 'Laptop' },
-      { icon: 'mdi-cellphone', title: 'Smartphone' },
-      { icon: 'mdi-tablet', title: 'Tablet' },
-      { icon: 'mdi-wifi', title: 'WiFi Device' },
-      { icon: 'mdi-power-plug', title: 'Power Adapter' },
-    ],
-    lastActivity: '1 day ago',
-    status: 'Active',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBRzmh0W0QFsBZTmPRZAuK1YacRyJ4G2nlcUl8iXBApKdWayG7fBe__tC6vJyl_-BM54NTbfZkVEW9Emzsq9WVHpZIzfMQPyaZbbQqb8LCupCkCiw3O47IRQqn1AvJH7CE_lzPEe2pTPpI9uHsRSCFvX8k5jCDYfTy4BC7VnkoPnqqdHb2inLTwD_fzkDADUeGc7hPQ7IY6T43STEEHOB9qr8y8gUJXlbzQZd-lNQDhOtyktRWc5WnCE0b-C4D7GaW6gCE0B7sgv5Tp',
+    lastActivity: '1 month ago',
+    status: 'Inactive',
+    role: 'Manager',
+    image:
+      'https://lh3.googleusercontent.com/aida-public/AB6AXuBRzmh0W0QFsBZTmPRZAuK1YacRyJ4G2nlcUl8iXBApKdWayG7fBe__tC6vJyl_-BM54NTbfZkVEW9Emzsq9WVHpZIzfMQPyaZbbQqb8LCupCkCiw3O47IRQqn1AvJH7CE_lzPEe2pTPpI9uHsRSCFvX8k5jCDYfTy4BC7VnkoPnqqdHb2inLTwD_fzkDADUeGc7hPQ7IY6T43STEEHOB9qr8y8gUJXlbzQZd-lNQDhOtyktRWc5WnCE0b-C4D7GaW6gCE0B7sgv5Tp',
   },
   {
     id: 'EMP-2024-089',
     name: 'Sophie Muller',
+    email: 's.muller@company.com',
     department: 'Engineering',
-    assignedAssets: 1,
-    assets: [{ icon: 'mdi-laptop-mac', title: 'MacBook Pro' }],
-    lastActivity: '3 hours ago',
+    lastActivity: '4 hours ago',
     status: 'Active',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAVaUVS_XdKcsnjDhtyD8vSfc8Fu1QllqE0LpXdJGF7RCA0oLLXUP_SbKX-K-545i_UsEWJdoEnjYYcqFC8aswm0cN9aWLeRhd9pirIuNPba58GEI5l0PoHp7gHLeWazTsK01GrWjWD716YWreszfkB1uAWucUZMt6pfh-89hzwvwWklAQC2BXS37a0QV0U1FvBu2Rz_Wun9Hs-QAj4FKUw9lghN8Vj_Ij6ETqdon25eQqRutG7AWrJ3QcfUVYAhNkUH6SSTOX8UDiX',
+    role: 'Regular User',
+    image:
+      'https://lh3.googleusercontent.com/aida-public/AB6AXuAVaUVS_XdKcsnjDhtyD8vSfc8Fu1QllqE0LpXdJGF7RCA0oLLXUP_SbKX-K-545i_UsEWJdoEnjYYcqFC8aswm0cN9aWLeRhd9pirIuNPba58GEI5l0PoHp7gHLeWazTsK01GrWjWD716YWreszfkB1uAWucUZMt6pfh-89hzwvwWklAQC2BXS37a0QV0U1FvBu2Rz_Wun9Hs-QAj4FKUw9lghN8Vj_Ij6ETqdon25eQqRutG7AWrJ3QcfUVYAhNkUH6SSTOX8UDiX',
   },
 ]
 
-const filteredEmployees = ref(employees)
+const filteredEmployees = computed(() => {
+  const query = searchQuery.value.trim().toLowerCase()
 
-const tableHeaders = [
-  { title: 'NAME', key: 'name' },
-  { title: 'ID', key: 'id' },
-  { title: 'DEPARTMENT', key: 'department' },
-  { title: 'LAST ACTIVITY', key: 'lastActivity' },
-  { title: 'STATUS', key: 'status' },
-]
+  return employees.filter((employee) => {
+    const matchesSearch =
+      query.length === 0 ||
+      employee.name.toLowerCase().includes(query) ||
+      employee.email.toLowerCase().includes(query) ||
+      employee.id.toLowerCase().includes(query)
 
-const getDepartmentColor = (dept: string) => {
-  const deptLower = dept.toLowerCase()
-  if (deptLower === 'engineering') return 'secondary-container'
-  if (deptLower === 'product') return 'tertiary-container'
-  if (deptLower === 'sales') return 'secondary-container'
-  if (deptLower === 'hr') return 'secondary-fixed'
+    const matchesDepartment =
+      selectedDepartment.value === 'All Departments' || employee.department === selectedDepartment.value
+
+    const matchesStatus =
+      selectedStatus.value === 'All Statuses' || employee.status === selectedStatus.value
+
+    const matchesRole = selectedRole.value === 'All Roles' || employee.role === selectedRole.value
+
+    return matchesSearch && matchesDepartment && matchesStatus && matchesRole
+  })
+})
+
+const getDepartmentColor = (department: string) => {
+  const normalized = department.toLowerCase()
+  if (normalized === 'engineering') return 'secondary-container'
+  if (normalized === 'product') return 'tertiary-container'
+  if (normalized === 'sales') return 'secondary-container'
+  if (normalized === 'hr') return 'secondary-fixed'
   return 'surface-container'
 }
 
-const getStatusColor = (status: string) => {
-  return status === 'Active' ? 'tertiary-fixed' : 'error-container'
+const getStatusColor = (status: Employee['status']) => {
+  if (status === 'Active') return 'tertiary-fixed'
+  if (status === 'Inactive') return 'surface-variant'
+  return 'error-container'
 }
 
-const getStatusTextColor = (status: string) => {
-  return status === 'Active' ? 'on-tertiary-fixed' : 'on-error-container'
+const getStatusTextColor = (status: Employee['status']) => {
+  if (status === 'Active') return 'on-tertiary-fixed'
+  if (status === 'Inactive') return 'on-surface-variant'
+  return 'on-error-container'
+}
+
+const resetFilters = () => {
+  searchQuery.value = ''
+  selectedDepartment.value = 'All Departments'
+  selectedStatus.value = 'All Statuses'
+  selectedRole.value = 'All Roles'
 }
 </script>
 
 <template>
   <div class="w-100">
-    <!-- Header Section -->
-    <div class="d-flex flex-column flex-sm-row justify-space-between align-sm-end mb-8 gap-4">
+    <div class="mb-6 d-flex justify-space-between align-start flex-wrap ga-4">
       <div>
         <h1 class="text-display font-weight-bold text-on-surface mb-2">Employee Directory</h1>
-        <p class="text-body-md text-on-surface-variant">Manage organization personnel and their linked IT infrastructure.</p>
+        <p class="text-body-md text-on-surface-variant">
+          Manage organization personnel and their linked IT infrastructure.
+        </p>
       </div>
 
-      <!-- Department Filter -->
-      <v-btn-group variant="outlined" color="outline" density="compact" class="bg-surface-container">
+      <div class="d-flex align-center ga-3">
         <v-btn
-          v-for="dept in departments"
-          :key="dept"
-          :color="selectedDepartment === dept ? 'primary' : 'on-surface-variant'"
-          :variant="selectedDepartment === dept ? 'flat' : 'text'"
-          :class="selectedDepartment === dept ? 'bg-surface-container-lowest' : ''"
-          @click="selectedDepartment = dept"
-        >
-          {{ dept }}
-        </v-btn>
-      </v-btn-group>
-    </div>
-
-    <!-- Employee Cards Grid -->
-    <v-row class="mb-8">
-      <!-- Employee Cards -->
-      <v-col v-for="employee in filteredEmployees" :key="employee.id" cols="12" sm="6" lg="4" class="d-flex">
-        <v-card
-          class="w-100 d-flex flex-column"
-          :class="employee.status === 'Action Required' ? 'border-l-error' : ''"
-          elevation="0"
-          border
-        >
-          <!-- Card Header -->
-          <div class="d-flex align-start justify-space-between px-6 py-6">
-            <div class="d-flex align-center gap-4 flex-1">
-              <v-avatar size="64" :image="employee.image" />
-              <div class="flex-1">
-                <h3 class="text-h3 font-weight-bold text-on-surface">{{ employee.name }}</h3>
-                <v-chip
-                  size="small"
-                  :color="getDepartmentColor(employee.department)"
-                  class="text-caption"
-                >
-                  {{ employee.department.toUpperCase() }}
-                </v-chip>
-              </div>
-            </div>
-
-            <!-- Alert or Menu Icon -->
-            <v-icon
-              v-if="employee.hasAlert"
-              color="error"
-              size="24"
-              title="Requires Attention"
-            >
-              mdi-alert-circle
-            </v-icon>
-            <v-menu v-else>
-              <template v-slot:activator="{ props: menuProps }">
-                <v-icon v-bind="menuProps" color="on-surface-variant" size="24">
-                  mdi-dots-vertical
-                </v-icon>
-              </template>
-              <v-list>
-                <v-list-item title="View Details" @click="() => {}" />
-                <v-list-item title="Edit" @click="() => {}" />
-                <v-list-item title="Delete" @click="() => {}" />
-              </v-list>
-            </v-menu>
-          </div>
-
-          <!-- Card Body -->
-          <v-divider class="my-2" />
-
-          <div class="px-6 py-4 flex-grow-1 d-flex flex-column justify-space-between">
-            <!-- Assets Section -->
-            <div>
-              <div class="d-flex justify-space-between align-center mb-4">
-                <span class="text-body-sm text-on-surface-variant">Assigned Assets</span>
-                <span class="font-weight-bold text-on-surface">{{ employee.assignedAssets }} Items</span>
-              </div>
-
-              <!-- Asset Icons -->
-              <div class="d-flex gap-2 flex-wrap">
-                <v-icon
-                  v-for="(asset, idx) in employee.assets"
-                  :key="idx"
-                  size="24"
-                  color="on-surface-variant"
-                  :title="asset.title"
-                  class="p-2 bg-surface-container rounded"
-                >
-                  {{ asset.icon }}
-                </v-icon>
-              </div>
-            </div>
-
-            <!-- View Details Button -->
-            <v-btn
-              variant="text"
-              color="primary"
-              class="justify-start mt-4 px-0 text-capitalize text-body-sm"
-            >
-              View Details
-              <v-icon right size="18">mdi-arrow-right</v-icon>
-            </v-btn>
-          </div>
-        </v-card>
-      </v-col>
-
-      <!-- Add Employee Card -->
-      <v-col cols="12" sm="6" lg="4">
-        <v-card
-          class="w-100 d-flex flex-column align-center justify-center"
-          elevation="0"
-          border
-          style="min-height: 300px; border-style: dashed; cursor: pointer"
-        >
-          <v-icon size="48" color="on-surface-variant" class="mb-4">mdi-account-plus</v-icon>
-          <h4 class="text-h3 font-weight-bold text-on-surface-variant mb-2">Add Employee</h4>
-          <p class="text-body-sm text-on-surface-variant text-center">Onboard new organizational personnel</p>
-        </v-card>
-      </v-col>
-    </v-row>
-
-    <!-- Directory Overview Table -->
-    <v-card elevation="0" border>
-      <div class="px-6 py-4 d-flex justify-space-between align-center" style="border-bottom: 1px solid var(--v-outline-variant)">
-        <h3 class="text-h3 font-weight-bold text-on-surface">Directory Overview</h3>
-        <v-btn
-          variant="text"
           color="primary"
+          variant="tonal"
+          size="small"
+          prepend-icon="mdi-account-plus"
+          class="text-none font-weight-bold mr-3 rounded-md"
+          elevation="0"
+        >
+          Add Employee
+        </v-btn>
+
+        <v-btn
+          variant="outlined"
           size="small"
           prepend-icon="mdi-download"
-          class="text-uppercase"
+          class="text-none font-weight-bold rounded-md"
+          elevation="0"
         >
           Export CSV
         </v-btn>
       </div>
+    </div>
 
-      <v-table density="comfortable">
-        <thead>
-          <tr style="background-color: var(--v-surface-container-low)">
-            <th v-for="header in tableHeaders" :key="header.key" class="text-uppercase text-on-surface-variant text-caption font-weight-bold">
-              {{ header.title }}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="employee in filteredEmployees.slice(0, 3)" :key="employee.id">
-            <td>
-              <span :class="employee.status === 'Action Required' ? 'text-error font-weight-bold' : 'font-weight-bold'">
-                {{ employee.name }}
-              </span>
-            </td>
-            <td>
-              <span class="text-on-surface-variant font-weight-medium">{{ employee.id }}</span>
-            </td>
-            <td>{{ employee.department }}</td>
-            <td>{{ employee.lastActivity }}</td>
-            <td>
-              <v-chip
-                size="x-small"
-                :color="getStatusColor(employee.status)"
-                :text-color="getStatusTextColor(employee.status)"
-                class="text-uppercase text-caption font-weight-bold"
-              >
-                {{ employee.status }}
-              </v-chip>
-            </td>
-          </tr>
-        </tbody>
-      </v-table>
+    <v-card outlined flat class="d-flex align-center pa-3 ga-4 flex-nowrap">
+      <v-text-field
+        v-model="searchQuery"
+        prepend-inner-icon="mdi-magnify"
+        placeholder="Search by name, email, or employee ID..."
+        variant="outlined"
+        density="compact"
+        hide-details
+        clearable
+        class="flex-grow-1"
+        style="max-width: 350px"
+      />
 
-      <div class="px-6 py-4 d-flex justify-space-between align-center" style="border-top: 1px solid var(--v-outline-variant); background-color: var(--v-surface-container-low)">
-        <p class="text-body-sm text-on-surface-variant">Showing 1-3 of 148 employees</p>
-        <div class="d-flex gap-2">
-          <v-btn icon variant="text" size="small">
-            <v-icon>mdi-chevron-left</v-icon>
-          </v-btn>
-          <v-btn icon variant="text" size="small">
-            <v-icon>mdi-chevron-right</v-icon>
-          </v-btn>
-        </div>
+      <div class="d-flex align-center ga-2">
+        <span class="text-body-2 text-medium-emphasis mr-2">Department:</span>
+        <v-select
+          v-model="selectedDepartment"
+          :items="departments"
+          variant="outlined"
+          density="compact"
+          hide-details
+          style="width: 160px"
+        />
       </div>
+
+      <div class="d-flex align-center ga-2">
+        <span class="text-body-2 text-medium-emphasis mr-2">Status:</span>
+        <v-select
+          v-model="selectedStatus"
+          :items="statuses"
+          variant="outlined"
+          density="compact"
+          hide-details
+          style="width: 160px"
+        />
+      </div>
+
+      <div class="d-flex align-center ga-2">
+        <span class="text-body-2 text-medium-emphasis mr-2">User Wise Filter:</span>
+        <v-select
+          v-model="selectedRole"
+          :items="roles"
+          variant="outlined"
+          density="compact"
+          hide-details
+          style="width: 160px"
+        />
+      </div>
+
+      <v-btn icon="mdi-restart-alt" variant="text" size="small" @click="resetFilters" />
+    </v-card>
+
+    <v-card border elevation="0">
+      <v-data-table
+        v-model="selectedRows"
+        :headers="headers"
+        :items="filteredEmployees"
+        item-value="id"
+        show-select
+        density="comfortable"
+        :items-per-page="20"
+      >
+        <template #item.name="{ item }">
+          <div class="d-flex align-center ga-3 py-2">
+            <v-avatar :image="item.image" size="40" />
+            <div>
+              <div class="text-body-md font-weight-bold text-on-surface">{{ item.name }}</div>
+              <div class="text-caption text-on-surface-variant">{{ item.email }}</div>
+            </div>
+          </div>
+        </template>
+
+        <template #item.department="{ item }">
+          <v-chip
+            size="small"
+            variant="tonal"
+            :color="getDepartmentColor(item.department)"
+            class="text-caption font-weight-bold"
+            label
+          >
+            {{ item.department.toUpperCase() }}
+          </v-chip>
+        </template>
+
+        <template #item.status="{ item }">
+          <v-chip
+            size="small"
+            :color="getStatusColor(item.status)"
+            :text-color="getStatusTextColor(item.status)"
+            class="text-caption text-uppercase font-weight-bold"
+            label
+          >
+            {{ item.status }}
+          </v-chip>
+        </template>
+
+        <template #item.actions="{ item }">
+          <div class="d-flex justify-end align-center ga-1">
+            <v-btn
+              v-if="item.hasAlert"
+              icon="mdi-alert-circle-outline"
+              variant="text"
+              size="small"
+              color="error"
+            />
+            <v-menu>
+              <template #activator="{ props }">
+                <v-btn v-bind="props" icon="mdi-dots-vertical" variant="text" size="small" />
+              </template>
+              <v-list density="compact">
+                <v-list-item title="View Details" />
+                <v-list-item title="Edit" />
+                <v-list-item title="Delete" />
+              </v-list>
+            </v-menu>
+          </div>
+        </template>
+      </v-data-table>
     </v-card>
   </div>
 </template>
 
 <style scoped>
-.border-l-error {
-  border-left: 4px solid var(--v-error) !important;
-}
 </style>
