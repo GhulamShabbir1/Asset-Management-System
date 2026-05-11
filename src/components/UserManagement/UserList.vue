@@ -5,7 +5,7 @@
         <div class="pa-3 bg-grey-lighten-4 border-b d-flex justify-space-between align-center flex-wrap gap-3">
           <div class="d-flex gap-2">
             
-            <v-menu>
+            <v-menu content-class="compact-filter-menu">
               <template v-slot:activator="{ props }">
                 <v-btn variant="outlined" prepend-icon="mdi-filter-variant" size="small" rounded="lg" v-bind="props">
                   {{ activeFilter === 'All' ? 'Filter' : activeFilter }}
@@ -18,7 +18,7 @@
               </v-list>
             </v-menu>
 
-            <v-menu>
+            <v-menu content-class="compact-filter-menu">
               <template v-slot:activator="{ props }">
                 <v-btn variant="outlined" prepend-icon="mdi-sort" size="small" rounded="lg" v-bind="props">Sort</v-btn>
               </template>
@@ -32,6 +32,7 @@
           </div>
           
           <v-text-field
+            class="compact-filter-field"
             v-model="searchQuery"
             prepend-inner-icon="mdi-magnify"
             placeholder="Search name, email, or role..."
@@ -46,7 +47,7 @@
           :items="filteredUsersList" 
           :search="searchQuery" 
           v-model:sort-by="sortBy"
-          density="comfortable"
+          density="compact"
           items-per-page="5" 
           hover
         >
@@ -56,8 +57,8 @@
                 <v-img :src="item.avatar"></v-img>
               </v-avatar>
               <div>
-                <div class="font-weight-bold text-caption">{{ item.name }}</div>
-                <div class="text-caption text-medium-emphasis">{{ item.email }}</div>
+                <div class="font-weight-bold cell-title">{{ item.name }}</div>
+                <div class="cell-copy text-medium-emphasis">{{ item.email }}</div>
               </div>
             </div>
           </template>
@@ -67,14 +68,14 @@
               <v-chip :color="item.roleColor" size="small" class="font-weight-bold text-uppercase mb-1" variant="tonal">
                 {{ getRoleDisplayName(item.role) }}
               </v-chip>
-              <span class="text-caption text-medium-emphasis font-italic">{{ item.roleDesc }}</span>
+              <span class="cell-copy text-medium-emphasis font-italic">{{ item.roleDesc }}</span>
             </div>
           </template>
 
           <template v-slot:item.isActive="{ item }">
             <div class="d-flex align-center">
               <v-icon :icon="item.isActive ? 'mdi-circle' : 'mdi-circle-outline'" :color="item.isActive ? 'success' : 'grey'" size="12" class="mr-2"></v-icon>
-              <span :class="item.isActive ? 'text-high-emphasis' : 'text-medium-emphasis font-italic'">
+              <span :class="item.isActive ? 'cell-copy text-high-emphasis' : 'cell-copy text-medium-emphasis font-italic'">
                 {{ item.isActive ? 'Active' : 'Deactivated' }}
               </span>
             </div>
@@ -247,19 +248,56 @@ function deleteUser(user) {
 .gap-3 { gap: 12px; }
 .gap-4 { gap: 16px; }
 .border-b { border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity)); }
+.compact-filter-menu :deep(.v-list-item) {
+  min-height: 30px;
+}
+.compact-filter-menu :deep(.v-list-item-title),
+.compact-filter-menu :deep(.v-list-item__content) {
+  font-size: 0.68rem;
+  line-height: 1.2;
+}
+.compact-filter-field :deep(.v-field__input) {
+  font-size: 0.7rem;
+  line-height: 1.2;
+}
+.compact-filter-field :deep(.v-field__input::placeholder) {
+  font-size: 0.68rem;
+  opacity: 0.72;
+}
+.compact-filter-field :deep(.v-field__prepend-inner .v-icon) {
+  font-size: 0.95rem;
+}
+.compact-filter-field :deep(.v-field) {
+  --v-input-control-height: 34px;
+}
+.cell-title {
+  font-size: 0.72rem;
+  line-height: 1.2;
+}
+.cell-copy {
+  font-size: 0.68rem;
+  line-height: 1.25;
+}
 .user-list-table :deep(.v-data-table-header__content) {
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.06em;
 }
 .user-list-table :deep(thead th) {
   background-color: rgb(var(--v-theme-surface));
   color: rgba(var(--v-theme-on-surface), 0.72);
+  padding-top: 6px;
+  padding-bottom: 6px;
+  min-height: 34px;
 }
 .user-list-table :deep(tbody td) {
   vertical-align: middle;
-  padding-top: 8px;
-  padding-bottom: 8px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+.user-list-table :deep(.v-data-table-footer) {
+  padding-top: 4px;
+  padding-bottom: 4px;
 }
 .user-list-table :deep(tbody tr:hover) { background-color: rgba(var(--v-theme-primary), 0.04); transition: background-color 0.2s ease; }
 .action-cell {
@@ -267,7 +305,7 @@ function deleteUser(user) {
   justify-content: flex-end;
   align-items: center;
   gap: 4px;
-  min-width: 120px;
+  min-width: 108px;
   white-space: nowrap;
 }
 .v-chip { font-weight: 600; letter-spacing: 0.3px; }

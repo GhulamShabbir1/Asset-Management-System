@@ -11,6 +11,7 @@
       <v-row align="center" dense class="mx-n1">
         <v-col cols="12" md="4" class="px-2">
           <v-text-field
+            class="compact-filter-field"
             v-model="searchQuery"
             prepend-inner-icon="mdi-magnify"
             placeholder="Search by asset tag, name, or serial..."
@@ -23,8 +24,10 @@
         </v-col>
         <v-col cols="12" sm="6" md="3" class="px-2">
           <v-select
+            class="compact-filter-field"
             v-model="selectedStatus"
             :items="['All', 'Assigned', 'Available', 'Maintenance', 'Retired']"
+            :menu-props="{ contentClass: 'compact-select-menu' }"
             label="Filter by Status"
             variant="outlined"
             density="compact"
@@ -35,8 +38,10 @@
         </v-col>
         <v-col cols="12" sm="6" md="3" class="px-2">
           <v-select
+            class="compact-filter-field"
             v-model="selectedCategory"
             :items="['All', 'Hardware', 'Software', 'Peripherals', 'Furniture']"
+            :menu-props="{ contentClass: 'compact-select-menu' }"
             label="Filter by Category"
             variant="outlined"
             density="compact"
@@ -151,4 +156,30 @@ function openHistoryModal(asset: any) {
 .history-view { padding-block: 2px 6px; }
 .page-title { font-size: 1.2rem; line-height: 1.1; }
 .page-subtitle { font-size: 0.76rem; line-height: 1.35; }
+.compact-filter-field :deep(.v-field__input) {
+  font-size: 0.7rem;
+  line-height: 1.2;
+}
+.compact-filter-field :deep(.v-field__input::placeholder) {
+  font-size: 0.68rem;
+  opacity: 0.72;
+}
+.compact-filter-field :deep(.v-label.v-field-label) {
+  font-size: 0.68rem;
+}
+.compact-filter-field :deep(.v-field__prepend-inner .v-icon),
+.compact-filter-field :deep(.v-field__append-inner .v-icon) {
+  font-size: 0.95rem;
+}
+.compact-filter-field :deep(.v-field) {
+  --v-input-control-height: 34px;
+}
+.compact-select-menu :deep(.v-list-item) {
+  min-height: 30px;
+}
+.compact-select-menu :deep(.v-list-item-title),
+.compact-select-menu :deep(.v-list-item__content) {
+  font-size: 0.68rem;
+  line-height: 1.2;
+}
 </style>

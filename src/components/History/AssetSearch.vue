@@ -39,6 +39,7 @@ const handleSearch = () => {
 
       <v-form @submit.prevent="handleSearch">
         <v-text-field
+          class="compact-search-field"
           v-model="searchQuery"
           variant="outlined"
           placeholder="e.g., AST-2024-001 or MacBook Pro..."
@@ -84,5 +85,24 @@ const handleSearch = () => {
 .lookup-copy {
   font-size: 0.74rem;
   line-height: 1.35;
+}
+
+.compact-search-field :deep(.v-field__input) {
+  font-size: 0.72rem;
+  line-height: 1.2;
+}
+
+.compact-search-field :deep(.v-field__input::placeholder) {
+  font-size: 0.7rem;
+  opacity: 0.72;
+}
+
+.compact-search-field :deep(.v-field__prepend-inner .v-icon),
+.compact-search-field :deep(.v-field__append-inner .v-icon) {
+  font-size: 0.95rem;
+}
+
+.compact-search-field :deep(.v-field) {
+  --v-input-control-height: 36px;
 }
 </style>

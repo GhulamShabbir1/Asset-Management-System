@@ -22,7 +22,7 @@
             <div class="d-flex justify-space-between align-center mb-2">
               <div>
                 <div class="dashboard-kicker text-medium-emphasis">Roles</div>
-                <div class="text-caption text-medium-emphasis">Click any role to manage access</div>
+                <div class="role-panel-copy text-medium-emphasis">Click any role to manage access</div>
               </div>
               <v-btn color="primary" variant="flat" size="small" prepend-icon="mdi-plus" rounded="lg" @click="openRoleDialog()">
                 Add Role
@@ -40,7 +40,7 @@
                 <div class="d-flex align-center justify-space-between">
                   <div>
                     <div class="font-weight-bold role-item-title">{{ role.name }}</div>
-                    <div class="text-caption text-medium-emphasis mt-1">
+                    <div class="role-item-copy text-medium-emphasis mt-1">
                       {{ getEnabledPermissionCount(role.id) }} / {{ basePermissionModules.length * crudActions.length }} enabled
                     </div>
                   </div>
@@ -76,24 +76,34 @@
               </thead>
               <tbody>
                 <tr v-for="perm in currentRolePermissions" :key="perm.key">
-                  <td class="font-weight-medium py-2">
+                  <td class="font-weight-medium py-1">
                     <div class="d-flex align-center">
                       <v-icon :icon="perm.icon" size="20" class="mr-3 text-medium-emphasis"></v-icon>
-                      <span class="text-caption font-weight-bold">{{ perm.module }}</span>
+                      <span class="table-cell-title font-weight-bold">{{ perm.module }}</span>
                     </div>
                   </td>
-                  <td class="py-2 text-caption text-medium-emphasis">{{ perm.description }}</td>
-                  <td class="text-center py-2">
+                  <td class="py-1 table-cell-copy text-medium-emphasis">{{ perm.description }}</td>
+                  <td class="text-center py-1">
                     <v-checkbox
                       :model-value="isAllChecked(perm.actions)"
                       @update:model-value="toggleAllActions(perm.actions, $event)"
-                      color="primary" hide-details density="comfortable" class="permission-checkbox justify-center"
+                      color="primary"
+                      hide-details
+                      density="compact"
+                      true-icon="mdi-check-circle"
+                      false-icon="mdi-checkbox-blank-circle-outline"
+                      class="permission-checkbox justify-center"
                     ></v-checkbox>
                   </td>
-                  <td v-for="action in crudActions" :key="`${perm.key}-${action.key}`" class="text-center py-2">
+                  <td v-for="action in crudActions" :key="`${perm.key}-${action.key}`" class="text-center py-1">
                     <v-checkbox
                       v-model="perm.actions[action.key]"
-                      color="primary" hide-details density="comfortable" class="permission-checkbox justify-center"
+                      color="primary"
+                      hide-details
+                      density="compact"
+                      true-icon="mdi-check-circle"
+                      false-icon="mdi-checkbox-blank-circle-outline"
+                      class="permission-checkbox justify-center"
                     ></v-checkbox>
                   </td>
                 </tr>
@@ -115,17 +125,17 @@
 
     <v-dialog v-model="roleDialog" max-width="500px" rounded="xl">
       <v-card rounded="xl" elevation="0" border>
-        <v-card-title class="text-body-1 font-weight-bold pa-4 pb-2">
+        <v-card-title class="dialog-title font-weight-bold pa-3 pb-2">
           {{ editingRoleId ? 'Edit Custom Role' : 'Create New Custom Role' }}
         </v-card-title>
-        <v-card-text class="pa-4 pt-2">
-          <v-text-field v-model="newRoleName" label="Role Name" variant="outlined" density="comfortable" placeholder="e.g., Security Analyst" :error-messages="roleNameError" @input="validateRoleName"></v-text-field>
-          <v-textarea v-model="newRoleDescription" label="Role Description" variant="outlined" density="comfortable" rows="2"></v-textarea>
+        <v-card-text class="pa-3 pt-2">
+          <v-text-field v-model="newRoleName" class="compact-role-field" label="Role Name" variant="outlined" density="compact" placeholder="e.g., Security Analyst" :error-messages="roleNameError" @input="validateRoleName"></v-text-field>
+          <v-textarea v-model="newRoleDescription" class="compact-role-field" label="Role Description" variant="outlined" density="compact" rows="2"></v-textarea>
           <v-alert v-if="selectedRoleForMatrix === 'system-super-admin' || selectedRoleForMatrix === 'system-manager'" type="info" variant="tonal" class="mt-2">
             System roles cannot be modified. Create a custom role to define specific permissions.
           </v-alert>
         </v-card-text>
-        <v-card-actions class="pa-4 pt-0 gap-3">
+        <v-card-actions class="pa-3 pt-0 gap-3">
           <v-spacer></v-spacer>
           <v-btn variant="text" @click="closeRoleDialog">Cancel</v-btn>
           <v-btn color="primary" variant="flat" @click="saveCustomRole" :disabled="!newRoleName.trim()">
@@ -300,8 +310,79 @@ onMounted(() => loadRolePermissions())
 .role-list-item { width: 100%; border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity)); border-radius: 16px; padding: 12px; background: rgb(var(--v-theme-surface)); transition: all 0.2s ease; }
 .role-list-item:hover { border-color: rgba(var(--v-theme-primary), 0.45); transform: translateY(-1px); }
 .role-list-item.active { background: rgba(var(--v-theme-primary), 0.08); border-color: rgb(var(--v-theme-primary)); }
-.role-item-title { font-size: 0.82rem; line-height: 1.2; }
+.role-panel-copy {
+  font-size: 0.67rem;
+  line-height: 1.2;
+}
+.role-item-title { font-size: 0.72rem; line-height: 1.2; }
+.role-item-copy {
+  font-size: 0.68rem;
+  line-height: 1.2;
+}
+.dialog-title {
+  font-size: 0.84rem;
+  line-height: 1.2;
+}
+.compact-role-field :deep(.v-field__input) {
+  font-size: 0.7rem;
+  line-height: 1.2;
+}
+.compact-role-field :deep(.v-field__input::placeholder) {
+  font-size: 0.68rem;
+  opacity: 0.72;
+}
+.compact-role-field :deep(.v-label.v-field-label) {
+  font-size: 0.68rem;
+}
+.compact-role-field :deep(textarea) {
+  font-size: 0.7rem;
+  line-height: 1.25;
+}
+.compact-role-field :deep(.v-field) {
+  --v-input-control-height: 34px;
+}
+.table-cell-title {
+  font-size: 0.7rem;
+  line-height: 1.2;
+}
+.table-cell-copy {
+  font-size: 0.68rem;
+  line-height: 1.25;
+}
 .compact-table :deep(th),
-.compact-table :deep(td) { padding-top: 8px; padding-bottom: 8px; }
-.permission-checkbox :deep(.v-selection-control) { justify-content: center; }
+.compact-table :deep(td) {
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+.compact-table :deep(thead th) {
+  font-size: 9px !important;
+  min-height: 34px;
+}
+.permission-checkbox :deep(.v-selection-control) {
+  min-height: 22px;
+  justify-content: center;
+}
+.permission-checkbox :deep(.v-selection-control__wrapper) {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid rgba(var(--v-theme-primary), 0.24);
+  background: rgba(var(--v-theme-primary), 0.04);
+  transition: all 0.18s ease;
+}
+.permission-checkbox :deep(.v-selection-control__input) {
+  width: 22px;
+  height: 22px;
+}
+.permission-checkbox :deep(.v-icon) {
+  font-size: 0.82rem;
+}
+.permission-checkbox :deep(.v-selection-control:hover .v-selection-control__wrapper) {
+  border-color: rgba(var(--v-theme-primary), 0.42);
+  background: rgba(var(--v-theme-primary), 0.08);
+}
+.permission-checkbox :deep(.v-selection-control--dirty .v-selection-control__wrapper) {
+  border-color: rgba(var(--v-theme-primary), 0.6);
+  background: rgba(var(--v-theme-primary), 0.14);
+}
 </style>

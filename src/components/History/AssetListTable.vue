@@ -5,7 +5,7 @@
       :headers="headers" 
       :items="assets" 
       :search="search"
-      density="comfortable"
+      density="compact"
       hover
       items-per-page="10"
       @click:row="handleRowClick"
@@ -80,16 +80,29 @@ function handleRowClick(event: Event, { item }: { item: any }) {
 
 <style scoped>
 .gap-2 { gap: 8px; }
-.item-title { font-size: 0.82rem; line-height: 1.2; }
-.item-copy { font-size: 0.76rem; line-height: 1.25; }
+.item-title { font-size: 0.72rem; line-height: 1.2; }
+.item-copy { font-size: 0.68rem; line-height: 1.25; }
+.asset-history-table :deep(.text-caption) {
+  font-size: 0.66rem !important;
+  line-height: 1.2;
+}
 .asset-history-table :deep(.v-data-table-header__content) {
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.05em;
 }
+.asset-history-table :deep(thead th) {
+  padding-top: 6px;
+  padding-bottom: 6px;
+  min-height: 34px;
+}
 .asset-history-table :deep(tbody td) {
-  padding-top: 8px;
-  padding-bottom: 8px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+.asset-history-table :deep(.v-data-table-footer) {
+  padding-top: 4px;
+  padding-bottom: 4px;
 }
 .v-data-table :deep(tbody tr) { cursor: pointer; }
 .v-data-table :deep(tbody tr:hover) {
