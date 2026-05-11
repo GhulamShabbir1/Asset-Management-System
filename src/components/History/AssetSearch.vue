@@ -21,7 +21,7 @@ const handleSearch = () => {
 <template>
   <v-container fluid class="pa-0 mx-auto fill-height d-flex align-center justify-center history-search" style="max-width: 1400px;">
     <v-card
-      class="rounded-lg pa-3 text-center mx-auto"
+      class="rounded-md pa-3 text-center mx-auto"
       max-width="540"
       width="100%"
       elevation="0"
@@ -46,7 +46,7 @@ const handleSearch = () => {
           prepend-inner-icon="mdi-magnify"
           clearable
           color="primary"
-          rounded="lg"
+          rounded="md"
           hide-details
           class="mb-3"
         />
@@ -56,7 +56,7 @@ const handleSearch = () => {
           color="primary"
           size="default"
           block
-          rounded="lg"
+          rounded="md"
           :disabled="!searchQuery.trim()"
         >
           Search Asset

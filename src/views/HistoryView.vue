@@ -7,7 +7,7 @@
       </p>
     </div>
 
-    <v-card rounded="xl" elevation="0" border class="mb-3 pa-3 bg-grey-lighten-4">
+    <v-card rounded="lg" elevation="0" border class="mb-3 pa-3 bg-grey-lighten-4">
       <v-row align="center" dense class="mx-n1">
         <v-col cols="12" md="4" class="px-2">
           <v-text-field
@@ -19,7 +19,7 @@
             density="compact"
             hide-details
             bg-color="white"
-            rounded="lg"
+            rounded="md"
           ></v-text-field>
         </v-col>
         <v-col cols="12" sm="6" md="3" class="px-2">
@@ -33,7 +33,7 @@
             density="compact"
             hide-details
             bg-color="white"
-            rounded="lg"
+            rounded="md"
           ></v-select>
         </v-col>
         <v-col cols="12" sm="6" md="3" class="px-2">
@@ -47,11 +47,11 @@
             density="compact"
             hide-details
             bg-color="white"
-            rounded="lg"
+            rounded="md"
           ></v-select>
         </v-col>
         <v-col cols="12" md="2" class="px-2 d-flex justify-end">
-          <v-btn color="primary" variant="tonal" prepend-icon="mdi-refresh" rounded="lg" height="36" @click="resetFilters">
+          <v-btn color="primary" variant="tonal" prepend-icon="mdi-refresh" rounded="md" height="36" @click="resetFilters">
             Reset
           </v-btn>
         </v-col>

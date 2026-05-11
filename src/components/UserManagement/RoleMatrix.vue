@@ -1,14 +1,14 @@
 <template>
   <v-row class="mb-2">
     <v-col cols="12">
-      <v-card rounded="xl" elevation="0" border>
+      <v-card rounded="lg" elevation="0" border>
         <div class="d-flex justify-space-between align-center pa-3 pb-2 border-b bg-grey-lighten-4 flex-wrap gap-3">
           <div>
             <h3 class="section-title font-weight-bold">Role Permissions Matrix</h3>
             <p class="section-copy text-medium-emphasis mb-0">Select a role from the left and update its permissions.</p>
           </div>
           <div class="d-flex gap-3 align-center flex-wrap">
-            <v-btn variant="outlined" prepend-icon="mdi-pencil" rounded="lg" @click="openRoleDialog(selectedRoleForMatrix)" :disabled="selectedRoleIsSystem">
+            <v-btn variant="outlined" prepend-icon="mdi-pencil" rounded="md" @click="openRoleDialog(selectedRoleForMatrix)" :disabled="selectedRoleIsSystem">
               Edit Role
             </v-btn>
             <v-btn v-if="!selectedRoleIsSystem" color="error" variant="text" prepend-icon="mdi-delete" @click="deleteCustomRole">
@@ -24,7 +24,7 @@
                 <div class="dashboard-kicker text-medium-emphasis">Roles</div>
                 <div class="role-panel-copy text-medium-emphasis">Click any role to manage access</div>
               </div>
-              <v-btn color="primary" variant="flat" size="small" prepend-icon="mdi-plus" rounded="lg" @click="openRoleDialog()">
+              <v-btn color="primary" variant="flat" size="small" prepend-icon="mdi-plus" rounded="md" @click="openRoleDialog()">
                 Add Role
               </v-btn>
             </div>
@@ -123,8 +123,8 @@
       </v-card>
     </v-col>
 
-    <v-dialog v-model="roleDialog" max-width="500px" rounded="xl">
-      <v-card rounded="xl" elevation="0" border>
+    <v-dialog v-model="roleDialog" max-width="500px" rounded="lg">
+      <v-card rounded="lg" elevation="0" border>
         <v-card-title class="dialog-title font-weight-bold pa-3 pb-2">
           {{ editingRoleId ? 'Edit Custom Role' : 'Create New Custom Role' }}
         </v-card-title>
@@ -307,7 +307,7 @@ onMounted(() => loadRolePermissions())
 .border-e { border-right: 1px solid rgba(var(--v-border-color), var(--v-border-opacity)); }
 .dashboard-kicker { font-size: 9px; text-transform: uppercase; letter-spacing: 0.4px; }
 .role-panel { background: rgba(var(--v-theme-surface-variant), 0.18); }
-.role-list-item { width: 100%; border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity)); border-radius: 16px; padding: 12px; background: rgb(var(--v-theme-surface)); transition: all 0.2s ease; }
+.role-list-item { width: 100%; border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity)); border-radius: 10px; padding: 12px; background: rgb(var(--v-theme-surface)); transition: all 0.2s ease; }
 .role-list-item:hover { border-color: rgba(var(--v-theme-primary), 0.45); transform: translateY(-1px); }
 .role-list-item.active { background: rgba(var(--v-theme-primary), 0.08); border-color: rgb(var(--v-theme-primary)); }
 .role-panel-copy {
