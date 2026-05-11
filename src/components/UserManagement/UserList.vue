@@ -1,8 +1,8 @@
 <template>
-  <v-row class="mb-3">
+  <v-row class="mb-2">
     <v-col cols="12">
       <v-card rounded="xl" elevation="0" border>
-        <div class="pa-4 bg-grey-lighten-4 border-b d-flex justify-space-between align-center flex-wrap gap-4">
+        <div class="pa-3 bg-grey-lighten-4 border-b d-flex justify-space-between align-center flex-wrap gap-3">
           <div class="d-flex gap-2">
             
             <v-menu>
@@ -36,7 +36,7 @@
             prepend-inner-icon="mdi-magnify"
             placeholder="Search name, email, or role..."
             variant="outlined" density="compact" hide-details
-            style="max-width: 300px;" rounded="lg" bg-color="white"
+            style="max-width: 280px;" rounded="lg" bg-color="white"
           ></v-text-field>
         </div>
 
@@ -51,7 +51,7 @@
           hover
         >
           <template v-slot:item.name="{ item }">
-            <div class="d-flex align-center py-2">
+            <div class="d-flex align-center py-1">
               <v-avatar size="36" class="mr-3 border">
                 <v-img :src="item.avatar"></v-img>
               </v-avatar>
@@ -63,7 +63,7 @@
           </template>
 
           <template v-slot:item.role="{ item }">
-            <div class="d-flex flex-column align-start py-2">
+            <div class="d-flex flex-column align-start py-1">
               <v-chip :color="item.roleColor" size="small" class="font-weight-bold text-uppercase mb-1" variant="tonal">
                 {{ getRoleDisplayName(item.role) }}
               </v-chip>
@@ -81,7 +81,7 @@
           </template>
 
           <template v-slot:item.actions="{ item }">
-            <div class="action-cell py-2">
+            <div class="action-cell py-1">
               <v-btn
                 variant="text"
                 color="primary"
@@ -248,9 +248,9 @@ function deleteUser(user) {
 .gap-4 { gap: 16px; }
 .border-b { border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity)); }
 .user-list-table :deep(.v-data-table-header__content) {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
 }
 .user-list-table :deep(thead th) {
   background-color: rgb(var(--v-theme-surface));
@@ -258,6 +258,8 @@ function deleteUser(user) {
 }
 .user-list-table :deep(tbody td) {
   vertical-align: middle;
+  padding-top: 8px;
+  padding-bottom: 8px;
 }
 .user-list-table :deep(tbody tr:hover) { background-color: rgba(var(--v-theme-primary), 0.04); transition: background-color 0.2s ease; }
 .action-cell {

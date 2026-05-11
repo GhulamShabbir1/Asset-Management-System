@@ -1,27 +1,29 @@
 <template>
   <v-card rounded="xl" elevation="0" border>
     <v-data-table 
+      class="asset-history-table"
       :headers="headers" 
       :items="assets" 
       :search="search"
+      density="comfortable"
       hover
       items-per-page="10"
       @click:row="handleRowClick"
     >
       <template v-slot:item.asset="{ item }">
-        <div class="d-flex align-center py-2">
+        <div class="d-flex align-center py-1">
           <v-avatar color="grey-lighten-4" size="36" class="mr-3 border">
             <v-icon icon="mdi-devices" color="grey-darken-1" size="20"></v-icon>
           </v-avatar>
           <div>
-            <div class="font-weight-bold text-body-2">{{ item.name }}</div>
+            <div class="font-weight-bold item-title">{{ item.name }}</div>
             <div class="text-caption text-medium-emphasis">{{ item.id }} • {{ item.tag }}</div>
           </div>
         </div>
       </template>
 
       <template v-slot:item.category="{ item }">
-        <span class="text-body-2 text-medium-emphasis">{{ item.category }}</span>
+        <span class="item-copy text-medium-emphasis">{{ item.category }}</span>
       </template>
 
       <template v-slot:item.status="{ item }">
@@ -33,7 +35,7 @@
       <template v-slot:item.assignedTo="{ item }">
         <div class="d-flex align-center gap-2">
           <v-icon icon="mdi-account-outline" size="16" color="grey-darken-1"></v-icon>
-          <span class="text-body-2">{{ item.assignedTo }}</span>
+          <span class="item-copy">{{ item.assignedTo }}</span>
         </div>
       </template>
 
@@ -78,6 +80,17 @@ function handleRowClick(event: Event, { item }: { item: any }) {
 
 <style scoped>
 .gap-2 { gap: 8px; }
+.item-title { font-size: 0.82rem; line-height: 1.2; }
+.item-copy { font-size: 0.76rem; line-height: 1.25; }
+.asset-history-table :deep(.v-data-table-header__content) {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+.asset-history-table :deep(tbody td) {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
 .v-data-table :deep(tbody tr) { cursor: pointer; }
 .v-data-table :deep(tbody tr:hover) {
   background-color: rgba(var(--v-theme-primary), 0.04);

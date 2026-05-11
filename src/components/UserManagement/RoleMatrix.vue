@@ -1,11 +1,11 @@
 <template>
-  <v-row class="mb-3">
+  <v-row class="mb-2">
     <v-col cols="12">
       <v-card rounded="xl" elevation="0" border>
-        <div class="d-flex justify-space-between align-center pa-4 pb-2 border-b bg-grey-lighten-4 flex-wrap gap-4">
+        <div class="d-flex justify-space-between align-center pa-3 pb-2 border-b bg-grey-lighten-4 flex-wrap gap-3">
           <div>
-            <h3 class="text-body-1 font-weight-bold">Role Permissions Matrix</h3>
-            <p class="text-caption text-medium-emphasis">Select a role from the left and update its permissions.</p>
+            <h3 class="section-title font-weight-bold">Role Permissions Matrix</h3>
+            <p class="section-copy text-medium-emphasis mb-0">Select a role from the left and update its permissions.</p>
           </div>
           <div class="d-flex gap-3 align-center flex-wrap">
             <v-btn variant="outlined" prepend-icon="mdi-pencil" rounded="lg" @click="openRoleDialog(selectedRoleForMatrix)" :disabled="selectedRoleIsSystem">
@@ -18,8 +18,8 @@
         </div>
 
         <v-row class="ma-0">
-          <v-col cols="12" md="4" lg="3" class="pa-4 border-e role-panel">
-            <div class="d-flex justify-space-between align-center mb-3">
+          <v-col cols="12" md="4" lg="3" class="pa-3 border-e role-panel">
+            <div class="d-flex justify-space-between align-center mb-2">
               <div>
                 <div class="dashboard-kicker text-medium-emphasis">Roles</div>
                 <div class="text-caption text-medium-emphasis">Click any role to manage access</div>
@@ -39,7 +39,7 @@
               >
                 <div class="d-flex align-center justify-space-between">
                   <div>
-                    <div class="font-weight-bold text-body-1">{{ role.name }}</div>
+                    <div class="font-weight-bold role-item-title">{{ role.name }}</div>
                     <div class="text-caption text-medium-emphasis mt-1">
                       {{ getEnabledPermissionCount(role.id) }} / {{ basePermissionModules.length * crudActions.length }} enabled
                     </div>
@@ -51,10 +51,10 @@
           </v-col>
 
           <v-col cols="12" md="8" lg="9" class="pa-0">
-            <div class="pa-4 pb-2 d-flex justify-space-between align-center flex-wrap gap-3">
+            <div class="pa-3 pb-2 d-flex justify-space-between align-center flex-wrap gap-2">
               <div>
-                <h4 class="text-body-1 font-weight-bold mb-1">{{ selectedRoleName }}</h4>
-                <p class="text-caption text-medium-emphasis">
+                <h4 class="section-title font-weight-bold mb-1">{{ selectedRoleName }}</h4>
+                <p class="section-copy text-medium-emphasis mb-0">
                   {{ enabledPermissionsCount }} of {{ currentRolePermissions.length * crudActions.length }} permissions enabled
                 </p>
               </div>
@@ -63,7 +63,7 @@
               </v-chip>
             </div>
 
-            <v-table hover density="compact" class="bg-surface px-2 mt-1">
+            <v-table hover density="compact" class="bg-surface px-1 mt-1 compact-table">
               <thead class="bg-grey-lighten-4">
                 <tr>
                   <th class="font-weight-bold text-medium-emphasis" style="font-size: 10px; text-transform: uppercase;">PERMISSION</th>
@@ -76,21 +76,21 @@
               </thead>
               <tbody>
                 <tr v-for="perm in currentRolePermissions" :key="perm.key">
-                  <td class="font-weight-medium py-3">
+                  <td class="font-weight-medium py-2">
                     <div class="d-flex align-center">
                       <v-icon :icon="perm.icon" size="20" class="mr-3 text-medium-emphasis"></v-icon>
                       <span class="text-caption font-weight-bold">{{ perm.module }}</span>
                     </div>
                   </td>
-                  <td class="py-3 text-caption text-medium-emphasis">{{ perm.description }}</td>
-                  <td class="text-center py-3">
+                  <td class="py-2 text-caption text-medium-emphasis">{{ perm.description }}</td>
+                  <td class="text-center py-2">
                     <v-checkbox
                       :model-value="isAllChecked(perm.actions)"
                       @update:model-value="toggleAllActions(perm.actions, $event)"
                       color="primary" hide-details density="comfortable" class="permission-checkbox justify-center"
                     ></v-checkbox>
                   </td>
-                  <td v-for="action in crudActions" :key="`${perm.key}-${action.key}`" class="text-center py-3">
+                  <td v-for="action in crudActions" :key="`${perm.key}-${action.key}`" class="text-center py-2">
                     <v-checkbox
                       v-model="perm.actions[action.key]"
                       color="primary" hide-details density="comfortable" class="permission-checkbox justify-center"
@@ -100,8 +100,8 @@
               </tbody>
             </v-table>
 
-            <div class="pa-4 d-flex justify-space-between align-center border-t bg-grey-lighten-4 flex-wrap gap-3">
-              <div class="text-caption text-medium-emphasis">
+            <div class="pa-3 d-flex justify-space-between align-center border-t bg-grey-lighten-4 flex-wrap gap-2">
+              <div class="section-copy text-medium-emphasis">
                 Checked permissions will be available to users assigned to this role.
               </div>
               <v-btn color="primary" variant="flat" prepend-icon="mdi-content-save" @click="saveRolePermissions">
@@ -290,13 +290,18 @@ onMounted(() => loadRolePermissions())
 .gap-2 { gap: 8px; }
 .gap-3 { gap: 12px; }
 .gap-4 { gap: 16px; }
+.section-title { font-size: 0.88rem; line-height: 1.2; }
+.section-copy { font-size: 0.72rem; line-height: 1.3; }
 .border-b { border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity)); }
 .border-t { border-top: 1px solid rgba(var(--v-border-color), var(--v-border-opacity)); }
 .border-e { border-right: 1px solid rgba(var(--v-border-color), var(--v-border-opacity)); }
-.dashboard-kicker { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+.dashboard-kicker { font-size: 9px; text-transform: uppercase; letter-spacing: 0.4px; }
 .role-panel { background: rgba(var(--v-theme-surface-variant), 0.18); }
-.role-list-item { width: 100%; border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity)); border-radius: 18px; padding: 16px; background: rgb(var(--v-theme-surface)); transition: all 0.2s ease; }
+.role-list-item { width: 100%; border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity)); border-radius: 16px; padding: 12px; background: rgb(var(--v-theme-surface)); transition: all 0.2s ease; }
 .role-list-item:hover { border-color: rgba(var(--v-theme-primary), 0.45); transform: translateY(-1px); }
 .role-list-item.active { background: rgba(var(--v-theme-primary), 0.08); border-color: rgb(var(--v-theme-primary)); }
+.role-item-title { font-size: 0.82rem; line-height: 1.2; }
+.compact-table :deep(th),
+.compact-table :deep(td) { padding-top: 8px; padding-bottom: 8px; }
 .permission-checkbox :deep(.v-selection-control) { justify-content: center; }
 </style>

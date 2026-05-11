@@ -1,14 +1,14 @@
 <template>
-  <v-container fluid class="pa-0 mx-auto" style="max-width: 1400px;">
-    <div class="mb-4">
-      <h1 class="text-h5 font-weight-bold mb-0">Asset Lifecycle & History</h1>
-      <p class="text-body-2 text-medium-emphasis mt-1">
+  <v-container fluid class="pa-0 mx-auto history-view" style="max-width: 1400px;">
+    <div class="mb-3">
+      <h1 class="page-title font-weight-bold mb-0">Asset Lifecycle & History</h1>
+      <p class="page-subtitle text-medium-emphasis mt-1 mb-0">
         Track the complete assignment history, maintenance logs, and lifecycle of your assets.
       </p>
     </div>
 
-    <v-card rounded="xl" elevation="0" border class="mb-4 pa-4 bg-grey-lighten-4">
-      <v-row align="center" dense class="mx-n2">
+    <v-card rounded="xl" elevation="0" border class="mb-3 pa-3 bg-grey-lighten-4">
+      <v-row align="center" dense class="mx-n1">
         <v-col cols="12" md="4" class="px-2">
           <v-text-field
             v-model="searchQuery"
@@ -46,7 +46,7 @@
           ></v-select>
         </v-col>
         <v-col cols="12" md="2" class="px-2 d-flex justify-end">
-          <v-btn color="primary" variant="tonal" prepend-icon="mdi-refresh" rounded="lg" height="40" @click="resetFilters">
+          <v-btn color="primary" variant="tonal" prepend-icon="mdi-refresh" rounded="lg" height="36" @click="resetFilters">
             Reset
           </v-btn>
         </v-col>
@@ -146,3 +146,9 @@ function openHistoryModal(asset: any) {
   isModalOpen.value = true
 }
 </script>
+
+<style scoped>
+.history-view { padding-block: 2px 6px; }
+.page-title { font-size: 1.2rem; line-height: 1.1; }
+.page-subtitle { font-size: 0.76rem; line-height: 1.35; }
+</style>

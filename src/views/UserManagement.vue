@@ -1,9 +1,9 @@
 <template>
   <v-container fluid class="pa-0 mx-auto user-management-view" style="max-width: 1400px;">
-    <v-row class="mb-2 align-center justify-space-between">
+    <v-row class="mb-1 align-center justify-space-between">
       <v-col cols="12" md="6">
-        <h1 class="text-h5 font-weight-bold text-high-emphasis mb-0" style="line-height: 1.1;">Access Control</h1>
-        <p class="text-caption text-medium-emphasis mt-1">
+        <h1 class="page-title font-weight-bold text-high-emphasis mb-0">Access Control</h1>
+        <p class="page-subtitle text-medium-emphasis mt-1 mb-0">
           Manage users, define custom roles, and configure granular permissions.
         </p>
       </v-col>
@@ -13,7 +13,7 @@
       v-model="activeTab"
       color="primary"
       align-tabs="start"
-      class="mb-4 border-b"
+      class="mb-3 border-b compact-tabs"
     >
       <v-tab value="roles" prepend-icon="mdi-shield-account">Role Management</v-tab>
       <v-tab value="users" prepend-icon="mdi-account-group">User Directory</v-tab>
@@ -29,34 +29,34 @@
       </v-window-item>
     </v-window>
 
-    <v-row class="mb-2 mt-4">
+    <v-row class="mb-1 mt-3">
       <v-col cols="12" lg="8">
-        <v-card rounded="xl" elevation="0" border color="primary" variant="tonal" class="pa-4 fill-height d-flex align-center">
-          <div class="flex-grow-1 mr-4">
-            <h3 class="text-body-1 font-weight-bold text-primary mb-2">RBAC Governance Policy</h3>
-            <p class="text-caption text-medium-emphasis mb-4">
+        <v-card rounded="xl" elevation="0" border color="primary" variant="tonal" class="pa-3 fill-height d-flex align-center compact-card">
+          <div class="flex-grow-1 mr-3">
+            <h3 class="section-title font-weight-bold text-primary mb-1">RBAC Governance Policy</h3>
+            <p class="section-copy text-medium-emphasis mb-3">
               You are managing the core access control matrix. Any changes to "Super Admin" or "Custom" roles that include 'Financial Audit' privileges will trigger a mandatory secondary approval flow for ISO 27001 compliance.
             </p>
-            <div class="d-flex gap-6">
+            <div class="d-flex gap-4">
               <div>
-                <div class="text-caption text-primary font-weight-bold text-uppercase mb-1">MFA Status</div>
-                <div class="text-caption font-weight-bold">Enforced for Admin Roles</div>
+                <div class="micro-label text-primary font-weight-bold text-uppercase mb-1">MFA Status</div>
+                <div class="micro-copy font-weight-bold">Enforced for Admin Roles</div>
               </div>
               <div>
-                <div class="text-caption text-grey-darken-2 font-weight-bold text-uppercase mb-1">Audit Interval</div>
-                <div class="text-caption font-weight-bold">Every 90 Days</div>
+                <div class="micro-label text-grey-darken-2 font-weight-bold text-uppercase mb-1">Audit Interval</div>
+                <div class="micro-copy font-weight-bold">Every 90 Days</div>
               </div>
             </div>
           </div>
-          <v-icon icon="mdi-shield-check" size="80" class="opacity-20 d-none d-sm-block"></v-icon>
+          <v-icon icon="mdi-shield-check" size="64" class="opacity-20 d-none d-sm-block"></v-icon>
         </v-card>
       </v-col>
 
       <v-col cols="12" lg="4">
-        <v-card rounded="xl" elevation="0" border class="pa-4 fill-height d-flex flex-column justify-center text-center bg-grey-lighten-4">
-          <div class="dashboard-kicker text-medium-emphasis mb-2">Security Audit</div>
-          <div class="text-h5 font-weight-black mb-2">100% Compliant</div>
-          <div class="text-caption text-medium-emphasis mb-4">Access control logs are synchronized with enterprise SIEM.</div>
+        <v-card rounded="xl" elevation="0" border class="pa-3 fill-height d-flex flex-column justify-center text-center bg-grey-lighten-4 compact-card">
+          <div class="dashboard-kicker text-medium-emphasis mb-1">Security Audit</div>
+          <div class="audit-value font-weight-black mb-1">100% Compliant</div>
+          <div class="section-copy text-medium-emphasis mb-2">Access control logs are synchronized with enterprise SIEM.</div>
           <v-btn variant="text" color="primary" class="font-weight-bold align-self-center">View Policy Logs</v-btn>
         </v-card>
       </v-col>
@@ -148,11 +148,25 @@ const summaryStats = ref([
 </script>
 
 <style scoped>
-.user-management-view { padding-block: 4px 8px; }
+.user-management-view { padding-block: 2px 6px; }
+.page-title { font-size: 1.2rem; line-height: 1.1; }
+.page-subtitle { font-size: 0.74rem; line-height: 1.3; }
+.section-title { font-size: 0.9rem; line-height: 1.2; }
+.section-copy { font-size: 0.72rem; line-height: 1.35; }
+.micro-label { font-size: 0.62rem; line-height: 1.2; letter-spacing: 0.05em; }
+.micro-copy { font-size: 0.72rem; line-height: 1.25; }
+.audit-value { font-size: 1.15rem; line-height: 1.1; }
 .gap-4 { gap: 16px; }
-.gap-6 { gap: 24px; }
-.dashboard-kicker { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+.dashboard-kicker { font-size: 9px; text-transform: uppercase; letter-spacing: 0.4px; }
+.compact-card { min-height: auto; }
 
 /* Clean up tab styling */
-.v-tab { text-transform: none !important; font-weight: 600; letter-spacing: 0; }
+.compact-tabs :deep(.v-tab) {
+  min-height: 38px;
+  padding-inline: 12px;
+  font-size: 0.78rem;
+  text-transform: none !important;
+  font-weight: 600;
+  letter-spacing: 0;
+}
 </style>
