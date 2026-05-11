@@ -23,11 +23,18 @@ window.addEventListener(UNAUTHORIZED_EVENT, () => {
   }
 })
 
-void authStore.fetchUser().catch(() => {
-  if (router.currentRoute.value.meta.requiresAuth) {
-    void router.push({ name: 'login' })
+const bootstrap = async () => {
+  // Resolve auth state before initial render to prevent protected layout flash.
+  if (!authStore.initialized) {
+    try {
+      await authStore.fetchUser()
+    } catch {
+      authStore.clearSession()
+    }
   }
-})
 
-// Mount app
-app.mount('#app')
+  await router.isReady()
+  app.mount('#app')
+}
+
+void bootstrap()

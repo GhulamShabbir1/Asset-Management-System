@@ -1,125 +1,129 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import pinia from '@/stores'
+import { useAuthStore } from '@/stores/authStore'
+import AuthLayout from '@/layouts/AuthLayout.vue'
+import DefaultLayout from '@/layouts/DefaultLayout.vue'
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [
-    // ============= ROOT REDIRECT =============
     {
       path: '/',
       redirect: '/dashboard',
     },
-
-    // ============= AUTH ROUTES (NO AUTH REQUIRED) =============
     {
-      path: '/login',
-      name: 'login',
-      component: () => import('@/views/auth/Login.vue'),
-      meta: { requiresAuth: false, layout: 'AuthLayout' },
+      path: '/',
+      component: AuthLayout,
+      meta: { requiresAuth: false, guestOnly: true, layout: 'guest' },
+      children: [
+        {
+          path: 'login',
+          name: 'login',
+          component: () => import('@/views/auth/Login.vue'),
+        },
+        {
+          path: 'register',
+          name: 'register',
+          component: () => import('@/views/auth/Register.vue'),
+        },
+        {
+          path: 'forget-password',
+          name: 'forgetPassword',
+          component: () => import('@/views/auth/ForgetPassword.vue'),
+        },
+        {
+          path: 'reset-password',
+          name: 'resetPassword',
+          component: () => import('@/views/auth/ResetPassword.vue'),
+        },
+        {
+          path: 'verify',
+          name: 'verify',
+          component: () => import('@/views/auth/AccountVerify.vue'),
+        },
+      ],
     },
     {
-      path: '/register',
-      name: 'register',
-      component: () => import('@/views/auth/Register.vue'),
-      meta: { requiresAuth: false, layout: 'AuthLayout' },
+      path: '/',
+      component: DefaultLayout,
+      meta: { requiresAuth: true, layout: 'authenticated' },
+      children: [
+        {
+          path: 'dashboard',
+          name: 'dashboard',
+          component: () => import('@/views/DashboardView.vue'),
+        },
+        {
+          path: 'assets',
+          name: 'assets',
+          component: () => import('@/views/AssetsView.vue'),
+        },
+        {
+          path: 'employees',
+          name: 'employees',
+          component: () => import('@/views/EmployeeDirectory.vue'),
+        },
+        {
+          path: 'assignment-history',
+          name: 'assignment-history',
+          component: () => import('@/views/HistoryView.vue'),
+        },
+        {
+          path: 'history',
+          name: 'history',
+          component: () => import('@/views/HistoryView.vue'),
+        },
+        {
+          path: 'reports',
+          name: 'reports',
+          component: () => import('@/views/ReportsView.vue'),
+        },
+        {
+          path: 'users',
+          name: 'users',
+          component: () => import('@/views/UserManagement.vue'),
+        },
+        {
+          path: 'settings',
+          name: 'settings',
+          component: () => import('@/views/AppSettings.vue'),
+        },
+      ],
     },
-    {
-      path: '/forget-password',
-      name: 'forgetPassword',
-      component: () => import('@/views/auth/ForgetPassword.vue'),
-      meta: { requiresAuth: false, layout: 'AuthLayout' },
-    },
-    {
-      path: '/reset-password',
-      name: 'resetPassword',
-      component: () => import('@/views/auth/ResetPassword.vue'),
-      meta: { requiresAuth: false, layout: 'AuthLayout' },
-    },
-    {
-      path: '/verify',
-      name: 'verify',
-      component: () => import('@/views/auth/AccountVerify.vue'),
-      meta: { requiresAuth: false, layout: 'AuthLayout' },
-    },
-
-    // ============= PROTECTED ROUTES (AUTH REQUIRED) =============
-    {
-      path: '/dashboard',
-      name: 'dashboard',
-      component: () => import('@/views/DashboardView.vue'),
-      meta: { requiresAuth: true, layout: 'DefaultLayout' },
-    },
-    {
-      path: '/assets',
-      name: 'assets',
-      component: () => import('@/views/AssetsView.vue'),
-      meta: { requiresAuth: true, layout: 'DefaultLayout' },
-    },
-    {
-      path: '/employees',
-      name: 'employees',
-      component: () => import('@/views/EmployeeDirectory.vue'),
-      meta: { requiresAuth: true, layout: 'DefaultLayout' },
-    },
-
-    // ============= 404 NOT FOUND =============
     {
       path: '/:pathMatch(.*)*',
       name: 'notFound',
       component: () => import('@/views/404.vue'),
-      meta: { requiresAuth: false, layout: 'AuthLayout' },
+      meta: { requiresAuth: false, guestOnly: false, layout: 'guest' },
     },
-    {
-      path: '/assignment-history',
-      name: 'assignment-history',
-      component: () => import('@/views/HistoryView.vue'),
-      meta: { requiresAuth: true, layout: 'DefaultLayout' },
-    },
-    {
-      path: '/history',
-      name: 'history',
-      component: () => import('@/views/HistoryView.vue'),
-      meta: { requiresAuth: true, layout: 'DefaultLayout' },
-    },
-    {
-      path: '/reports',
-      name: 'reports',
-      component: () => import('@/views/ReportsView.vue'),
-      meta: { requiresAuth: true, layout: 'DefaultLayout' },
-    },
-    {
-      path: '/users',
-      name: 'users',
-      component: () => import('@/views/UserManagement.vue'),
-      meta: { requiresAuth: true, layout: 'DefaultLayout' },
-    },
-    {
-      path: '/settings',
-      name: 'settings',
-      component: () => import('@/views/AppSettings.vue'),
-      meta: { requiresAuth: true, layout: 'DefaultLayout' },
-    },
-    // {
-    //   path: '/login',
-    //   name: 'login',
-    //   component: () => import('@/views/LoginView.vue'),
-    // },
   ],
 })
 
-// ============= NAVIGATION GUARD =============
-// Protect routes that require authentication
-router.beforeEach((to, from) => {
-  const isAuthenticated = !!localStorage.getItem('auth_token') // Check if user is logged in
+router.beforeEach(async (to) => {
+  const authStore = useAuthStore(pinia)
 
-  // If route requires auth but user is not logged in, redirect to login
-  if (to.meta.requiresAuth && !isAuthenticated) {
+  // Resolve auth exactly once on first navigation to avoid incorrect initial routing.
+  if (!authStore.initialized) {
+    try {
+      await authStore.fetchUser()
+    } catch {
+      authStore.clearSession()
+    }
+  }
+
+  const requiresAuth = Boolean(to.meta.requiresAuth)
+  const guestOnly = Boolean(to.meta.guestOnly)
+  const isAuthenticated = authStore.isAuthenticated
+
+  if (requiresAuth && !isAuthenticated) {
     return { name: 'login', query: { redirect: to.fullPath } }
   }
-  // If user is logged in and tries to access login/register, redirect to dashboard
-  else if (!to.meta.requiresAuth && isAuthenticated && (to.name === 'login' || to.name === 'register')) {
+
+  if (guestOnly && isAuthenticated) {
     return { name: 'dashboard' }
   }
-  // Otherwise proceed normally (return undefined)
+
+  return true
 })
 
 export default router
