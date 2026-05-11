@@ -1,7 +1,7 @@
 <template>
-  <v-container fluid class="bg-background py-4" max-width="1600">
+  <v-container fluid class="pa-0 mx-auto user-management-view" style="max-width: 1400px;">
     <!-- Header -->
-    <v-row class="mb-6 align-center justify-space-between">
+    <v-row class="mb-2 align-center justify-space-between">
       <v-col cols="12" md="6">
         <h1 class="text-h5 font-weight-bold text-high-emphasis mb-0" style="line-height: 1.1;">Role Management</h1>
         <p class="text-caption text-medium-emphasis mt-1">
@@ -19,32 +19,34 @@
     </v-row>
 
     <!-- Stats Cards -->
-    <v-row class="mb-6">
+    <v-row class="mb-1">
       <v-col cols="12" sm="6" md="3" v-for="(stat, index) in summaryStats" :key="index">
-        <v-card rounded="xl" elevation="0" border class="pa-5 fill-height d-flex flex-column justify-center">
-          <div class="text-overline text-medium-emphasis mb-1">{{ stat.title }}</div>
-          <div class="d-flex align-end justify-space-between">
-            <span class="text-h3 font-weight-bold" :class="stat.valueClass || 'text-high-emphasis'">
-              {{ stat.value }}
-            </span>
-            <div v-if="stat.trend" class="text-body-2 font-weight-bold text-success">
+        <v-card rounded="lg" elevation="0" border class="pa-3 h-100">
+          <div class="d-flex justify-space-between align-start mb-3">
+            <v-avatar :class="['rounded-md', stat.bg]" size="36">
+              <v-icon :icon="stat.icon || 'mdi-account-group-outline'" :color="stat.iconColor || 'blue-darken-2'" size="18"></v-icon>
+            </v-avatar>
+            <span v-if="stat.trend" class="text-caption font-weight-bold text-success" style="font-size: 11px !important;">
               {{ stat.trend }}
-            </div>
-            <div v-else-if="stat.subtitle" class="text-caption font-weight-bold" :class="stat.subtitleClass">
+            </span>
+            <span v-else-if="stat.subtitle" class="text-caption font-weight-bold" :class="stat.subtitleClass" style="font-size: 11px !important;">
               {{ stat.subtitle }}
-            </div>
-            <v-icon v-else-if="stat.icon" :icon="stat.icon" :color="stat.iconColor" size="32"></v-icon>
+            </span>
+          </div>
+          <div class="text-medium-emphasis mb-1 dashboard-kicker">{{ stat.title }}</div>
+          <div class="text-h5 font-weight-black" :class="stat.valueClass || 'text-high-emphasis'">
+              {{ stat.value }}
           </div>
         </v-card>
       </v-col>
     </v-row>
 
     <!-- Roles & Permissions Matrix Section -->
-    <v-row class="mb-6">
+    <v-row class="mb-3">
       <v-col cols="12">
         <v-card rounded="xl" elevation="0" border>
           <!-- Header -->
-          <div class="d-flex justify-space-between align-center pa-6 pb-4 border-b bg-grey-lighten-4 flex-wrap gap-4">
+          <div class="d-flex justify-space-between align-center pa-4 pb-2 border-b bg-grey-lighten-4 flex-wrap gap-4">
             <div>
               <h3 class="text-body-1 font-weight-bold">Role Permissions Matrix</h3>
               <p class="text-caption text-medium-emphasis">Select a role from the left and update its permissions using checkboxes.</p>
@@ -70,8 +72,8 @@
             <v-col cols="12" md="4" lg="3" class="pa-4 border-e role-panel">
               <div class="d-flex justify-space-between align-center mb-3">
                 <div>
-                  <div class="text-overline text-medium-emphasis">Roles</div>
-                  <div class="text-body-2 text-medium-emphasis">Click any role to manage access</div>
+                  <div class="dashboard-kicker text-medium-emphasis">Roles</div>
+                  <div class="text-caption text-medium-emphasis">Click any role to manage access</div>
                 </div>
                 <v-btn color="primary" variant="flat" size="small" prepend-icon="mdi-plus" rounded="lg" @click="openRoleDialog()">
                   Add Role
@@ -102,19 +104,20 @@
 
             <!-- Permissions Table -->
             <v-col cols="12" md="8" lg="9" class="pa-0">
-              <div class="pa-6 pb-2 d-flex justify-space-between align-center flex-wrap gap-3">
+              <div class="pa-4 pb-2 d-flex justify-space-between align-center flex-wrap gap-3">
                 <div>
                   <h4 class="text-body-1 font-weight-bold mb-1">{{ selectedRoleName }}</h4>
                   <p class="text-caption text-medium-emphasis">
                     {{ enabledPermissionsCount }} of {{ currentRolePermissions.length * crudActions.length }} permissions enabled
                   </p>
                 </div>
-                <v-chip color="primary" variant="tonal" size="small">
+                <v-chip color="primary" variant="tonal" size="x-small">
                   {{ selectedRoleIsSystem ? 'System Role' : 'Custom Role' }}
                 </v-chip>
               </div>
 
-              <v-table hover class="bg-surface">
+              
+              <v-table hover density="compact" class="bg-surface px-2 mt-1">
                 <thead class="bg-grey-lighten-4">
                   <tr>
                     <th class="font-weight-bold text-medium-emphasis" style="font-size: 10px; text-transform: uppercase;">PERMISSION</th>
@@ -163,7 +166,7 @@
               </v-table>
 
               <div class="pa-4 d-flex justify-space-between align-center border-t bg-grey-lighten-4 flex-wrap gap-3">
-                <div class="text-body-2 text-medium-emphasis">
+                <div class="text-caption text-medium-emphasis">
                   Checked permissions will be available to users assigned to this role.
                 </div>
                 <v-btn color="primary" variant="flat" prepend-icon="mdi-content-save" @click="saveRolePermissions">
@@ -177,7 +180,7 @@
     </v-row>
 
     <!-- Users List Section -->
-    <v-row class="mb-6">
+    <v-row class="mb-3">
       <v-col cols="12">
         <v-card rounded="xl" elevation="0" border>
           <div class="pa-4 bg-grey-lighten-4 border-b d-flex justify-space-between align-center flex-wrap gap-4">
@@ -271,12 +274,12 @@
     </v-row>
 
     <!-- Governance Footer -->
-    <v-row>
+    <v-row class="mb-2">
       <v-col cols="12" lg="8">
-        <v-card rounded="xl" elevation="0" border color="primary" variant="tonal" class="pa-6 fill-height d-flex align-center">
+        <v-card rounded="xl" elevation="0" border color="primary" variant="tonal" class="pa-4 fill-height d-flex align-center">
           <div class="flex-grow-1 mr-4">
             <h3 class="text-body-1 font-weight-bold text-primary mb-2">RBAC Governance Policy</h3>
-            <p class="text-caption text-medium-emphasis mb-6">
+            <p class="text-caption text-medium-emphasis mb-4">
               You are managing the core access control matrix. Any changes to "Super Admin" or "Custom" roles that include 'Financial Audit' privileges will trigger a mandatory secondary approval flow for ISO 27001 compliance.
             </p>
             <div class="d-flex gap-6">
@@ -295,8 +298,8 @@
       </v-col>
 
       <v-col cols="12" lg="4">
-        <v-card rounded="xl" elevation="0" border class="pa-6 fill-height d-flex flex-column justify-center text-center bg-grey-lighten-4">
-          <div class="text-overline text-medium-emphasis mb-2">Security Audit</div>
+        <v-card rounded="xl" elevation="0" border class="pa-4 fill-height d-flex flex-column justify-center text-center bg-grey-lighten-4">
+          <div class="dashboard-kicker text-medium-emphasis mb-2">Security Audit</div>
           <div class="text-h5 font-weight-black mb-2">100% Compliant</div>
           <div class="text-caption text-medium-emphasis mb-4">Access control logs are synchronized with enterprise SIEM.</div>
           <v-btn variant="text" color="primary" class="font-weight-bold align-self-center">View Policy Logs</v-btn>
@@ -307,10 +310,10 @@
     <!-- Create/Edit Role Dialog -->
     <v-dialog v-model="roleDialog" max-width="500px" rounded="xl">
       <v-card rounded="xl" elevation="0" border>
-        <v-card-title class="text-h6 font-weight-bold pa-5 pb-2">
+        <v-card-title class="text-body-1 font-weight-bold pa-4 pb-2">
           {{ editingRoleId ? 'Edit Custom Role' : 'Create New Custom Role' }}
         </v-card-title>
-        <v-card-text class="pa-5 pt-2">
+        <v-card-text class="pa-4 pt-2">
           <v-text-field
             v-model="newRoleName"
             label="Role Name"
@@ -332,7 +335,7 @@
             System roles cannot be modified. Create a custom role to define specific permissions.
           </v-alert>
         </v-card-text>
-        <v-card-actions class="pa-5 pt-0 gap-3">
+        <v-card-actions class="pa-4 pt-0 gap-3">
           <v-spacer></v-spacer>
           <v-btn variant="text" @click="closeRoleDialog">Cancel</v-btn>
           <v-btn color="primary" variant="flat" @click="saveCustomRole" :disabled="!newRoleName.trim()">
@@ -345,10 +348,10 @@
     <!-- User Permissions Override Dialog -->
     <v-dialog v-model="userPermissionsDialog" max-width="600px" rounded="xl">
       <v-card rounded="xl" elevation="0" border>
-        <v-card-title class="text-h6 font-weight-bold pa-5 pb-2">
+        <v-card-title class="text-body-1 font-weight-bold pa-4 pb-2">
           Override Permissions for {{ selectedUser?.name }}
         </v-card-title>
-        <v-card-text class="pa-5 pt-2">
+        <v-card-text class="pa-4 pt-2">
           <v-alert type="warning" variant="tonal" class="mb-4" density="compact">
             User normally inherits permissions from <strong>{{ getRoleDisplayName(selectedUser?.roleId) }}</strong> role.
             These overrides will take precedence.
@@ -395,7 +398,7 @@
             </div>
           </div>
         </v-card-text>
-        <v-card-actions class="pa-5 pt-0 gap-3">
+        <v-card-actions class="pa-4 pt-0 gap-3">
           <v-spacer></v-spacer>
           <v-btn variant="text" @click="userPermissionsDialog = false">Cancel</v-btn>
           <v-btn color="primary" variant="flat" @click="saveUserOverrides">Save Overrides</v-btn>
@@ -704,10 +707,10 @@ function toggleAllActions(actions, value) {
 
 // --- Summary Stats ---
 const summaryStats = ref([
-  { title: 'Total Users', value: '1,284', trend: '+12%' },
-  { title: 'Active Roles', value: computed(() => 2 + customRoles.value.length), subtitle: '2 System / ' + customRoles.value.length + ' Custom', subtitleClass: 'text-medium-emphasis' },
-  { title: 'Elevated Access', value: '42', subtitle: 'Audit Req', subtitleClass: 'text-primary' },
-  { title: 'Access Requests', value: '8', icon: 'mdi-alert-circle', iconColor: 'error', valueClass: 'text-error' }
+  { title: 'TOTAL USERS', value: '1,284', trend: '+12%', icon: 'mdi-account-group-outline', iconColor: 'blue-darken-2', bg: 'bg-blue-lighten-5' },
+  { title: 'ACTIVE ROLES', value: computed(() => 2 + customRoles.value.length), subtitle: '2 System / ' + customRoles.value.length + ' Custom', subtitleClass: 'text-medium-emphasis', icon: 'mdi-shield-account-outline', iconColor: 'blue-darken-2', bg: 'bg-blue-lighten-5' },
+  { title: 'ELEVATED ACCESS', value: '42', subtitle: 'Audit Req', subtitleClass: 'text-primary', icon: 'mdi-shield-lock-outline', iconColor: 'red-darken-2', bg: 'bg-red-lighten-5' },
+  { title: 'ACCESS REQUESTS', value: '8', subtitle: 'Pending', subtitleClass: 'text-error', icon: 'mdi-alert-circle-outline', iconColor: 'red-darken-2', bg: 'bg-red-lighten-5', valueClass: 'text-error' }
 ])
 
 // --- User Table Data ---
@@ -777,10 +780,20 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.user-management-view {
+  padding-block: 4px 8px;
+}
+
 .gap-2 { gap: 8px; }
 .gap-3 { gap: 12px; }
 .gap-4 { gap: 16px; }
 .gap-6 { gap: 24px; }
+
+.dashboard-kicker {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
 
 .border-b {
   border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));

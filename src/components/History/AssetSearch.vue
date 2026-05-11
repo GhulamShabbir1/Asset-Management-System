@@ -19,22 +19,20 @@ const handleSearch = () => {
 </script>
 
 <template>
-  <v-container class="fill-height d-flex align-center justify-center pa-0">
+  <v-container fluid class="pa-0 mx-auto fill-height d-flex align-center justify-center history-search" style="max-width: 1400px;">
     <v-card
-      class="pa-6 pa-sm-8 text-center mx-auto"
+      class="rounded-lg pa-4 text-center mx-auto"
       max-width="600"
       width="100%"
       elevation="0"
       border
-      rounded="xl"
     >
       <v-icon icon="mdi-laptop-account" size="64" color="primary" class="mb-4" />
 
-      <v-card-title class="text-h5 font-weight-bold mb-2" style="line-height: 1.1;">
-        Asset Lookup
-      </v-card-title>
+      <div class="text-medium-emphasis mb-1 history-kicker">History</div>
+      <v-card-title class="text-h5 font-weight-bold mb-2 pa-0" style="line-height: 1.1;">Asset Lookup</v-card-title>
 
-      <v-card-text class="text-caption text-medium-emphasis mb-6">
+      <v-card-text class="text-caption text-medium-emphasis px-0 pt-0 mb-4">
         Enter an asset name, tag number, or serial number to view its complete lifecycle
         history and details.
       </v-card-text>
@@ -55,10 +53,9 @@ const handleSearch = () => {
         <v-btn
           type="submit"
           color="primary"
-          size="x-large"
+          size="large"
           block
           rounded="lg"
-          elevation="2"
           :disabled="!searchQuery.trim()"
         >
           Search Asset
@@ -67,3 +64,15 @@ const handleSearch = () => {
     </v-card>
   </v-container>
 </template>
+
+<style scoped>
+.history-search {
+  min-height: calc(100vh - 120px);
+}
+
+.history-kicker {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+</style>

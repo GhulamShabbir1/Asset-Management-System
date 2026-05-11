@@ -128,7 +128,7 @@ const timelineEvents = ref<TimelineEvent[]>([
     <!-- Hero Header -->
     <v-row no-gutters>
       <v-col cols="12">
-        <v-card rounded="lg" elevation="0" class="border-sm bg-primary-lighten-5 compact-panel">
+        <v-card rounded="lg" elevation="0" border class="bg-primary-lighten-5 compact-panel">
           <v-row no-gutters>
             <v-col cols="12" md="7" class="pa-3 pa-md-4">
               <v-breadcrumbs
@@ -143,7 +143,7 @@ const timelineEvents = ref<TimelineEvent[]>([
                 </v-avatar>
                 <div>
                   <div class="compact-kicker font-weight-bold text-uppercase">Asset Traceability</div>
-                  <div class="compact-section-title font-weight-bold">Assignment History</div>
+                  <div class="text-h5 font-weight-bold compact-page-title">Assignment History</div>
                 </div>
               </div>
               
@@ -159,7 +159,7 @@ const timelineEvents = ref<TimelineEvent[]>([
             </v-col>
 
             <v-col cols="12" md="5" class="pa-3 pa-md-4">
-              <v-card rounded="lg" elevation="2" class="pa-3 bg-white compact-panel">
+              <v-card rounded="lg" elevation="0" border class="pa-3 bg-white compact-panel">
                 <div class="d-flex ga-3 mb-2">
                   <v-avatar color="primary-lighten-4" size="32" rounded="lg">
                     <v-icon icon="mdi-laptop" color="primary" size="17" />
@@ -214,11 +214,11 @@ const timelineEvents = ref<TimelineEvent[]>([
     <v-row class="mt-2">
       <!-- Timeline Column -->
       <v-col cols="12" lg="7">
-        <v-card rounded="lg" elevation="0" class="border-sm pa-4 pa-md-6 h-100">
+        <v-card rounded="lg" elevation="0" border class="pa-4 h-100">
           <div class="d-flex justify-space-between align-center mb-4">
             <div>
               <div class="compact-kicker font-weight-bold text-uppercase">History Feed</div>
-              <div class="compact-section-title font-weight-bold">Full Activity Timeline</div>
+              <div class="text-body-1 font-weight-bold compact-section-title">Full Activity Timeline</div>
             </div>
             <v-chip color="primary" variant="tonal" size="x-small" class="compact-chip">
               {{ timelineEvents.length }} events
@@ -245,7 +245,7 @@ const timelineEvents = ref<TimelineEvent[]>([
                 <div class="text-caption">{{ event.time }}</div>
               </template>
 
-              <v-card rounded="lg" elevation="1" class="history-event-card mb-2">
+              <v-card rounded="lg" elevation="0" class="history-event-card mb-2">
                 <v-card-item class="history-event-header pb-0 pt-2 px-2">
                   <template #title>
                     <div class="d-flex justify-space-between align-start ga-2">
@@ -318,10 +318,10 @@ const timelineEvents = ref<TimelineEvent[]>([
 
       <!-- Sidebar Column -->
       <v-col cols="12" lg="5">
-        <v-card rounded="lg" elevation="0" class="border-sm pa-3 mb-3 bg-info-lighten-5 compact-panel">
+        <v-card rounded="lg" elevation="0" border class="pa-3 mb-3 bg-info-lighten-5 compact-panel">
           <div class="mb-2">
             <div class="compact-kicker font-weight-bold text-uppercase">Snapshot</div>
-            <div class="compact-section-title font-weight-bold">Lifecycle Summary</div>
+            <div class="text-body-1 font-weight-bold compact-section-title">Lifecycle Summary</div>
           </div>
 
           <v-row dense>
@@ -330,7 +330,7 @@ const timelineEvents = ref<TimelineEvent[]>([
               :key="metric.label"
               cols="4"
             >
-              <v-sheet rounded="lg" class="pa-2 bg-white border-sm compact-panel">
+              <v-sheet rounded="lg" border class="pa-2 bg-white compact-panel">
                 <div class="compact-copy">{{ metric.label }}</div>
                 <div :class="['compact-card-title font-weight-bold mt-1', metric.valueClass]">
                   {{ metric.value }}
@@ -340,11 +340,11 @@ const timelineEvents = ref<TimelineEvent[]>([
           </v-row>
         </v-card>
 
-        <v-card rounded="lg" elevation="0" class="border-sm pa-3 mb-3 compact-panel">
+        <v-card rounded="lg" elevation="0" border class="pa-3 mb-3 compact-panel">
           <div class="d-flex justify-space-between align-center mb-1">
             <div>
               <div class="compact-kicker font-weight-bold text-uppercase">Hardware Profile</div>
-              <div class="compact-section-title font-weight-bold">Asset Specs</div>
+              <div class="text-body-1 font-weight-bold compact-section-title">Asset Specs</div>
             </div>
             <v-btn icon="mdi-pencil-box-outline" variant="text" size="x-small" color="primary" />
           </div>
@@ -362,10 +362,10 @@ const timelineEvents = ref<TimelineEvent[]>([
           </v-list>
         </v-card>
 
-        <v-card rounded="lg" elevation="0" class="border-sm overflow-hidden compact-panel">
+        <v-card rounded="lg" elevation="0" border class="overflow-hidden compact-panel">
           <div class="pa-3 pb-0">
             <div class="compact-kicker font-weight-bold text-uppercase">Site Context</div>
-            <div class="compact-section-title font-weight-bold mb-1">Primary Location</div>
+            <div class="text-body-1 font-weight-bold compact-section-title mb-1">Primary Location</div>
             <div class="compact-copy font-weight-bold text-primary">San Francisco HQ - Floor 4</div>
           </div>
 
@@ -388,6 +388,10 @@ const timelineEvents = ref<TimelineEvent[]>([
 <style scoped>
 .history-event-card {
   border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.compact-page-title {
+  line-height: 1.1;
 }
 
 .history-event-title {
@@ -415,18 +419,13 @@ const timelineEvents = ref<TimelineEvent[]>([
   font-size: 0.68rem;
 }
 
-.compact-panel {
-  border-color: rgba(0, 0, 0, 0.05) !important;
-}
-
 .compact-kicker {
-  font-size: 0.625rem;
+  font-size: 10px;
   line-height: 1.2;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.5px;
 }
 
 .compact-section-title {
-  font-size: 1rem;
   line-height: 1.2;
 }
 
@@ -442,7 +441,7 @@ const timelineEvents = ref<TimelineEvent[]>([
 }
 
 .compact-meta-label {
-  font-size: 0.625rem;
+  font-size: 10px;
   line-height: 1.2;
 }
 
