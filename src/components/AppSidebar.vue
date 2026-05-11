@@ -39,7 +39,6 @@ const navigationItems = [
   { title: 'Dashboard', icon: 'mdi-view-dashboard-outline', path: '/dashboard' },
   { title: 'Assets', icon: 'mdi-archive-outline', path: '/assets' },
   { title: 'Employee Directory', icon: 'mdi-card-account-details-outline', path: '/employees' },
-  { title: 'Departments', icon: 'mdi-domain', path: '/departments' },
   { title: 'History', icon: 'mdi-history', path: '/history' },
   { title: 'User Management', icon: 'mdi-account-multiple-outline', path: '/users' },
 ]
