@@ -1,6 +1,5 @@
 <template>
   <v-container fluid class="pa-0 mx-auto user-management-view" style="max-width: 1400px;">
-    
 
     <v-tabs
       v-model="activeTab"

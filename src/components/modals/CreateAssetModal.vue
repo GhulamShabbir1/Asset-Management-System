@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import categoryService from '@/services/categoryService'
+import departmentService from '@/services/departmentService'
 
 const props = defineProps<{ modelValue: boolean }>()
 const emit = defineEmits<{
@@ -28,29 +29,33 @@ const getInitialFormState = () => ({
 
 const form = ref(getInitialFormState())
 
-// Dynamic Categories
+// Strictly typed arrays to guarantee 'title' and 'value' exist
 const categories = ref<{ title: string, value: string | number }[]>([])
 const isLoadingCategories = ref(false)
 
-// API Statuses mapping
+const departments = ref<{ title: string, value: string | number }[]>([])
+const isLoadingDepartments = ref(false)
+
 const statuses = [
   { title: 'Available', value: 'available' },
   { title: 'Assigned', value: 'assigned' },
   { title: 'Maintenance', value: 'maintenance' },
   { title: 'Inactive', value: 'inactive' }
 ]
-// Mock departments for now (update to API later)
-const departments = [{ title: 'IT', value: 1 }, { title: 'HR', value: 2 }]
 
 const fetchCategories = async () => {
   isLoadingCategories.value = true
   try {
     const response = await categoryService.getAllCategories()
-    if (response.success && response.data && response.data.data) {
-      categories.value = response.data.data.map(cat => ({
-        title: cat.name,
+    if (response.success && response.data) {
+      const catList = Array.isArray(response.data) ? response.data : (response.data.data || response.data.list || [])
+      
+      // Force mapping to 'title' and 'value'
+      categories.value = catList.map((cat: any) => ({
+        title: cat.name || cat.category_name || 'Unnamed Category',
         value: cat.id
       }))
+      console.log('Mapped Categories:', categories.value)
     }
   } catch (error) {
     console.error('Failed to fetch categories:', error)
@@ -59,9 +64,31 @@ const fetchCategories = async () => {
   }
 }
 
+const fetchDepartments = async () => {
+  isLoadingDepartments.value = true
+  try {
+    const response = await departmentService.getAllDepartments()
+    if (response.success && response.data) {
+      const depList = Array.isArray(response.data) ? response.data : (response.data.data || response.data.list || [])
+      
+      // Force mapping to 'title' and 'value'
+      departments.value = depList.map((dep: any) => ({
+        title: dep.department_name || dep.name || 'Unnamed Department', 
+        value: dep.id
+      }))
+      console.log('Mapped Departments:', departments.value)
+    }
+  } catch (error) {
+    console.error('Failed to fetch departments:', error)
+  } finally {
+    isLoadingDepartments.value = false
+  }
+}
+
 watch(dialog, (isOpen) => {
   if (isOpen) {
     fetchCategories()
+    fetchDepartments() 
   }
 })
 
@@ -71,14 +98,12 @@ const resetForm = () => {
 
 const close = () => {
   dialog.value = false
-  // Wait for the modal closing animation to finish before clearing the data
   setTimeout(() => {
     resetForm()
   }, 300)
 }
 
 const save = () => {
-  // Vuetify v-file-input stores files in an array, so we extract the first file
   const payload = {
     ...form.value,
     asset_image: Array.isArray(form.value.asset_image) ? form.value.asset_image[0] : form.value.asset_image,
@@ -152,9 +177,12 @@ const save = () => {
             
             <v-col cols="12" sm="6" class="pb-3">
               <div class="text-uppercase text-grey-darken-1 font-weight-bold mb-2" style="font-size: 10px; letter-spacing: 0.5px;">Category</div>
+              
               <v-select 
                 v-model="form.category_id" 
                 :items="categories" 
+                :item-title="'title'"
+                :item-value="'value'"
                 placeholder="Select category" 
                 variant="outlined" 
                 density="compact" 
@@ -188,11 +216,42 @@ const save = () => {
 
             <v-col cols="12" sm="6" class="pb-3">
               <div class="text-uppercase text-grey-darken-1 font-weight-bold mb-2" style="font-size: 10px; letter-spacing: 0.5px;">Status</div>
-              <v-select v-model="form.status" :items="statuses" placeholder="Current status" variant="outlined" density="compact" hide-details></v-select>
+              
+              <v-select 
+                v-model="form.status" 
+                :items="statuses" 
+                :item-title="'title'"
+                :item-value="'value'"
+                placeholder="Current status" 
+                variant="outlined" 
+                density="compact" 
+                hide-details
+              ></v-select>
             </v-col>
             <v-col cols="12" sm="6" class="pb-3">
               <div class="text-uppercase text-grey-darken-1 font-weight-bold mb-2" style="font-size: 10px; letter-spacing: 0.5px;">Department</div>
-              <v-select v-model="form.department_id" :items="departments" placeholder="Assign to department" variant="outlined" density="compact" hide-details></v-select>
+              
+              <v-select 
+                v-model="form.department_id" 
+                :items="departments" 
+                :item-title="'title'"
+                :item-value="'value'"
+                placeholder="Assign to department" 
+                variant="outlined" 
+                density="compact" 
+                hide-details
+              >
+                <template v-slot:append-inner>
+                  <v-progress-circular 
+                    v-if="isLoadingDepartments" 
+                    indeterminate 
+                    color="primary" 
+                    size="20" 
+                    width="2"
+                    class="ml-2"
+                  ></v-progress-circular>
+                </template>
+              </v-select>
             </v-col>
           </v-row>
         </v-form>
