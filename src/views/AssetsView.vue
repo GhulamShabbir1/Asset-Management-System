@@ -125,9 +125,8 @@ const getStatusColor = (status: string) => {
 <template>
   <v-container fluid class="pa-0 mx-auto" style="max-width: 1400px;">
     <div class="d-flex justify-space-between align-center mb-4">
-      <h1 class="text-h5 font-weight-bold mb-0" style="line-height: 1.1;">Assets</h1>
 
-      <div class="d-flex align-center">
+      <div class="d-flex align-center mb-2 mt-3">
         <v-btn
           color="primary" variant="tonal" size="small" prepend-icon="mdi-clipboard-account-outline" class="text-none font-weight-bold mr-3 rounded-md" elevation="0"
           @click="showAssignmentModal = true"

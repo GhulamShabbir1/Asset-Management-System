@@ -1,13 +1,6 @@
 <template>
   <v-container fluid class="pa-0 mx-auto user-management-view" style="max-width: 1400px;">
-    <v-row class="mb-1 align-center justify-space-between">
-      <v-col cols="12" md="6">
-        <h1 class="page-title font-weight-bold text-high-emphasis mb-0">Access Control</h1>
-        <p class="page-subtitle text-medium-emphasis mt-1 mb-0">
-          Manage users, define custom roles, and configure granular permissions.
-        </p>
-      </v-col>
-    </v-row>
+    
 
     <v-tabs
       v-model="activeTab"
