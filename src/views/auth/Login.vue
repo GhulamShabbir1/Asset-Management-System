@@ -48,8 +48,8 @@
                 hide-details="auto"
                 density="compact"
                 :rules="[
-                  v => validateRequired(v, 'Email Address').valid || validateRequired(v, 'Email Address').error,
-                  v => validateEmail(v).valid || validateEmail(v).error
+                  v => toVuetifyRule(validateRequired(v, 'Email Address')),
+                  v => toVuetifyRule(validateEmail(v))
                 ]"
                 validate-on="input"
                 class="success-form-icons"
@@ -75,7 +75,7 @@
                 density="compact"
                 @click:append-inner="showPassword = !showPassword"
                 :rules="[
-                  v => validateRequired(v, 'Password').valid || validateRequired(v, 'Password').error
+                  v => toVuetifyRule(validateRequired(v, 'Password'))
                 ]"
                 validate-on="input"
                 class="success-form-icons"
@@ -197,9 +197,9 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuthStore } from '../../stores/authStore'
-import { validateEmail, validateRequired } from '../../utils/validation'
 import type { LoginPayload } from '../../services/authService'
+import { useAuthStore } from '../../stores/authStore'
+import { toVuetifyRule, validateEmail, validateRequired } from '../../utils/validation'
 
 const router = useRouter()
 const authStore = useAuthStore()
