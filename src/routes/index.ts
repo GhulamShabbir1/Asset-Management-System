@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import pinia from '@/stores'
 import { useAuthStore } from '@/stores/authStore'
+import { ApiError } from '@/utils/errorHandler'
 import AuthLayout from '@/layouts/AuthLayout.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 
@@ -106,8 +107,11 @@ router.beforeEach(async (to) => {
   if (!authStore.initialized) {
     try {
       await authStore.fetchUser()
-    } catch {
-      authStore.clearSession()
+    } catch (error) {
+      // Keep persisted token on transient failures; clear only when backend rejects auth.
+      if (error instanceof ApiError && error.status === 401) {
+        authStore.clearSession()
+      }
     }
   }
 

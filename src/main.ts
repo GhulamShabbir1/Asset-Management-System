@@ -1,7 +1,7 @@
 import vuetify from '@/plugins/vuetify'
 import router from '@/routes'
 import { useAuthStore } from '@/stores/authStore'
-import { UNAUTHORIZED_EVENT } from '@/utils/errorHandler'
+import { ApiError, UNAUTHORIZED_EVENT } from '@/utils/errorHandler'
 import pinia from '@/stores'
 import { createApp } from 'vue'
 import App from './App.vue'
@@ -28,8 +28,11 @@ const bootstrap = async () => {
   if (!authStore.initialized) {
     try {
       await authStore.fetchUser()
-    } catch {
-      authStore.clearSession()
+    } catch (error) {
+      // Only clear session when token is truly invalid.
+      if (error instanceof ApiError && error.status === 401) {
+        authStore.clearSession()
+      }
     }
   }
 

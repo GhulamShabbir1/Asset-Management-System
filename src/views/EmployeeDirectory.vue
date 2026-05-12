@@ -160,6 +160,7 @@ const resetFilters = () => {
           </v-btn>
         </div>
       </div>
+      
     </div>
 
     <v-card outlined flat class="d-flex align-center pa-3 ga-4 flex-nowrap mb-4">
