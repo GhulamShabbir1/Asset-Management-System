@@ -3,9 +3,9 @@
     :model-value="modelValue" 
     @update:model-value="$emit('update:modelValue', $event)" 
     max-width="700px" 
-    rounded="xl"
+    rounded="lg"
   >
-    <v-card rounded="xl" elevation="0" border v-if="asset">
+    <v-card rounded="lg" elevation="0" border v-if="asset">
       
       <div class="pa-3 border-b bg-grey-lighten-4 d-flex justify-space-between align-center">
         <div>
@@ -38,7 +38,7 @@
               <div class="modal-meta text-medium-emphasis mb-2">
                 <v-icon icon="mdi-account" size="14" class="mr-1"></v-icon> {{ event.user }}
               </div>
-              <v-sheet color="grey-lighten-4" class="pa-2 rounded-lg modal-note border">
+              <v-sheet color="grey-lighten-4" class="pa-2 rounded-md modal-note border">
                 {{ event.notes }}
               </v-sheet>
             </div>
@@ -54,7 +54,7 @@
       <v-card-actions class="pa-3 border-t bg-grey-lighten-4">
         <v-btn variant="text" color="primary" prepend-icon="mdi-printer" size="small">Print Log</v-btn>
         <v-spacer></v-spacer>
-        <v-btn color="primary" variant="flat" rounded="lg" @click="$emit('update:modelValue', false)">Close</v-btn>
+        <v-btn color="primary" variant="flat" rounded="md" @click="$emit('update:modelValue', false)">Close</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

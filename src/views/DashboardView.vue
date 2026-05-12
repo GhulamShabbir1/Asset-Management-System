@@ -35,11 +35,8 @@ const filteredActivity = computed(() => {
 
 <template>
   <v-container fluid class="pa-0 mx-auto" style="max-width: 1400px;">
-    <div class="mb-2">
-      <h1 class="text-h5 font-weight-bold mb-0" style="line-height: 1.1;">Dashboard</h1>
-    </div>
 
-    <v-row class="mb-1">
+    <v-row class="mt-6 mb-1">
       <v-col v-for="stat in stats" :key="stat.title" cols="12" sm="6" md="3">
         <v-card elevation="0" border class="rounded-lg pa-3 h-100">
           <div class="d-flex justify-space-between align-start mb-3">
@@ -54,7 +51,7 @@ const filteredActivity = computed(() => {
       </v-col>
     </v-row>
 
-    <v-row>
+    <v-row class="mb-6">
       <v-col cols="12" md="8">
         <v-card elevation="0" border class="rounded-lg h-100">
           

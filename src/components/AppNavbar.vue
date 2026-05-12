@@ -1,12 +1,37 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
 const authStore = useAuthStore()
+const route = useRoute()
+
+// Map route names to readable page titles
+const pageTitle = computed(() => {
+  const titles: Record<string, string> = {
+    'dashboard': 'Dashboard',
+    'assets': 'Assets',
+    'employees': 'Employee Directory',
+    'departments': 'Departments',
+    'history': 'History',
+    'assignment-history': 'History',
+    'reports': 'System Reports',
+    'users': 'User Management',
+    'settings': 'System Settings'
+  }
+  
+  // Return the mapped title, or default to 'Shelf' if not found
+  return route.name && titles[route.name as string] ? titles[route.name as string] : 'Shelf'
+})
 </script>
 
 <template>
-  <v-app-bar color="white" elevation="0" border="b" height="64">
+  <v-app-bar color="white" elevation="0" border="b" height="60">
     <div class="w-100 pr-2 pl-4 d-flex align-center">
+
+      <div class="font-weight-bold text-black pl-2 pl-md-0" style="letter-spacing: -0.5px; font-size: 2rem !important; line-height: 1;">
+        {{ pageTitle }}
+      </div>
 
       <v-spacer></v-spacer>
 

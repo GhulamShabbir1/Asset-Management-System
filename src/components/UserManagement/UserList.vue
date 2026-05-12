@@ -1,13 +1,13 @@
 <template>
   <v-row class="mb-2">
     <v-col cols="12">
-      <v-card rounded="xl" elevation="0" border>
+      <v-card rounded="lg" elevation="0" border>
         <div class="pa-3 bg-grey-lighten-4 border-b d-flex justify-space-between align-center flex-wrap gap-3">
           <div class="d-flex gap-2">
             
             <v-menu content-class="compact-filter-menu">
               <template v-slot:activator="{ props }">
-                <v-btn variant="outlined" prepend-icon="mdi-filter-variant" size="small" rounded="lg" v-bind="props">
+                <v-btn variant="outlined" prepend-icon="mdi-filter-variant" size="small" rounded="md" v-bind="props">
                   {{ activeFilter === 'All' ? 'Filter' : activeFilter }}
                 </v-btn>
               </template>
@@ -20,7 +20,7 @@
 
             <v-menu content-class="compact-filter-menu">
               <template v-slot:activator="{ props }">
-                <v-btn variant="outlined" prepend-icon="mdi-sort" size="small" rounded="lg" v-bind="props">Sort</v-btn>
+                <v-btn variant="outlined" prepend-icon="mdi-sort" size="small" rounded="md" v-bind="props">Sort</v-btn>
               </template>
               <v-list density="compact">
                 <v-list-item @click="sortBy = [{ key: 'name', order: 'asc' }]">Name (A-Z)</v-list-item>
@@ -37,7 +37,7 @@
             prepend-inner-icon="mdi-magnify"
             placeholder="Search name, email, or role..."
             variant="outlined" density="compact" hide-details
-            style="max-width: 280px;" rounded="lg" bg-color="white"
+            style="max-width: 280px;" rounded="md" bg-color="white"
           ></v-text-field>
         </div>
 
@@ -110,8 +110,8 @@
       </v-card>
     </v-col>
 
-    <v-dialog v-model="userPermissionsDialog" max-width="600px" rounded="xl">
-      <v-card rounded="xl" elevation="0" border>
+    <v-dialog v-model="userPermissionsDialog" max-width="600px" rounded="lg">
+      <v-card rounded="lg" elevation="0" border>
         <v-card-title class="text-body-1 font-weight-bold pa-4 pb-2">
           Override Permissions for {{ selectedUser?.name }}
         </v-card-title>
