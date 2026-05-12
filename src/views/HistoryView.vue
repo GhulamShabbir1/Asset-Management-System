@@ -1,12 +1,6 @@
 <template>
   <v-container fluid class="pa-0 mx-auto history-view" style="max-width: 1400px;">
-    <div class="mb-3">
-      <h1 class="page-title font-weight-bold mb-0">Asset Lifecycle & History</h1>
-      <p class="page-subtitle text-medium-emphasis mt-1 mb-0">
-        Track the complete assignment history, maintenance logs, and lifecycle of your assets.
-      </p>
-    </div>
-
+  
     <v-card rounded="lg" elevation="0" border class="mb-3 pa-3 bg-grey-lighten-4">
       <v-row align="center" dense class="mx-n1">
         <v-col cols="12" md="4" class="px-2">

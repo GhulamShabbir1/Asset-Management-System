@@ -1,10 +1,18 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
+import { useDisplay } from 'vuetify'
 import AppSidebar from '@/components/AppSidebar.vue'
 import AppNavbar from '@/components/AppNavbar.vue'
 
+const { smAndDown } = useDisplay()
+
 const drawer = ref(true)
-const rail = ref(false)
+const rail = ref(smAndDown.value) // Default to collapsed on mobile
+
+// Auto-collapse when window is resized to mobile sizes
+watch(smAndDown, (isMobile) => {
+  rail.value = isMobile
+})
 </script>
 
 <template>
