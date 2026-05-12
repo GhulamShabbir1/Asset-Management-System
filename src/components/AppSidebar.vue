@@ -48,6 +48,7 @@ const navigationItems = [
   <v-navigation-drawer 
     v-model="drawer" 
     :rail="isRail"
+    permanent
     color="white" 
     width="220" 
     class="custom-drawer border-r"
@@ -89,7 +90,7 @@ const navigationItems = [
             :title="item.title"
             color="primary"
             active-class="bg-primary-light"
-            base-color="grey-darken-2"
+            base-color="grey-darken-4"
             rounded="md"
             class="mb-1 font-weight-medium text-body-2"
           ></v-list-item>
@@ -110,12 +111,14 @@ const navigationItems = [
                 active-class="bg-primary-light"
                 prepend-icon="mdi-cog-outline"
                 title="Settings"
-                base-color="grey-darken-2"
+                base-color="grey-darken-4"
                 rounded="md"
                 class="mb-1 font-weight-medium text-body-2 cursor-pointer"
               ></v-list-item>
             </template>
           </v-tooltip>
+
+          <v-divider class="my-1 mx-2"></v-divider>
 
           <v-tooltip text="Logout" location="right" :disabled="!isRail">
             <template v-slot:activator="{ props: tooltipProps }">
@@ -125,7 +128,7 @@ const navigationItems = [
                 prepend-icon="mdi-logout"
                 title="Logout"
                 base-color="error"
-                class="font-weight-medium text-body-2 text-error rounded-md cursor-pointer"
+                class="font-weight-medium text-body-2 text-error rounded-md cursor-pointer mt-1 logout-item"
               ></v-list-item>
             </template>
           </v-tooltip>
@@ -143,5 +146,19 @@ const navigationItems = [
 
 .custom-drawer :deep(.v-navigation-drawer__content) {
   overflow: visible !important;
+}
+
+/* Force inactive icons to be darker and not washed out */
+.custom-drawer :deep(.v-list-item:not(.v-list-item--active) .v-list-item__prepend > .v-icon) {
+  opacity: 0.8 !important;
+}
+
+/* Custom hover state for the Logout button */
+.logout-item:hover {
+  background-color: rgba(var(--v-theme-error), 0.12) !important;
+}
+
+.logout-item:hover :deep(.v-list-item__prepend > .v-icon) {
+  opacity: 1 !important;
 }
 </style>
