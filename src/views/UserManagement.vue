@@ -1,13 +1,6 @@
 <template>
   <v-container fluid class="pa-0 mx-auto user-management-view" style="max-width: 1400px;">
-    <v-row class="mb-1 align-center justify-space-between">
-      <v-col cols="12" md="6">
-        <h1 class="page-title font-weight-bold text-high-emphasis mb-0">Access Control</h1>
-        <p class="page-subtitle text-medium-emphasis mt-1 mb-0">
-          Manage users, define custom roles, and configure granular permissions.
-        </p>
-      </v-col>
-    </v-row>
+    
 
     <v-tabs
       v-model="activeTab"
@@ -31,7 +24,7 @@
 
     <v-row class="mb-1 mt-3">
       <v-col cols="12" lg="8">
-        <v-card rounded="xl" elevation="0" border color="primary" variant="tonal" class="pa-3 fill-height d-flex align-center compact-card">
+        <v-card rounded="lg" elevation="0" border color="primary" variant="tonal" class="pa-3 fill-height d-flex align-center compact-card">
           <div class="flex-grow-1 mr-3">
             <h3 class="section-title font-weight-bold text-primary mb-1">RBAC Governance Policy</h3>
             <p class="section-copy text-medium-emphasis mb-3">
@@ -53,7 +46,7 @@
       </v-col>
 
       <v-col cols="12" lg="4">
-        <v-card rounded="xl" elevation="0" border class="pa-3 fill-height d-flex flex-column justify-center text-center bg-grey-lighten-4 compact-card">
+        <v-card rounded="lg" elevation="0" border class="pa-3 fill-height d-flex flex-column justify-center text-center bg-grey-lighten-4 compact-card">
           <div class="dashboard-kicker text-medium-emphasis mb-1">Security Audit</div>
           <div class="audit-value font-weight-black mb-1">100% Compliant</div>
           <div class="section-copy text-medium-emphasis mb-2">Access control logs are synchronized with enterprise SIEM.</div>

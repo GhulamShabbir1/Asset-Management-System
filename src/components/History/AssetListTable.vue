@@ -1,5 +1,5 @@
 <template>
-  <v-card rounded="xl" elevation="0" border>
+  <v-card rounded="lg" elevation="0" border>
     <v-data-table 
       class="asset-history-table"
       :headers="headers" 

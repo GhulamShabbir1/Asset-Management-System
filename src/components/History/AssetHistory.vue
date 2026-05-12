@@ -128,7 +128,7 @@ const timelineEvents = ref<TimelineEvent[]>([
     <!-- Hero Header -->
     <v-row no-gutters>
       <v-col cols="12">
-        <v-card rounded="lg" elevation="0" border class="bg-primary-lighten-5 compact-panel">
+        <v-card rounded="md" elevation="0" border class="bg-primary-lighten-5 compact-panel">
           <v-row no-gutters>
             <v-col cols="12" md="7" class="pa-3">
               <v-breadcrumbs
@@ -138,7 +138,7 @@ const timelineEvents = ref<TimelineEvent[]>([
               />
               
               <div class="d-flex align-center ga-2 mb-2">
-                <v-avatar size="30" color="primary" rounded="lg">
+                <v-avatar size="30" color="primary" rounded="md">
                   <v-icon icon="mdi-laptop-mac" color="white" size="18" />
                 </v-avatar>
                 <div>
@@ -159,9 +159,9 @@ const timelineEvents = ref<TimelineEvent[]>([
             </v-col>
 
             <v-col cols="12" md="5" class="pa-3">
-              <v-card rounded="lg" elevation="0" border class="pa-2 bg-white compact-panel">
+              <v-card rounded="md" elevation="0" border class="pa-2 bg-white compact-panel">
                 <div class="d-flex ga-3 mb-2">
-                  <v-avatar color="primary-lighten-4" size="32" rounded="lg">
+                  <v-avatar color="primary-lighten-4" size="32" rounded="md">
                     <v-icon icon="mdi-laptop" color="primary" size="17" />
                   </v-avatar>
                   
@@ -197,7 +197,7 @@ const timelineEvents = ref<TimelineEvent[]>([
                     color="primary"
                     prepend-icon="mdi-swap-horizontal"
                     size="x-small"
-                    rounded="lg"
+                    rounded="md"
                     @click="$emit('reset')"
                   >
                     Change Asset
@@ -214,7 +214,7 @@ const timelineEvents = ref<TimelineEvent[]>([
     <v-row class="mt-2">
       <!-- Timeline Column -->
       <v-col cols="12" lg="7">
-        <v-card rounded="lg" elevation="0" border class="pa-3 h-100">
+        <v-card rounded="md" elevation="0" border class="pa-3 h-100">
           <div class="d-flex justify-space-between align-center mb-3">
             <div>
               <div class="compact-kicker font-weight-bold text-uppercase">History Feed</div>
@@ -245,7 +245,7 @@ const timelineEvents = ref<TimelineEvent[]>([
                 <div class="timeline-copy">{{ event.time }}</div>
               </template>
 
-              <v-card rounded="lg" elevation="0" class="history-event-card mb-2">
+              <v-card rounded="md" elevation="0" class="history-event-card mb-2">
                 <v-card-item class="history-event-header pb-0 pt-2 px-2">
                   <template #title>
                     <div class="d-flex justify-space-between align-start ga-2">
@@ -273,7 +273,7 @@ const timelineEvents = ref<TimelineEvent[]>([
                   <v-list
                     v-if="event.updates"
                     density="compact"
-                    class="history-event-list bg-grey-lighten-4 rounded-lg pa-0 mt-1"
+                    class="history-event-list bg-grey-lighten-4 rounded-md pa-0 mt-1"
                   >
                     <v-list-item
                       v-for="(update, updateIndex) in event.updates"
@@ -293,14 +293,14 @@ const timelineEvents = ref<TimelineEvent[]>([
                       variant="tonal"
                       size="x-small"
                       prepend-icon="mdi-paperclip"
-                      rounded="lg"
+                      rounded="md"
                       class="text-none history-event-attachment"
                     >
                       {{ event.attachment }}
                     </v-btn>
                   </div>
 
-                  <div v-if="event.employee" class="d-flex align-center bg-grey-lighten-4 rounded-lg pa-2 mt-2">
+                  <div v-if="event.employee" class="d-flex align-center bg-grey-lighten-4 rounded-md pa-2 mt-2">
                     <v-avatar size="24" class="mr-2">
                       <v-img src="https://i.pravatar.cc/150?img=11" />
                     </v-avatar>
@@ -318,7 +318,7 @@ const timelineEvents = ref<TimelineEvent[]>([
 
       <!-- Sidebar Column -->
       <v-col cols="12" lg="5">
-        <v-card rounded="lg" elevation="0" border class="pa-2 mb-2 bg-info-lighten-5 compact-panel">
+        <v-card rounded="md" elevation="0" border class="pa-2 mb-2 bg-info-lighten-5 compact-panel">
           <div class="mb-2">
             <div class="compact-kicker font-weight-bold text-uppercase">Snapshot</div>
             <div class="text-body-1 font-weight-bold compact-section-title">Lifecycle Summary</div>
@@ -330,7 +330,7 @@ const timelineEvents = ref<TimelineEvent[]>([
               :key="metric.label"
               cols="4"
             >
-              <v-sheet rounded="lg" border class="pa-2 bg-white compact-panel">
+              <v-sheet rounded="md" border class="pa-2 bg-white compact-panel">
                 <div class="compact-copy">{{ metric.label }}</div>
                 <div :class="['compact-card-title font-weight-bold mt-1', metric.valueClass]">
                   {{ metric.value }}
@@ -340,7 +340,7 @@ const timelineEvents = ref<TimelineEvent[]>([
           </v-row>
         </v-card>
 
-        <v-card rounded="lg" elevation="0" border class="pa-2 mb-2 compact-panel">
+        <v-card rounded="md" elevation="0" border class="pa-2 mb-2 compact-panel">
           <div class="d-flex justify-space-between align-center mb-1">
             <div>
               <div class="compact-kicker font-weight-bold text-uppercase">Hardware Profile</div>
@@ -362,7 +362,7 @@ const timelineEvents = ref<TimelineEvent[]>([
           </v-list>
         </v-card>
 
-        <v-card rounded="lg" elevation="0" border class="overflow-hidden compact-panel">
+        <v-card rounded="md" elevation="0" border class="overflow-hidden compact-panel">
           <div class="pa-2 pb-0">
             <div class="compact-kicker font-weight-bold text-uppercase">Site Context</div>
             <div class="text-body-1 font-weight-bold compact-section-title mb-1">Primary Location</div>
