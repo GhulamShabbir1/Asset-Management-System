@@ -164,9 +164,6 @@ const resetFilters = () => {
         </div>
       </div>
       
-      <p class="text-body-md text-on-surface-variant">
-        Manage organization personnel and their linked IT infrastructure.
-      </p>
     </div>
 
     <v-card outlined flat class="d-flex align-center pa-3 ga-4 flex-nowrap mb-4">

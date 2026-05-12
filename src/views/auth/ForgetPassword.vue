@@ -70,8 +70,14 @@
                   prepend-inner-icon="mdi-email-outline"
                   validate-on="input"
                   :rules="[
-                    v => validateRequired(v, 'Email').valid || validateRequired(v, 'Email').error,
-                    v => validateEmail(v).valid || validateEmail(v).error
+                    v => {
+                      const result = validateRequired(v, 'Email')
+                      return result.valid ? true : result.error || 'Email is required'
+                    },
+                    v => {
+                      const result = validateEmail(v)
+                      return result.valid ? true : result.error || 'Please enter a valid email address'
+                    }
                   ]"
                 >
                   <template v-slot:prepend-inner>
@@ -136,9 +142,12 @@
                   maxlength="6"
                   inputmode="numeric"
                   autofocus
-                  @input="handleOtpInput"
+                  @update:model-value="handleOtpInput"
                   :rules="[
-                    v => validateOTP(v).valid || validateOTP(v).error
+                    v => {
+                      const result = validateOTP(v)
+                      return result.valid ? true : result.error || 'OTP must be exactly 6 digits'
+                    }
                   ]"
                 >
                   <template v-slot:prepend-inner>
@@ -234,8 +243,9 @@ const form = reactive({
 /**
  * Handle OTP input - only allow digits
  */
-const handleOtpInput = (value: string) => {
-  form.otp = value.replace(/\D/g, '').slice(0, 6)
+const handleOtpInput = (value: string | Event) => {
+  const rawValue = typeof value === 'string' ? value : (value.target as HTMLInputElement | null)?.value ?? ''
+  form.otp = rawValue.replace(/\D/g, '').slice(0, 6)
 }
 
 /**
