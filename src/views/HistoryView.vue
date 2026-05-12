@@ -67,12 +67,17 @@
     <AssetHistoryModal 
       v-model="isModalOpen" 
       :asset="selectedAsset" 
+      :loading="modalLoading" 
+      :error-message="modalErrorMessage" 
+      :timeline-events="modalTimelineEvents" 
     />
   </v-container>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { getAssignmentHistory, type AssignmentRecord } from '@/services/assignmentService'
+import type { ApiError } from '@/utils/errorHandler'
+import { computed, ref } from 'vue'
 import AssetListTable from '../components/History/AssetListTable.vue'
 import AssetHistoryModal from '../components/modals/AssetHistoryModal.vue'
 
@@ -84,7 +89,15 @@ const selectedCategory = ref('All')
 const isModalOpen = ref(false)
 const selectedAsset = ref<any>(null)
 
+const modalLoading = ref(false)
+const modalErrorMessage = ref<string | null>(null)
+const modalTimelineEvents = ref<Array<{ key?: string | number; title: string; date: string; employee?: string; notes: string; status?: string; returnedAt?: string }>>([])
+
+// Used to prevent race conditions when user opens different assets quickly.
+let activeAbortController: AbortController | null = null
+
 // --- Mock Data ---
+// NOTE: History is now loaded from API, so the modal no longer depends on `asset.history`.
 const allAssets = ref([
   {
     id: 'AST-2024-001',
@@ -94,11 +107,6 @@ const allAssets = ref([
     status: 'Assigned',
     statusColor: 'blue',
     assignedTo: 'Sarah Jenkins',
-    history: [
-      { date: 'Oct 12, 2024', action: 'Assigned to User', user: 'Admin', notes: 'Assigned to Sarah Jenkins in Engineering.' },
-      { date: 'Sep 01, 2024', action: 'Maintenance Check', user: 'IT Support', notes: 'Routine diagnostic. Battery health at 100%.' },
-      { date: 'Aug 15, 2024', action: 'Purchased', user: 'Procurement', notes: 'Received from Apple Store.' }
-    ]
   },
   {
     id: 'AST-2024-002',
@@ -108,11 +116,6 @@ const allAssets = ref([
     status: 'Available',
     statusColor: 'success',
     assignedTo: 'IT Stockroom',
-    history: [
-      { date: 'Oct 10, 2024', action: 'Returned', user: 'Marcus Rivera', notes: 'Employee departed. Monitor returned to stock.' },
-      { date: 'Feb 20, 2023', action: 'Assigned to User', user: 'Admin', notes: 'Assigned to Marcus Rivera.' },
-      { date: 'Jan 15, 2023', action: 'Purchased', user: 'Procurement', notes: 'Bulk order receipt.' }
-    ]
   },
   {
     id: 'AST-2024-003',
@@ -122,16 +125,12 @@ const allAssets = ref([
     status: 'Maintenance',
     statusColor: 'error',
     assignedTo: 'Datacenter',
-    history: [
-      { date: 'Oct 15, 2024', action: 'Flagged for Repair', user: 'System', notes: 'Cooling fan failure detected.' },
-      { date: 'May 05, 2021', action: 'Deployed', user: 'Tech Ops', notes: 'Installed in Rack B.' }
-    ]
-  }
+  },
 ])
 
 // --- Filter Logic ---
 const filteredAssets = computed(() => {
-  return allAssets.value.filter(asset => {
+  return allAssets.value.filter((asset) => {
     const matchStatus = selectedStatus.value === 'All' || asset.status === selectedStatus.value
     const matchCategory = selectedCategory.value === 'All' || asset.category === selectedCategory.value
     // Search query is handled by the v-data-table component itself, so we only filter dropdowns here
@@ -145,10 +144,104 @@ function resetFilters() {
   selectedCategory.value = 'All'
 }
 
-// --- Modal Handlers ---
-function openHistoryModal(asset: any) {
+function normalizeDate(value: unknown) {
+  if (!value) return '—'
+  if (typeof value === 'string') return value
+  try {
+    return new Date(value as any).toISOString()
+  } catch {
+    return '—'
+  }
+}
+
+function toTimelineEvent(record: AssignmentRecord) {
+  const status = String(record.status ?? '').trim()
+
+  const titleBase = status || 'Assignment'
+  const qtyPart = typeof record.quantity === 'number' ? `Qty: ${record.quantity}` : ''
+
+  const notesParts: string[] = []
+  if (qtyPart) notesParts.push(qtyPart)
+
+  if (record.return_date) {
+    notesParts.push(`Returned: ${normalizeDate(record.return_date)}`)
+  }
+
+  notesParts.push(record.is_active ? 'Currently active' : 'Inactive')
+
+  return {
+    key: record.assignment_id ?? `${record.asset_id}-${record.assign_date}`,
+    title: titleBase,
+    date: normalizeDate(record.assign_date),
+    employee: typeof record.assigned_by === 'number' ? `Employee ID: ${record.assigned_by}` : 'Unknown',
+    notes: notesParts.join(' • ') || 'No details',
+    status: status,
+    returnedAt: record.return_date ? normalizeDate(record.return_date) : undefined,
+  }
+}
+
+function getFriendlyErrorMessage(err: unknown) {
+  // `handleApiError` throws ApiError instances.
+  const e = err as Partial<ApiError> & { message?: string; status?: number | null }
+
+  const status = e.status ?? null
+  if (status === 401) return 'Session expired. Please sign in again.'
+  if (e?.isNetworkError) return 'Unable to connect. Please check your internet connection.'
+  if (e?.isTimeout) return 'The request took too long. Please try again.'
+
+  // Backend might return a custom message.
+  if (e?.message && String(e.message).trim()) return String(e.message)
+
+  return 'Failed to load assignment history. Please try again.'
+}
+
+async function openHistoryModal(asset: any) {
   selectedAsset.value = asset
+  modalErrorMessage.value = null
+  modalTimelineEvents.value = []
+
+  // Close-to-open race: cancel previous request immediately.
+  activeAbortController?.abort()
+  activeAbortController = new AbortController()
+
+  modalLoading.value = true
   isModalOpen.value = true
+
+  try {
+    // Stop if modal was closed while request in-flight.
+    if (!isModalOpen.value) return
+
+    const rawAssetId = asset?.id
+    if (rawAssetId === undefined || rawAssetId === null || rawAssetId === '') {
+      modalTimelineEvents.value = []
+      modalErrorMessage.value = 'Invalid asset id.'
+      return
+    }
+
+    // API expects asset_id in path. If the app uses non-numeric ids, backend should still accept them.
+    const assetId = rawAssetId
+
+    const result = await getAssignmentHistory(assetId, {
+      signal: activeAbortController.signal,
+      timeout: 30000,
+    })
+
+    const records: AssignmentRecord[] = Array.isArray((result as any)?.data) ? (result as any).data : []
+
+    // Edge: success but empty array
+    modalTimelineEvents.value = records.map(toTimelineEvent)
+
+    // If backend returns newest first, timeline might look better reversed; do NOT assume.
+  } catch (err) {
+    // Ignore cancellation.
+    const msg = String((err as any)?.message ?? '')
+    if (msg.toLowerCase().includes('cancel')) return
+
+    modalErrorMessage.value = getFriendlyErrorMessage(err)
+  } finally {
+    // Only stop loading if this request is still the active one.
+    modalLoading.value = false
+  }
 }
 </script>
 

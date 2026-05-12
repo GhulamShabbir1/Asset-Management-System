@@ -39,8 +39,8 @@
                 hide-details="auto"
                 density="compact"
                 :rules="[
-                  v => validateRequired(v, 'Full Name').valid || validateRequired(v, 'Full Name').error,
-                  v => validateFullName(v).valid || validateFullName(v).error
+                  v => toVuetifyRule(validateRequired(v, 'Full Name')),
+                  v => toVuetifyRule(validateFullName(v))
                 ]"
                 validate-on="input"
               ></v-text-field>
@@ -62,8 +62,8 @@
                 hide-details="auto"
                 density="compact"
                 :rules="[
-                  v => validateRequired(v, 'Email').valid || validateRequired(v, 'Email').error,
-                  v => validateEmail(v).valid || validateEmail(v).error
+                  v => toVuetifyRule(validateRequired(v, 'Email')),
+                  v => toVuetifyRule(validateEmail(v))
                 ]"
                 validate-on="input"
               ></v-text-field>
@@ -84,8 +84,8 @@
                 hide-details="auto"
                 density="compact"
                 :rules="[
-                  v => validateRequired(v, 'Organization').valid || validateRequired(v, 'Organization').error,
-                  v => validateOrganization(v).valid || validateOrganization(v).error
+                  v => toVuetifyRule(validateRequired(v, 'Organization')),
+                  v => toVuetifyRule(validateOrganization(v))
                 ]"
                 validate-on="input"
               ></v-text-field>
@@ -109,8 +109,8 @@
                 density="compact"
                 @click:append-inner="showPassword = !showPassword"
                 :rules="[
-                  v => validateRequired(v, 'Password').valid || validateRequired(v, 'Password').error,
-                  v => validatePassword(v).valid || validatePassword(v).error
+                  v => toVuetifyRule(validateRequired(v, 'Password')),
+                  v => toVuetifyRule(validatePassword(v))
                 ]"
                 validate-on="input"
                 class="success-form-icons"
@@ -145,7 +145,7 @@
                 density="compact"
                 @click:append-inner="showConfirmPassword = !showConfirmPassword"
                 :rules="[
-                  v => validateRequired(v, 'Confirm Password').valid || validateRequired(v, 'Confirm Password').error,
+                  v => toVuetifyRule(validateRequired(v, 'Confirm Password')),
                   v => password === v || 'Passwords do not match'
                 ]"
                 validate-on="input"
@@ -261,17 +261,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import type { SignupPayload } from '../../services/authService'
 import { useAuthStore } from '../../stores/authStore'
 import {
-  validateEmail,
-  validateFullName,
-  validateOrganization,
-  validatePassword,
-  validateRequired,
+    toVuetifyRule,
+    validateEmail,
+    validateFullName,
+    validateOrganization,
+    validatePassword,
+    validateRequired,
 } from '../../utils/validation'
-import type { SignupPayload } from '../../services/authService'
 
 const router = useRouter()
 const authStore = useAuthStore()

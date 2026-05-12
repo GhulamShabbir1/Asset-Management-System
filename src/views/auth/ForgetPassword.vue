@@ -70,8 +70,8 @@
                   prepend-inner-icon="mdi-email-outline"
                   validate-on="input"
                   :rules="[
-                    v => validateRequired(v, 'Email').valid || validateRequired(v, 'Email').error,
-                    v => validateEmail(v).valid || validateEmail(v).error
+                    v => toVuetifyRule(validateRequired(v, 'Email')),
+                    v => toVuetifyRule(validateEmail(v))
                   ]"
                 >
                   <template v-slot:prepend-inner>
@@ -138,7 +138,7 @@
                   autofocus
                   @input="handleOtpInput"
                   :rules="[
-                    v => validateOTP(v).valid || validateOTP(v).error
+                    v => toVuetifyRule(validateOTP(v))
                   ]"
                 >
                   <template v-slot:prepend-inner>
@@ -211,10 +211,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/authStore'
-import { validateEmail, validateRequired, validateOTP } from '../../utils/validation'
+import { toVuetifyRule, validateEmail, validateOTP, validateRequired } from '../../utils/validation'
 
 const router = useRouter()
 const authStore = useAuthStore()
