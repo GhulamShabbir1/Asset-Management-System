@@ -3,7 +3,7 @@ import { ref, computed, watch } from 'vue'
 
 const props = defineProps<{ 
   modelValue: boolean
-  editData?: any // Pass category data here if editing
+  editData?: any 
 }>()
 
 const emit = defineEmits<{
@@ -17,21 +17,19 @@ const dialog = computed({
 })
 
 const form = ref({
-  name: '',
-  description: '',
+  department_name: '',
   status: true
 })
 
-// Auto-fill form if editData is provided, otherwise reset
 watch(() => props.editData, (newVal) => {
   if (newVal) {
     form.value = {
-      name: newVal.name,
-      description: newVal.description || '',
+      // Fallback to 'name' just in case the backend read API still returns 'name'
+      department_name: newVal.department_name || newVal.name || '', 
       status: newVal.status
     }
   } else {
-    form.value = { name: '', description: '', status: true }
+    form.value = { department_name: '', status: true }
   }
 }, { immediate: true })
 
@@ -39,7 +37,6 @@ const close = () => { dialog.value = false }
 
 const save = () => {
   emit('submit', form.value)
-  // Don't clear form here; let the watch handle it next time it opens
   close()
 }
 </script>
@@ -48,34 +45,22 @@ const save = () => {
   <v-dialog v-model="dialog" max-width="450px" persistent>
     <v-card class="rounded-lg">
       <v-card-title class="d-flex justify-space-between align-center pa-4 border-b">
-        <span class="text-h6 font-weight-bold">{{ props.editData ? 'Edit Category' : 'Add New Category' }}</span>
+        <span class="text-h6 font-weight-bold">{{ props.editData ? 'Edit Department' : 'Add New Department' }}</span>
         <v-btn icon="mdi-close" variant="text" density="compact" @click="close"></v-btn>
       </v-card-title>
 
       <v-card-text class="pa-6">
         <v-form @submit.prevent="save">
           <div class="mb-4">
-            <div class="text-uppercase text-grey-darken-1 font-weight-bold mb-2" style="font-size: 10px; letter-spacing: 0.5px;">Category Name</div>
+            <div class="text-uppercase text-grey-darken-1 font-weight-bold mb-2" style="font-size: 10px; letter-spacing: 0.5px;">Department Name</div>
             <v-text-field 
-              v-model="form.name" 
-              placeholder="e.g. Mobile Devices" 
+              v-model="form.department_name" 
+              placeholder="e.g. Human Resources" 
               variant="outlined" 
               density="compact" 
               hide-details="auto"
               required
             ></v-text-field>
-          </div>
-
-          <div class="mb-4">
-            <div class="text-uppercase text-grey-darken-1 font-weight-bold mb-2" style="font-size: 10px; letter-spacing: 0.5px;">Description</div>
-            <v-textarea 
-              v-model="form.description" 
-              placeholder="Optional description of the category..." 
-              variant="outlined" 
-              density="compact" 
-              rows="3" 
-              hide-details
-            ></v-textarea>
           </div>
 
           <div class="mb-2">
@@ -97,8 +82,15 @@ const save = () => {
       <v-card-actions class="pa-4 border-t pt-4">
         <v-spacer></v-spacer>
         <v-btn color="grey-darken-1" variant="text" class="text-none font-weight-medium mr-2" @click="close">Cancel</v-btn>
-        <v-btn color="primary" variant="flat" class="text-none font-weight-medium px-6 rounded-md" :disabled="!form.name.trim()" @click="save">
-          {{ props.editData ? 'Update Category' : 'Save Category' }}
+        
+        <v-btn 
+          color="primary" 
+          variant="flat" 
+          class="text-none font-weight-medium px-6 rounded-md" 
+          :disabled="!form.department_name || form.department_name.trim() === ''" 
+          @click="save"
+        >
+          {{ props.editData ? 'Update Department' : 'Save Department' }}
         </v-btn>
       </v-card-actions>
     </v-card>
