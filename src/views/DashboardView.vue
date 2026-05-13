@@ -1,13 +1,56 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import assetService from '@/services/assetService'
 
-const stats = [
-  { title: 'TOTAL ASSETS', value: '1,248', icon: 'mdi-clipboard-text-outline', iconColor: 'blue-darken-2', bg: 'bg-blue-lighten-5', trend: '+2.4%', trendColor: 'text-primary' },
-  { title: 'ASSIGNED ASSETS', value: '1,024', icon: 'mdi-account-check-outline', iconColor: 'blue-darken-2', bg: 'bg-blue-lighten-5', trend: '82% Cap.', trendColor: 'text-medium-emphasis' },
-  { title: 'AVAILABLE ASSETS', value: '224', icon: 'mdi-check-circle-outline', iconColor: 'primary', bg: 'bg-primary-light', trend: 'Available', trendColor: 'text-primary' },
-  { title: 'PENDING MAINTENANCE', value: '12', icon: 'mdi-wrench-outline', iconColor: 'red-darken-2', bg: 'bg-red-lighten-5', trend: 'Priority', trendColor: 'text-error' },
-]
+// --- Dynamic Stats State ---
+const totalAssetsCount = ref(0)
+const assignedAssetsCount = ref(0)
+const availableAssetsCount = ref(0)
+const maintenanceAssetsCount = ref(0)
 
+const stats = computed(() => [
+  { title: 'TOTAL ASSETS', value: totalAssetsCount.value.toLocaleString(), icon: 'mdi-clipboard-text-outline', iconColor: 'blue-darken-2', bg: 'bg-blue-lighten-5' },
+  { title: 'ASSIGNED ASSETS', value: assignedAssetsCount.value.toLocaleString(), icon: 'mdi-account-check-outline', iconColor: 'blue-darken-2', bg: 'bg-blue-lighten-5' },
+  { title: 'AVAILABLE ASSETS', value: availableAssetsCount.value.toLocaleString(), icon: 'mdi-check-circle-outline', iconColor: 'primary', bg: 'bg-primary-light' },
+  { title: 'PENDING MAINTENANCE', value: maintenanceAssetsCount.value.toLocaleString(), icon: 'mdi-wrench-outline', iconColor: 'red-darken-2', bg: 'bg-red-lighten-5' },
+])
+
+const fetchDashboardStats = async () => {
+  try {
+    // We only need 1 item per page, we just want the 'total' from the pagination meta.
+    const baseParams = { per_page: 1 }
+
+    const [totalRes, assignedRes, availableRes, maintenanceRes] = await Promise.all([
+      assetService.getAssets({ ...baseParams }),
+      assetService.getAssets({ ...baseParams, status: 'assigned' }),
+      assetService.getAssets({ ...baseParams, status: 'available' }),
+      assetService.getAssets({ ...baseParams, status: 'maintenance' })
+    ])
+
+    const extractTotal = (response: any) => {
+      if (response && response.data) {
+        const resData = response.data as any
+        const meta = resData.meta || resData
+        return meta.total || (Array.isArray(resData) ? resData.length : (resData.list?.length || 0))
+      }
+      return 0
+    }
+
+    totalAssetsCount.value = extractTotal(totalRes)
+    assignedAssetsCount.value = extractTotal(assignedRes)
+    availableAssetsCount.value = extractTotal(availableRes)
+    maintenanceAssetsCount.value = extractTotal(maintenanceRes)
+
+  } catch (error) {
+    console.error('Failed to fetch dashboard stats:', error)
+  }
+}
+
+onMounted(() => {
+  fetchDashboardStats()
+})
+
+// --- Mock Data for the rest of the dashboard ---
 const recentActivity = [
   { asset: 'MacBook Pro M3 - 14"', sn: 'SN: 8902-3341-X', icon: 'mdi-laptop', user: 'Sarah Jenkins', action: 'New Assignment', date: 'Oct 12, 10:24 AM', status: 'ASSIGNED', statusBg: 'blue-lighten-5', statusText: 'text-blue-darken-2' },
   { asset: 'iPhone 15 Pro', sn: 'SN: 1102-9982-M', icon: 'mdi-cellphone', user: 'Marcus Rivera', action: 'Returned', date: 'Oct 12, 09:15 AM', status: 'AVAILABLE', statusBg: 'primary-light', statusText: 'text-primary' },
@@ -43,7 +86,6 @@ const filteredActivity = computed(() => {
             <v-avatar :class="['rounded-md', stat.bg]" size="36">
               <v-icon :color="stat.iconColor" size="18">{{ stat.icon }}</v-icon>
             </v-avatar>
-            <span :class="['text-caption font-weight-bold', stat.trendColor]" style="font-size: 11px !important;">{{ stat.trend }}</span>
           </div>
           <div class="text-medium-emphasis mb-1" style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;">{{ stat.title }}</div>
           <div class="text-h5 font-weight-black">{{ stat.value }}</div>

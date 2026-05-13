@@ -60,6 +60,11 @@ const router = createRouter({
           component: () => import('@/views/AssetsView.vue'),
         },
         {
+          path: 'assignments', // <-- Added Assignments Route
+          name: 'assignments',
+          component: () => import('@/views/AssignmentsView.vue'),
+        },
+        {
           path: 'employees',
           name: 'employees',
           component: () => import('@/views/EmployeeDirectory.vue'),
