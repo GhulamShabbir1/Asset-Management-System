@@ -1,20 +1,26 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import CreateDepartmentModal from '@/components/modals/CreateDepartmentModal.vue'
+import ConfirmDeleteModal from '@/components/modals/ConfirmDeleteModal.vue' // <-- IMPORT ADDED
 import departmentService, { type Department } from '@/services/departmentService'
 
 const departments = ref<Department[]>([])
 const isLoading = ref(false)
 
+// Create/Edit Modal State
 const showModal = ref(false)
 const selectedDepartment = ref<Department | null>(null)
+
+// --- DELETE MODAL STATE & FUNCTIONS ---
+const showDeleteModal = ref(false)
+const isDeleting = ref(false)
+const itemToDelete = ref<{ id: number | string, name: string } | null>(null)
 
 const fetchDepartments = async () => {
   isLoading.value = true
   try {
     const response = await departmentService.getAllDepartments()
     if (response && response.success) {
-      // Bulletproof check: handles both paginated objects AND flat arrays from the backend
       departments.value = Array.isArray(response.data) ? response.data : (response.data?.data || [])
     }
   } catch (error) {
@@ -45,32 +51,41 @@ const handleSaveDepartment = async (data: any) => {
     } else {
       await departmentService.createDepartment(data)
     }
-    // Only close if the API call succeeds!
     showModal.value = false
     fetchDepartments()
   } catch (error: any) {
-    // If the backend rejects it, show the error so we know what's wrong!
     const errorMsg = error.response?.data?.message || error.message || 'Validation failed from backend'
-    alert(`Backend Error: ${errorMsg}\n\nCheck the browser console (F12) for full details.`)
-    console.error('Full Error Details:', error)
+    alert(`Backend Error: ${errorMsg}`)
   }
 }
 
-const deleteDepartment = async (id: number | string) => {
-  if (confirm('Are you sure you want to delete this department?')) {
-    try {
-      await departmentService.deleteDepartment(id)
-      fetchDepartments()
-    } catch (error: any) {
-      alert(`Delete Failed: ${error.message}`)
-    }
+// Opens the red modal
+const openDeleteModal = (id: number | string, name: string) => {
+  itemToDelete.value = { id, name }
+  showDeleteModal.value = true
+}
+
+// Runs when user confirms deletion
+const confirmDelete = async () => {
+  if (!itemToDelete.value) return
+
+  isDeleting.value = true
+  try {
+    await departmentService.deleteDepartment(itemToDelete.value.id)
+    fetchDepartments()
+    showDeleteModal.value = false 
+  } catch (error: any) {
+    alert(`Delete Failed: ${error.message}`)
+  } finally {
+    isDeleting.value = false
+    itemToDelete.value = null
   }
 }
 </script>
 
 <template>
   <v-container fluid class="pa-0 mx-auto" style="max-width: 1400px;">
-    <div class="d-flex justify-start align-center mb-4 mt-4">
+    <div class="d-flex justify-start align-center mb-6 mt-6">
       <v-btn
         color="primary" variant="flat" size="small" prepend-icon="mdi-plus" class="text-none font-weight-bold rounded-md" elevation="0"
         @click="openCreateModal"
@@ -122,7 +137,7 @@ const deleteDepartment = async (id: number | string) => {
 
               <v-tooltip text="Delete Department" location="top">
                 <template #activator="{ props }">
-                  <v-btn v-bind="props" icon="mdi-trash-can-outline" variant="text" size="small" color="error" @click="deleteDepartment(item.id)" />
+                  <v-btn v-bind="props" icon="mdi-trash-can-outline" variant="text" size="small" color="error" @click="openDeleteModal(item.id, item.department_name || item.name)" />
                 </template>
               </v-tooltip>
             </td>
@@ -136,5 +151,13 @@ const deleteDepartment = async (id: number | string) => {
     v-model="showModal" 
     :edit-data="selectedDepartment"
     @submit="handleSaveDepartment" 
+  />
+
+  <ConfirmDeleteModal
+    v-model="showDeleteModal"
+    title="Delete Department"
+    :item-name="itemToDelete?.name"
+    :is-loading="isDeleting"
+    @confirm="confirmDelete"
   />
 </template>
