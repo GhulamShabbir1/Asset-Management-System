@@ -56,10 +56,10 @@ export const deleteCategory = (id: string | number, options: RequestOptions = {}
   return api.delete<DeleteCategoryResponse>(`/categories/${id}/delete`, options)
 }
 
-export const getAllCategories = (options: RequestOptions = {}) => {
-    return api.get<{ success: boolean; message: string; data: PaginatedCategories }>('/categories/read', {}, options)
-  }
-
+// Replace the existing getAllCategories function with this:
+export const getAllCategories = (params: Record<string, any> = {}, options: RequestOptions = {}) => {
+  return api.get<{ success: boolean; message: string; data: PaginatedCategories }>('/categories/read', params, options)
+}
 export default {
   createCategory,
   getCategoryById,

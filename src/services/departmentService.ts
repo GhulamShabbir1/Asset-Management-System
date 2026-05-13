@@ -40,8 +40,9 @@ export const deleteDepartment = (id: string | number, options: RequestOptions = 
   return api.delete<any>(`/departments/delete/${id}`, options)
 }
 
-export const getAllDepartments = (options: RequestOptions = {}) => {
-  return api.get<{ success: boolean; message: string; data: PaginatedDepartments }>('/departments/read', {}, options)
+// Replace the existing getAllDepartments function with this:
+export const getAllDepartments = (params: Record<string, any> = {}, options: RequestOptions = {}) => {
+  return api.get<{ success: boolean; message: string; data: PaginatedDepartments }>('/departments/read', params, options)
 }
 
 export default {

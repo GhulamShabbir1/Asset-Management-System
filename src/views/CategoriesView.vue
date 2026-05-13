@@ -1,17 +1,24 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import CreateCategoryModal from '@/components/modals/CreateCategoryModal.vue'
-import ConfirmDeleteModal from '@/components/modals/ConfirmDeleteModal.vue' // <-- 1. IMPORT ADDED
+import ConfirmDeleteModal from '@/components/modals/ConfirmDeleteModal.vue'
+import ServerPagination from '@/components/common/ServerPagination.vue'
 import categoryService, { type Category } from '@/services/categoryService'
 
 const categories = ref<Category[]>([])
 const isLoading = ref(false)
 
+// Pagination State
+const currentPage = ref(1)
+const itemsPerPage = ref(15)
+const totalPages = ref(1)
+const totalCategoriesCount = ref(0)
+
 // Create/Edit Modal State
 const showModal = ref(false)
 const selectedCategory = ref<Category | null>(null)
 
-// --- 2. NEW DELETE MODAL STATE & FUNCTIONS ADDED HERE ---
+// Delete Modal State
 const showDeleteModal = ref(false)
 const isDeleting = ref(false)
 const itemToDelete = ref<{ id: number | string, name: string } | null>(null)
@@ -19,13 +26,23 @@ const itemToDelete = ref<{ id: number | string, name: string } | null>(null)
 const fetchCategories = async () => {
   isLoading.value = true
   try {
-    const response = await categoryService.getAllCategories() as any
+    const params = {
+      page: currentPage.value,
+      per_page: itemsPerPage.value
+    }
+    const response = await categoryService.getAllCategories(params) as any
+    
     if (response && response.data) {
-      categories.value = Array.isArray(response.data) 
-        ? response.data 
-        : (response.data.data || [])
+      const resData = response.data
+      categories.value = Array.isArray(resData) ? resData : (resData.data || [])
+      
+      const meta = resData.meta || resData
+      totalCategoriesCount.value = meta.total || categories.value.length
+      totalPages.value = meta.last_page || meta.lastPage || 1
     } else if (Array.isArray(response)) {
       categories.value = response
+      totalCategoriesCount.value = response.length
+      totalPages.value = 1
     } else {
       categories.value = []
     }
@@ -65,13 +82,11 @@ const handleSaveCategory = async (data: any) => {
   }
 }
 
-// Opens the beautiful red modal instead of browser confirm()
 const openDeleteModal = (id: number | string, name: string) => {
   itemToDelete.value = { id, name }
   showDeleteModal.value = true
 }
 
-// Runs when user clicks "Delete" inside the red modal
 const confirmDelete = async () => {
   if (!itemToDelete.value) return
 
@@ -79,7 +94,7 @@ const confirmDelete = async () => {
   try {
     await categoryService.deleteCategory(itemToDelete.value.id)
     fetchCategories()
-    showDeleteModal.value = false // Close on success
+    showDeleteModal.value = false
   } catch (error: any) {
     alert(`Delete Failed: ${error.message}`)
   } finally {
@@ -92,6 +107,11 @@ const confirmDelete = async () => {
 <template>
   <v-container fluid class="pa-0 mx-auto" style="max-width: 1400px;">
     <div class="d-flex justify-start align-center mb-6 mt-6">
+      <v-btn
+        variant="outlined" size="small" prepend-icon="mdi-download" class="text-none font-weight-bold mr-3 rounded-md" elevation="0"
+      >
+        Export CSV
+      </v-btn>
       <v-btn
         color="primary" variant="flat" size="small" prepend-icon="mdi-plus" class="text-none font-weight-bold rounded-md" elevation="0"
         @click="openCreateModal"
@@ -152,6 +172,15 @@ const confirmDelete = async () => {
           </tr>
         </tbody>
       </v-table>
+
+      <ServerPagination
+        v-if="totalPages > 1 || categories.length > 0"
+        v-model:current-page="currentPage"
+        v-model:items-per-page="itemsPerPage"
+        :total-pages="totalPages"
+        :total-items="totalCategoriesCount"
+        @change="fetchCategories"
+      />
     </v-card>
   </v-container>
 

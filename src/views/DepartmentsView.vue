@@ -1,17 +1,24 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import CreateDepartmentModal from '@/components/modals/CreateDepartmentModal.vue'
-import ConfirmDeleteModal from '@/components/modals/ConfirmDeleteModal.vue' // <-- IMPORT ADDED
+import ConfirmDeleteModal from '@/components/modals/ConfirmDeleteModal.vue' 
+import ServerPagination from '@/components/common/ServerPagination.vue'
 import departmentService, { type Department } from '@/services/departmentService'
 
 const departments = ref<Department[]>([])
 const isLoading = ref(false)
 
+// Pagination State
+const currentPage = ref(1)
+const itemsPerPage = ref(15)
+const totalPages = ref(1)
+const totalDepartmentsCount = ref(0)
+
 // Create/Edit Modal State
 const showModal = ref(false)
 const selectedDepartment = ref<Department | null>(null)
 
-// --- DELETE MODAL STATE & FUNCTIONS ---
+// Delete Modal State
 const showDeleteModal = ref(false)
 const isDeleting = ref(false)
 const itemToDelete = ref<{ id: number | string, name: string } | null>(null)
@@ -19,9 +26,19 @@ const itemToDelete = ref<{ id: number | string, name: string } | null>(null)
 const fetchDepartments = async () => {
   isLoading.value = true
   try {
-    const response = await departmentService.getAllDepartments()
+    const params = {
+      page: currentPage.value,
+      per_page: itemsPerPage.value
+    }
+    const response = await departmentService.getAllDepartments(params)
+    
     if (response && response.success) {
-      departments.value = Array.isArray(response.data) ? response.data : (response.data?.data || [])
+      const resData = response.data as any
+      departments.value = Array.isArray(resData) ? resData : (resData?.data || [])
+      
+      const meta = resData.meta || resData
+      totalDepartmentsCount.value = meta.total || departments.value.length
+      totalPages.value = meta.last_page || meta.lastPage || 1
     }
   } catch (error) {
     console.error('Failed to fetch departments:', error)
@@ -59,13 +76,11 @@ const handleSaveDepartment = async (data: any) => {
   }
 }
 
-// Opens the red modal
 const openDeleteModal = (id: number | string, name: string) => {
   itemToDelete.value = { id, name }
   showDeleteModal.value = true
 }
 
-// Runs when user confirms deletion
 const confirmDelete = async () => {
   if (!itemToDelete.value) return
 
@@ -86,6 +101,11 @@ const confirmDelete = async () => {
 <template>
   <v-container fluid class="pa-0 mx-auto" style="max-width: 1400px;">
     <div class="d-flex justify-start align-center mb-6 mt-6">
+      <v-btn
+        variant="outlined" size="small" prepend-icon="mdi-download" class="text-none font-weight-bold mr-3 rounded-md" elevation="0"
+      >
+        Export CSV
+      </v-btn>
       <v-btn
         color="primary" variant="flat" size="small" prepend-icon="mdi-plus" class="text-none font-weight-bold rounded-md" elevation="0"
         @click="openCreateModal"
@@ -144,6 +164,15 @@ const confirmDelete = async () => {
           </tr>
         </tbody>
       </v-table>
+
+      <ServerPagination
+        v-if="totalPages > 1 || departments.length > 0"
+        v-model:current-page="currentPage"
+        v-model:items-per-page="itemsPerPage"
+        :total-pages="totalPages"
+        :total-items="totalDepartmentsCount"
+        @change="fetchDepartments"
+      />
     </v-card>
   </v-container>
 

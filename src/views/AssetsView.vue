@@ -2,10 +2,9 @@
 import { computed, ref, onMounted, watch } from 'vue'
 import CreateAssignmentModal from '@/components/modals/CreateAssignModal.vue'
 import CreateAssetModal from '@/components/modals/CreateAssetModal.vue'
-import CreateCategoryModal from '@/components/modals/CreateCategoryModal.vue'
+import ServerPagination from '@/components/common/ServerPagination.vue'
 
 // Services
-import categoryService, { type CreateCategoryPayload } from '@/services/categoryService'
 import assetService, { type Asset, type CreateAssetPayload } from '@/services/assetService'
 import assignmentService, { type CheckoutPayload } from '@/services/assignmentService'
 
@@ -19,7 +18,6 @@ const itemToDelete = ref<{ id: number | string, name: string } | null>(null)
 // Modal States
 const showAssignmentModal = ref(false)
 const showAssetModal = ref(false)
-const showCategoryModal = ref(false)
 
 // Table & Filter States
 const filters = ['All', 'Available', 'Assigned', 'Maintenance', 'Inactive']
@@ -31,6 +29,7 @@ const isLoading = ref(false)
 const currentPage = ref(1)
 const totalPages = ref(1)
 const totalAssetsCount = ref(0)
+const itemsPerPage = ref(15)
 
 // --- API Calls ---
 
@@ -39,7 +38,7 @@ const fetchAssetsList = async () => {
   try {
     const params: Record<string, any> = { 
       page: currentPage.value, 
-      per_page: 15 
+      per_page: itemsPerPage.value 
     }
     
     if (activeFilter.value !== 'All') {
@@ -76,11 +75,6 @@ watch(activeFilter, () => {
   fetchAssetsList()
 })
 
-// Fetch new page when pagination changes
-watch(currentPage, () => {
-  fetchAssetsList()
-})
-
 onMounted(() => {
   fetchAssetsList()
 })
@@ -94,15 +88,6 @@ const handleAssetSave = async (data: CreateAssetPayload) => {
     fetchAssetsList() // Refresh table
   } catch (error) {
     console.error('Failed to create asset:', error)
-  }
-}
-
-const handleCategorySave = async (data: CreateCategoryPayload) => {
-  try {
-    await categoryService.createCategory(data)
-    showCategoryModal.value = false
-  } catch (error) {
-    console.error('Failed to create category:', error)
   }
 }
 
@@ -172,12 +157,11 @@ const getStatusColor = (status: string) => {
         >
           Assign Assets
         </v-btn>
-        
+
         <v-btn
-          color="primary" variant="outlined" size="small" prepend-icon="mdi-shape-plus" class="text-none font-weight-bold mr-3 rounded-md" elevation="0"
-          @click="showCategoryModal = true"
+          variant="outlined" size="small" prepend-icon="mdi-download" class="text-none font-weight-bold mr-3 rounded-md" elevation="0"
         >
-          Add Category
+          Export CSV
         </v-btn>
 
         <v-btn
@@ -268,37 +252,33 @@ const getStatusColor = (status: string) => {
               <v-tooltip text="Delete Asset" location="top">
                 <template #activator="{ props }">
                   <v-btn 
-  v-bind="props" 
-  icon="mdi-trash-can-outline" 
-  variant="text" 
-  size="small" 
-  color="error" 
-  @click="openDeleteModal(item.id, item.asset_name)" 
-/></template>
+                    v-bind="props" 
+                    icon="mdi-trash-can-outline" 
+                    variant="text" 
+                    size="small" 
+                    color="error" 
+                    @click="openDeleteModal(item.id, item.asset_name)" 
+                  />
+                </template>
               </v-tooltip>
             </td>
           </tr>
         </tbody>
       </v-table>
 
-      <div v-if="totalPages > 1" class="d-flex justify-space-between align-center pa-3 border-t bg-grey-lighten-4">
-        <span class="text-caption text-medium-emphasis font-weight-medium pl-2">
-          Showing page {{ currentPage }} of {{ totalPages }}
-        </span>
-        <v-pagination
-          v-model="currentPage"
-          :length="totalPages"
-          density="compact"
-          color="primary"
-          class="my-0"
-        ></v-pagination>
-      </div>
+      <ServerPagination
+        v-if="totalPages > 1 || assets.length > 0"
+        v-model:current-page="currentPage"
+        v-model:items-per-page="itemsPerPage"
+        :total-pages="totalPages"
+        :total-items="totalAssetsCount"
+        @change="fetchAssetsList"
+      />
     </v-card>
   </v-container>
 
   <CreateAssignmentModal v-model="showAssignmentModal" @submit="handleAssignmentSave" />
   <CreateAssetModal v-model="showAssetModal" @submit="handleAssetSave" />
-  <CreateCategoryModal v-model="showCategoryModal" @submit="handleCategorySave" />
   <ConfirmDeleteModal
     v-model="showDeleteModal"
     title="Delete Asset"
