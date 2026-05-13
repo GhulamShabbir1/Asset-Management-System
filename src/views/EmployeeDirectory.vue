@@ -18,6 +18,7 @@ const selectedDepartment = ref('All Departments')
 const selectedStatus = ref('All Statuses')
 const selectedRole = ref('All Roles')
 const selectedRows = ref<Employee[]>([])
+const filterMenu = ref(false)
 
 const departments = ['All Departments', 'Engineering', 'Product', 'Sales', 'HR']
 const statuses = ['All Statuses', 'Active', 'Inactive', 'Action Required']
@@ -134,35 +135,6 @@ const resetFilters = () => {
 <template>
   <div class="w-100">
     
-    <div class="mb-6 justify-end align-center mt-3">
-      <div class="d-flex justify-space-between align-center flex-wrap ga-4 mb-2">
-
-        <div class="d-flex align-center ga-3">
-          <v-btn
-            color="primary"
-            variant="flat"
-            size="small"
-            prepend-icon="mdi-account-plus"
-            class="text-none font-weight-bold mr-3 rounded-md text-white"
-            elevation="0"
-          >
-            Add Employee
-          </v-btn>
-
-          <v-btn
-            variant="outlined"
-            size="small"
-            prepend-icon="mdi-download"
-            class="text-none font-weight-bold rounded-md"
-            elevation="0"
-          >
-            Export CSV
-          </v-btn>
-        </div>
-      </div>
-      
-    </div>
-
     <v-card outlined flat class="d-flex align-center pa-3 ga-4 flex-nowrap mb-4">
       <v-text-field
         v-model="searchQuery"
@@ -172,47 +144,106 @@ const resetFilters = () => {
         density="compact"
         hide-details
         clearable
-        class="flex-grow-1"
-        style="max-width: 350px"
+        class="flex-grow-0"
+        style="width: 350px"
       />
 
-      <div class="d-flex align-center ga-2">
-        <span class="text-body-2 text-medium-emphasis mr-2">Department:</span>
-        <v-select
-          v-model="selectedDepartment"
-          :items="departments"
-          variant="outlined"
-          density="compact"
-          hide-details
-          style="width: 160px"
-        />
-      </div>
+      <v-menu v-model="filterMenu" location="bottom end" :offset="8" :close-on-content-click="false">
+        <template #activator="{ props }">
+          <v-btn
+            v-bind="props"
+            variant="outlined"
+            class="text-none font-weight-semibold"
+            prepend-icon="mdi-filter-variant"
+          >
+            Filters
+          </v-btn>
+        </template>
 
-      <div class="d-flex align-center ga-2">
-        <span class="text-body-2 text-medium-emphasis mr-2">Status:</span>
-        <v-select
-          v-model="selectedStatus"
-          :items="statuses"
-          variant="outlined"
-          density="compact"
-          hide-details
-          style="width: 160px"
-        />
-      </div>
+        <v-card min-width="320" class="pa-4" elevation="8">
+          <div class="d-flex align-center justify-space-between mb-3">
+            <div class="text-subtitle-2 font-weight-bold">Filters</div>
+            <v-btn
+              variant="text"
+              size="small"
+              prepend-icon="mdi-restart-alt"
+              class="text-none"
+              @click="resetFilters"
+            >
+              Reset
+            </v-btn>
+          </div>
 
-      <div class="d-flex align-center ga-2">
-        <span class="text-body-2 text-medium-emphasis mr-2">User Wise Filter:</span>
-        <v-select
-          v-model="selectedRole"
-          :items="roles"
-          variant="outlined"
-          density="compact"
-          hide-details
-          style="width: 160px"
-        />
-      </div>
+          <div class="d-flex flex-column ga-3">
+            <div>
+              <div class="text-caption text-medium-emphasis mb-1">Department</div>
+              <v-select
+                v-model="selectedDepartment"
+                :items="departments"
+                variant="outlined"
+                density="compact"
+                hide-details
+              />
+            </div>
 
-      <v-btn icon="mdi-restart-alt" variant="text" size="small" @click="resetFilters" />
+            <div>
+              <div class="text-caption text-medium-emphasis mb-1">Status</div>
+              <v-select
+                v-model="selectedStatus"
+                :items="statuses"
+                variant="outlined"
+                density="compact"
+                hide-details
+              />
+            </div>
+
+            <div>
+              <div class="text-caption text-medium-emphasis mb-1">User Wise Filter</div>
+              <v-select
+                v-model="selectedRole"
+                :items="roles"
+                variant="outlined"
+                density="compact"
+                hide-details
+              />
+            </div>
+          </div>
+
+          <v-divider class="my-4" />
+
+          <div class="d-flex justify-end ga-2">
+            <v-btn variant="text" class="text-none" @click="filterMenu = false">Close</v-btn>
+            <v-btn color="primary" variant="flat" class="text-none" @click="filterMenu = false">
+              Apply
+            </v-btn>
+          </div>
+        </v-card>
+      </v-menu>
+
+      <v-spacer />
+
+      <div class="d-flex align-center ga-3">
+        <v-btn
+          color="primary"
+          variant="flat"
+          size="small"
+          prepend-icon="mdi-account-plus"
+          class="text-none font-weight-bold rounded-md text-white"
+          elevation="0"
+        >
+          Add Employee
+        </v-btn>
+
+        <v-btn
+          variant="outlined"
+          size="small"
+          prepend-icon="mdi-download"
+          class="text-none font-weight-bold rounded-md"
+          elevation="0"
+        >
+          Export CSV
+        </v-btn>
+      </div>
     </v-card>
 
     <v-card border elevation="0">
@@ -224,6 +255,7 @@ const resetFilters = () => {
         show-select
         density="comfortable"
         :items-per-page="20"
+        class="table-with-scroll"
       >
         <template #item.name="{ item }">
           <div class="d-flex align-center ga-3 py-2">
@@ -286,4 +318,35 @@ const resetFilters = () => {
 </template>
 
 <style scoped>
+.table-with-scroll {
+  display: flex;
+  flex-direction: column;
+}
+
+.table-with-scroll ::v-deep .v-table__wrapper {
+  max-height: calc(100vh - 300px);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.table-with-scroll ::v-deep .v-table__wrapper::-webkit-scrollbar {
+  width: 8px;
+}
+
+.table-with-scroll ::v-deep .v-table__wrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.table-with-scroll ::v-deep .v-table__wrapper::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+.table-with-scroll ::v-deep .v-table__wrapper::-webkit-scrollbar-thumb:hover {
+  background: #999;
+}
+
+.table-with-scroll ::v-deep .v-data-table__footer {
+  flex-shrink: 0;
+}
 </style>
