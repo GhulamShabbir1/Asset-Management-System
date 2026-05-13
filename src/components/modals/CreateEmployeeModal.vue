@@ -33,7 +33,7 @@ const form = ref<CreateEmployeePayload>({
 })
 
 // UI state
-const departments = ref<Department[]>([])
+const departments = ref<any[]>([]) // Using any[] here to allow our mapped display_name
 const isLoading = ref(false)
 const departmentsLoading = ref(false)
 const errorMessage = ref('')
@@ -84,9 +84,15 @@ const fetchDepartments = async () => {
     departmentsLoading.value = true
     const response = await getAllDepartments()
     if (response?.data) {
-      departments.value = Array.isArray(response.data) 
+      const depList = Array.isArray(response.data) 
         ? response.data 
         : response.data.data || []
+        
+      // GUARANTEE A NAME: Handle both 'department_name' and 'name'
+      departments.value = depList.map((dep: any) => ({
+        ...dep,
+        display_name: dep.department_name || dep.name || 'Unnamed Department'
+      }))
     }
   } catch (error) {
     console.error('Failed to fetch departments:', error)
@@ -157,7 +163,6 @@ const save = async () => {
       </v-card-title>
 
       <v-card-text class="pa-4">
-        <!-- Error message -->
         <v-alert 
           v-if="errorMessage" 
           type="error" 
@@ -169,9 +174,7 @@ const save = async () => {
           {{ errorMessage }}
         </v-alert>
 
-        <!-- Form -->
         <v-form @submit.prevent="save">
-          <!-- Row 1: Name and Father Name -->
           <div class="d-flex ga-2 mb-2">
             <v-text-field 
               v-model="form.name" 
@@ -190,7 +193,6 @@ const save = async () => {
             />
           </div>
 
-          <!-- Row 2: Email and Contact -->
           <div class="d-flex ga-2 mb-2">
             <v-text-field 
               v-model="form.email" 
@@ -211,7 +213,6 @@ const save = async () => {
             />
           </div>
 
-          <!-- Row 3: Address -->
           <v-text-field 
             v-model="form.address" 
             label="Address" 
@@ -220,7 +221,6 @@ const save = async () => {
             class="mb-2"
           />
 
-          <!-- Row 4: Designation and Salary -->
           <div class="d-flex ga-2 mb-2">
             <v-text-field 
               v-model="form.designation" 
@@ -239,7 +239,6 @@ const save = async () => {
             />
           </div>
 
-          <!-- Row 5: Joining Date and Status -->
           <div class="d-flex ga-2 mb-2">
             <v-text-field 
               v-model="form.joining_date" 
@@ -259,11 +258,10 @@ const save = async () => {
             />
           </div>
 
-          <!-- Row 6: Department -->
           <v-select 
             v-model="form.department_id" 
             :items="departments"
-            item-title="department_name"
+            item-title="display_name" 
             item-value="id"
             label="Department *" 
             variant="outlined" 

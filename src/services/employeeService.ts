@@ -44,11 +44,12 @@ export interface CreateEmployeePayload {
 
 /**
  * Fetch all employees from the API
+ * @param params Query parameters (like page and per_page)
  * @param options Request options
  * @returns Promise with employee list
  */
-export const getEmployees = (options: RequestOptions = {}) => {
-  return api.get<ApiResponse<Employee[]>>('/employees/read', {}, options)
+export const getEmployees = (params: Record<string, any> = {}, options: RequestOptions = {}) => {
+  return api.get<ApiResponse<any>>('/employees/read', params, options)
 }
 
 /**

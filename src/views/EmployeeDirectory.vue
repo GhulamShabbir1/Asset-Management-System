@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, onMounted } from 'vue'
 import CreateEmployeeModal from '@/components/modals/CreateEmployeeModal.vue'
+import ServerPagination from '@/components/common/ServerPagination.vue'
 import * as employeeService from '@/services/employeeService'
 import type { CreateEmployeePayload } from '@/services/employeeService'
 import { getAllDepartments } from '@/services/departmentService'
@@ -31,7 +32,6 @@ const searchQuery = ref('')
 const selectedDepartment = ref('All Departments')
 const selectedStatus = ref('All Statuses')
 const selectedRole = ref('All Roles')
-const selectedRows = ref<Employee[]>([])
 const filterMenu = ref(false)
 const createEmployeeDialog = ref(false)
 
@@ -39,6 +39,12 @@ const createEmployeeDialog = ref(false)
 const employees = ref<Employee[]>([])
 const departments = ref<Department[]>([])
 const departmentMap = ref<Record<number, string>>({})
+
+// Pagination State
+const currentPage = ref(1)
+const itemsPerPage = ref(20)
+const totalPages = ref(1)
+const totalEmployeesCount = ref(0)
 
 // Loading and error states
 const isLoading = ref(false)
@@ -58,7 +64,7 @@ const statuses = ['All Statuses', 'active', 'inactive', 'on_leave']
 const roles = ['All Roles', 'Administrator', 'Manager', 'Regular User']
 
 const headers = [
-  { title: 'Name', key: 'name', sortable: false },
+  { title: 'Name', key: 'name', sortable: false, align: 'start' },
   { title: 'Employee ID', key: 'id', sortable: false },
   { title: 'Department', key: 'department', sortable: false },
   { title: 'Email', key: 'email', sortable: false },
@@ -98,7 +104,8 @@ const filteredEmployees = computed(() => {
       selectedStatus.value === 'All Statuses' ||
       mapStatus(employee.status) === selectedStatus.value
 
-    const matchesRole = selectedRole.value === 'All Roles' || employee.role === selectedRole.value
+    const matchesRole = selectedRole.value === 'All Roles' ||
+      employee.role === selectedRole.value
 
     return matchesSearch && matchesDepartment && matchesStatus && matchesRole
   })
@@ -143,8 +150,8 @@ const fetchDepartments = async () => {
       
       // Create department map for quick lookup
       departmentMap.value = {}
-      departments.value.forEach(dept => {
-        departmentMap.value[dept.id] = dept.department_name
+      departments.value.forEach((dept: any) => {
+        departmentMap.value[dept.id] = dept.department_name || dept.name || 'Unknown'
       })
     }
   } catch (error) {
@@ -160,32 +167,40 @@ const fetchEmployees = async () => {
     isLoading.value = true
     errorMessage.value = ''
     
-    const response = await employeeService.getEmployees()
+    // Pass pagination params to the API
+    const params = {
+      page: currentPage.value,
+      per_page: itemsPerPage.value
+    }
+    const response = await employeeService.getEmployees(params)
     
     if (response?.data) {
-      // Handle if response is array or has data property
-      const employeeList = Array.isArray(response.data) ? response.data : response.data
+      const resData = response.data as any
+      const employeeList = Array.isArray(resData) ? resData : resData.data || resData
       
-      // Map API response to employee interface
-      employees.value = employeeList.map(emp => {
-        // Map ID field - backend may use 'employee_id', 'id', or other variations
+      // Update pagination info
+      const meta = resData.meta || resData
+      totalEmployeesCount.value = meta.total || employeeList.length
+      totalPages.value = meta.last_page || meta.lastPage || 1
+
+      employees.value = employeeList.map((emp: any) => {
         const employeeId = emp.employee_id || emp.id || emp.emp_id
         
-        console.log('Mapping employee:', {
-          apiId: emp.id,
-          apiEmployeeId: emp.employee_id,
-          mappedId: employeeId,
-          name: emp.name,
-        })
-        
+        // Handle department mapping whether it comes as an embedded object or just an ID
+        const departmentName = emp.department?.department_name 
+                            || emp.department?.name 
+                            || emp.department 
+                            || departmentMap.value[emp.department_id] 
+                            || 'Unknown'
+
         return {
           id: employeeId,
           name: emp.name,
           father_name: emp.father_name,
           email: emp.email,
           contact_info: emp.contact_info,
-          department: departmentMap.value[emp.department_id] || 'Unknown',
-          department_id: emp.department_id,
+          department: departmentName,
+          department_id: emp.department?.id || emp.department_id,
           address: emp.address,
           designation: emp.designation,
           joining_date: emp.joining_date,
@@ -295,11 +310,7 @@ const confirmDelete = async () => {
       throw new Error('Invalid employee ID. Employee may not have been properly loaded.')
     }
 
-    console.log('Attempting to delete employee with ID:', employeeId, 'Full employee:', employeeToDelete.value)
-    
-    const response = await employeeService.deleteEmployee(employeeId)
-    
-    console.log('Delete response:', response)
+    await employeeService.deleteEmployee(employeeId)
     
     successMessage.value = 'Employee deleted successfully!'
     
@@ -317,13 +328,6 @@ const confirmDelete = async () => {
       successMessage.value = ''
     }, 3000)
   } catch (error: any) {
-    console.error('Delete error details:', {
-      error: error,
-      message: error?.message,
-      status: error?.status,
-      data: error?.data,
-      employee: employeeToDelete.value,
-    })
     errorMessage.value = error?.message || 'Failed to delete employee. Please try again.'
   } finally {
     isDeleting.value = false
@@ -342,7 +346,6 @@ onMounted(async () => {
 
 <template>
   <div class="w-100">
-    <!-- Success message -->
     <v-alert 
       v-if="successMessage" 
       type="success" 
@@ -354,7 +357,6 @@ onMounted(async () => {
       {{ successMessage }}
     </v-alert>
 
-    <!-- Error message -->
     <v-alert 
       v-if="errorMessage" 
       type="error" 
@@ -366,7 +368,6 @@ onMounted(async () => {
       {{ errorMessage }}
     </v-alert>
 
-    <!-- Search and Filter Bar -->
     <v-card outlined flat class="d-flex align-center pa-3 ga-4 flex-nowrap mb-4">
       <v-text-field
         v-model="searchQuery"
@@ -480,7 +481,6 @@ onMounted(async () => {
       </div>
     </v-card>
 
-    <!-- Loading state -->
     <v-card v-if="isLoading" border elevation="0" class="pa-4">
       <div class="d-flex align-center justify-center" style="height: 400px">
         <div class="text-center">
@@ -490,22 +490,19 @@ onMounted(async () => {
       </div>
     </v-card>
 
-    <!-- Data table -->
     <v-card v-else border elevation="0">
       <v-data-table
-        v-model="selectedRows"
         :headers="headers"
         :items="filteredEmployees"
         item-value="id"
-        show-select
         density="comfortable"
-        :items-per-page="20"
+        :items-per-page="itemsPerPage"
         class="table-with-scroll"
         :loading="isLoading"
       >
         <template #item.name="{ item }">
-          <div class="d-flex align-center ga-3 py-2">
-            <v-avatar :image="item.image" size="40" />
+          <div class="d-flex align-center py-2" :class="item.image ? 'ga-3' : ''">
+            <v-avatar v-if="item.image" :image="item.image" size="40" />
             <div>
               <div class="text-body-md font-weight-bold text-on-surface">{{ item.name }}</div>
               <div class="text-caption text-on-surface-variant">{{ item.email || item.contact_info }}</div>
@@ -573,11 +570,18 @@ onMounted(async () => {
               <div class="text-body-2 text-medium-emphasis">No employees found</div>
             </div>
           </div>
+          <ServerPagination
+            v-else
+            v-model:current-page="currentPage"
+            v-model:items-per-page="itemsPerPage"
+            :total-pages="totalPages"
+            :total-items="totalEmployeesCount"
+            @change="fetchEmployees"
+          />
         </template>
       </v-data-table>
     </v-card>
 
-    <!-- Delete confirmation dialog -->
     <v-dialog v-model="deleteConfirmDialog" max-width="400px">
       <v-card>
         <v-card-title class="text-h6">Confirm Delete</v-card-title>
@@ -594,7 +598,6 @@ onMounted(async () => {
       </v-card>
     </v-dialog>
 
-    <!-- Create/Edit Employee Modal -->
     <CreateEmployeeModal 
       v-model="createEmployeeDialog" 
       :editing-employee="editingEmployee"
