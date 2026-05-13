@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import CreateDepartmentModal from '@/components/modals/CreateDepartmentModal.vue'
 import ConfirmDeleteModal from '@/components/modals/ConfirmDeleteModal.vue' 
 import ServerPagination from '@/components/common/ServerPagination.vue'
@@ -45,6 +45,34 @@ const fetchDepartments = async () => {
   } finally {
     isLoading.value = false
   }
+}
+
+const escapeCsvValue = (value: unknown) => {
+  const normalized = value == null ? '' : String(value)
+  return `"${normalized.replace(/"/g, '""')}"`
+}
+
+const exportDepartmentsToCsv = () => {
+  const csvRows = [
+    ['Department Name'],
+    ...departments.value.map(dept => [
+      dept.department_name || dept.name
+    ]),
+  ]
+
+  const csvContent = csvRows.map(row => row.map(escapeCsvValue).join(',')).join('\n')
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+  const downloadUrl = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+
+  link.href = downloadUrl
+  link.download = `departments-${new Date().toISOString().slice(0, 10)}.csv`
+  link.style.display = 'none'
+
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(downloadUrl)
 }
 
 onMounted(() => {
@@ -103,6 +131,7 @@ const confirmDelete = async () => {
     <div class="d-flex justify-start align-center mb-6 mt-6">
       <v-btn
         variant="outlined" size="small" prepend-icon="mdi-download" class="text-none font-weight-bold mr-3 rounded-md" elevation="0"
+        @click="exportDepartmentsToCsv"
       >
         Export CSV
       </v-btn>
@@ -119,14 +148,13 @@ const confirmDelete = async () => {
         <thead class="bg-grey-lighten-4">
           <tr>
             <th class="font-weight-bold text-medium-emphasis text-caption" style="text-transform: uppercase;">Department Name</th>
-            <th class="font-weight-bold text-medium-emphasis text-caption" style="text-transform: uppercase;">Status</th>
             <th class="font-weight-bold text-medium-emphasis text-caption text-right" style="text-transform: uppercase;">Actions</th>
           </tr>
         </thead>
         
         <tbody v-if="isLoading">
           <tr>
-            <td colspan="3" class="text-center py-10">
+            <td colspan="2" class="text-center py-10">
               <v-progress-circular indeterminate color="primary"></v-progress-circular>
             </td>
           </tr>
@@ -134,7 +162,7 @@ const confirmDelete = async () => {
         
         <tbody v-else-if="departments.length === 0">
           <tr>
-            <td colspan="3" class="text-center py-8 text-medium-emphasis text-body-2">
+            <td colspan="2" class="text-center py-8 text-medium-emphasis text-body-2">
               No departments found.
             </td>
           </tr>
@@ -142,13 +170,8 @@ const confirmDelete = async () => {
         
         <tbody v-else>
           <tr v-for="item in departments" :key="item.id">
-            <td class="font-weight-bold text-body-2">{{ item.department_name || item.name }}</td>
-            <td>
-              <v-chip size="small" variant="tonal" :color="item.status ? 'success' : 'grey-darken-1'" class="font-weight-bold text-uppercase">
-                {{ item.status ? 'Active' : 'Inactive' }}
-              </v-chip>
-            </td>
-            <td class="text-right" style="min-width: 100px;">
+            <td class="font-weight-bold text-body-2 pa-2">{{ item.department_name || item.name }}</td>
+            <td class="text-right pa-2" style="min-width: 100px;">
               <v-tooltip text="Edit Department" location="top">
                 <template #activator="{ props }">
                   <v-btn v-bind="props" icon="mdi-pencil-outline" variant="text" size="small" color="primary" class="mr-1" @click="openEditModal(item)" />
