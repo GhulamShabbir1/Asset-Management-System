@@ -7,7 +7,7 @@ export interface AssetCategory {
 
 export interface AssetDepartment {
   id: number
-  name: string
+  department_name: string // Updated to match department changes
 }
 
 export interface Asset {
@@ -23,13 +23,16 @@ export interface Asset {
 }
 
 export interface PaginatedAssetResponse {
-  list: Asset[]
-  meta: {
+  data: Asset[] // Default Laravel pagination array
+  list?: Asset[] // Fallback if they use custom 'list' wrapper
+  meta?: {
     currentPage: number
     perPage: number
     total: number
     lastPage: number
   }
+  last_page?: number
+  total?: number
 }
 
 export interface CreateAssetPayload {
@@ -46,7 +49,7 @@ export interface CreateAssetPayload {
 }
 
 export const getAssets = (params: Record<string, any> = {}, options: RequestOptions = {}) => {
-  return api.get<{ success: boolean; message: string; data: PaginatedAssetResponse }>('/assets', params, options)
+  return api.get<{ success: boolean; message: string; data: PaginatedAssetResponse | Asset[] }>('/assets', params, options)
 }
 
 export const getAssetById = (id: string | number, options: RequestOptions = {}) => {

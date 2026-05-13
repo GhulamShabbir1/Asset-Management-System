@@ -12,6 +12,7 @@ const pageTitle = computed(() => {
     'dashboard': 'Dashboard',
     'assets': 'Assets',
     'employees': 'Employee Directory',
+    'categories': 'Categories',
     'departments': 'Departments',
     'history': 'History',
     'assignment-history': 'History',
@@ -29,7 +30,7 @@ const pageTitle = computed(() => {
   <v-app-bar color="white" elevation="0" border="b" height="60">
     <div class="w-100 pr-2 pl-4 d-flex align-center">
 
-      <div class="font-weight-bold text-black pl-2 pl-md-0" style="letter-spacing: -0.5px; font-size: 2rem !important; line-height: 1;">
+      <div class="font-weight-bold text-black pl-2 pl-md-0" style="letter-spacing: -0.5px; font-size: 1.5rem !important; line-height: 1;">
         {{ pageTitle }}
       </div>
 

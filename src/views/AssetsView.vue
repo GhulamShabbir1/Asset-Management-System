@@ -9,6 +9,13 @@ import categoryService, { type CreateCategoryPayload } from '@/services/category
 import assetService, { type Asset, type CreateAssetPayload } from '@/services/assetService'
 import assignmentService, { type CheckoutPayload } from '@/services/assignmentService'
 
+import ConfirmDeleteModal from '@/components/modals/ConfirmDeleteModal.vue'
+
+// Delete Modal State
+const showDeleteModal = ref(false)
+const isDeleting = ref(false)
+const itemToDelete = ref<{ id: number | string, name: string } | null>(null)
+
 // Modal States
 const showAssignmentModal = ref(false)
 const showAssetModal = ref(false)
@@ -40,13 +47,24 @@ const fetchAssetsList = async () => {
     }
 
     const response = await assetService.getAssets(params)
-    if (response.success && response.data) {
-      assets.value = response.data.list
-      totalAssetsCount.value = response.data.meta.total
-      totalPages.value = response.data.meta.lastPage || 1
+    
+    if (response && response.success && response.data) {
+      const responseData = response.data as any
+      
+      // Bulletproof array extraction: checks for flat array, .data array, or .list array
+      assets.value = Array.isArray(responseData) 
+        ? responseData 
+        : (responseData.data || responseData.list || [])
+        
+      // Safely extract pagination totals
+      const meta = responseData.meta || responseData
+      totalAssetsCount.value = meta.total || assets.value.length
+      totalPages.value = meta.last_page || meta.lastPage || 1
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Failed to fetch assets:', error)
+    const errorMsg = error.response?.data?.message || error.message
+    // Optional: alert(`Failed to load assets: ${errorMsg}`)
   } finally {
     isLoading.value = false
   }
@@ -106,6 +124,27 @@ const deleteAsset = async (id: number | string) => {
     } catch (error) {
       console.error('Failed to delete asset:', error)
     }
+  }
+}
+
+const openDeleteModal = (id: number | string, name: string) => {
+  itemToDelete.value = { id, name }
+  showDeleteModal.value = true
+}
+
+const confirmDelete = async () => {
+  if (!itemToDelete.value) return
+
+  isDeleting.value = true
+  try {
+    await assetService.deleteAsset(itemToDelete.value.id)
+    fetchAssetsList() // Re-fetch the table data!
+    showDeleteModal.value = false 
+  } catch (error: any) {
+    alert(`Delete Failed: ${error.message}`)
+  } finally {
+    isDeleting.value = false
+    itemToDelete.value = null
   }
 }
 
@@ -228,8 +267,14 @@ const getStatusColor = (status: string) => {
 
               <v-tooltip text="Delete Asset" location="top">
                 <template #activator="{ props }">
-                  <v-btn v-bind="props" icon="mdi-trash-can-outline" variant="text" size="small" color="error" @click="deleteAsset(item.id)" />
-                </template>
+                  <v-btn 
+  v-bind="props" 
+  icon="mdi-trash-can-outline" 
+  variant="text" 
+  size="small" 
+  color="error" 
+  @click="openDeleteModal(item.id, item.asset_name)" 
+/></template>
               </v-tooltip>
             </td>
           </tr>
@@ -254,6 +299,13 @@ const getStatusColor = (status: string) => {
   <CreateAssignmentModal v-model="showAssignmentModal" @submit="handleAssignmentSave" />
   <CreateAssetModal v-model="showAssetModal" @submit="handleAssetSave" />
   <CreateCategoryModal v-model="showCategoryModal" @submit="handleCategorySave" />
+  <ConfirmDeleteModal
+    v-model="showDeleteModal"
+    title="Delete Asset"
+    :item-name="itemToDelete?.name"
+    :is-loading="isDeleting"
+    @confirm="confirmDelete"
+  />
 </template>
 
 <style scoped>
