@@ -102,7 +102,7 @@ const save = () => {
           
           <div class="mb-6">
             <div class="text-subtitle-2 font-weight-bold text-black mb-3">Media & Documentation</div>
-            <v-row dense>
+            <v-row density="compact">
               <v-col cols="12" sm="6" class="pb-2">
                 <div class="text-uppercase text-grey-darken-1 font-weight-bold mb-2" style="font-size: 10px; letter-spacing: 0.5px;">Asset Picture</div>
                 <v-file-input
@@ -140,7 +140,7 @@ const save = () => {
           <v-divider class="mb-6"></v-divider>
 
           <div class="text-subtitle-2 font-weight-bold text-black mb-3">Asset Details</div>
-          <v-row dense>
+          <v-row density="compact">
             <v-col cols="12" sm="6" class="pb-3">
               <div class="text-uppercase text-grey-darken-1 font-weight-bold mb-2" style="font-size: 10px; letter-spacing: 0.5px;">Asset Name</div>
               <v-text-field v-model="form.asset_name" placeholder="e.g. MacBook Pro 16" variant="outlined" density="compact" hide-details required></v-text-field>

@@ -73,6 +73,20 @@ const lightTheme = {
 const vuetify = createVuetify({
   components,
   directives,
+  defaults: {
+    VDataTable: {
+      height: '400',
+      fixedHeader: true,
+      hover: true,
+      density: 'compact',
+    },
+    VTable: {
+      height: '350',
+      fixedHeader: true,
+      hover: true,
+      density: 'compact',
+    },
+  },
   theme: {
     defaultTheme: 'light',
     themes: {

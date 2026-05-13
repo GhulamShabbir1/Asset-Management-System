@@ -8,54 +8,88 @@
             <p class="section-copy text-medium-emphasis mb-0">Select a role from the left and update its permissions.</p>
           </div>
           <div class="d-flex gap-3 align-center flex-wrap">
-            <v-btn variant="outlined" prepend-icon="mdi-pencil" rounded="md" @click="openRoleDialog(selectedRoleForMatrix)" :disabled="selectedRoleIsSystem">
+            <v-btn
+              variant="outlined"
+              prepend-icon="mdi-pencil"
+              rounded="md"
+              :disabled="selectedRoleIsSystem || roleStore.loading"
+              @click="openRoleDialog(selectedRoleForMatrix)"
+            >
               Edit Role
             </v-btn>
-            <v-btn v-if="!selectedRoleIsSystem" color="error" variant="text" prepend-icon="mdi-delete" @click="deleteCustomRole">
+            <v-btn
+              v-if="!selectedRoleIsSystem"
+              color="error"
+              variant="text"
+              prepend-icon="mdi-delete"
+              :loading="deleteLoading"
+              @click="deleteCustomRole"
+            >
               Delete Role
             </v-btn>
           </div>
         </div>
 
         <v-row class="ma-0">
+          <!-- ── Left Panel: Role List ── -->
           <v-col cols="12" md="4" lg="3" class="pa-3 border-e role-panel">
             <div class="d-flex justify-space-between align-center mb-2">
               <div>
                 <div class="dashboard-kicker text-medium-emphasis">Roles</div>
                 <div class="role-panel-copy text-medium-emphasis">Click any role to manage access</div>
               </div>
-              <v-btn color="primary" variant="flat" size="small" prepend-icon="mdi-plus" rounded="md" @click="openRoleDialog()">
+              <v-btn
+                color="primary"
+                variant="flat"
+                size="small"
+                prepend-icon="mdi-plus"
+                rounded="md"
+                :loading="roleStore.loading"
+                @click="openRoleDialog()"
+              >
                 Add Role
               </v-btn>
             </div>
 
-            <div class="d-flex flex-column gap-2">
+            <!-- Loading skeleton -->
+            <div v-if="roleStore.loading && !roleOptions.length" class="d-flex flex-column gap-2">
+              <v-skeleton-loader v-for="n in 3" :key="n" type="list-item-two-line" rounded="lg" />
+            </div>
+
+            <!-- Role list -->
+            <div v-else class="d-flex flex-column gap-2">
               <button
-                v-for="role in roleOptions" :key="role.id"
+                v-for="role in roleOptions"
+                :key="role.id"
                 type="button"
                 class="role-list-item text-left"
-                :class="{ active: selectedRoleForMatrix === role.id }"
+                :class="{ active: String(selectedRoleForMatrix) === String(role.id) }"
                 @click="selectRole(role.id)"
               >
                 <div class="d-flex align-center justify-space-between">
                   <div>
                     <div class="font-weight-bold role-item-title">{{ role.name }}</div>
                     <div class="role-item-copy text-medium-emphasis mt-1">
-                      {{ getEnabledPermissionCount(role.id) }} / {{ basePermissionModules.length * crudActions.length }} enabled
+                      {{ getEnabledPermissionCount(role.id) }} / {{ totalPossiblePermissions }} enabled
                     </div>
                   </div>
-                  <v-icon :icon="role.isSystem ? 'mdi-shield-account' : 'mdi-account-cog'" size="20"></v-icon>
+                  <v-icon :icon="role.isSystem ? 'mdi-shield-account' : 'mdi-account-cog'" size="20" />
                 </div>
               </button>
+
+              <div v-if="!roleStore.loading && !roleOptions.length" class="text-center py-4 text-medium-emphasis section-copy">
+                No roles found.
+              </div>
             </div>
           </v-col>
 
+          <!-- ── Right Panel: Permission Matrix ── -->
           <v-col cols="12" md="8" lg="9" class="pa-0">
             <div class="pa-3 pb-2 d-flex justify-space-between align-center flex-wrap gap-2">
               <div>
                 <h4 class="section-title font-weight-bold mb-1">{{ selectedRoleName }}</h4>
                 <p class="section-copy text-medium-emphasis mb-0">
-                  {{ enabledPermissionsCount }} of {{ currentRolePermissions.length * crudActions.length }} permissions enabled
+                  {{ enabledPermissionsCount }} of {{ totalPossiblePermissions }} permissions enabled
                 </p>
               </div>
               <v-chip color="primary" variant="tonal" size="x-small">
@@ -63,13 +97,22 @@
               </v-chip>
             </div>
 
-            <v-table hover density="compact" class="bg-surface px-1 mt-1 compact-table">
+            <div v-if="permissionStore.loading" class="pa-4">
+              <v-skeleton-loader type="table" />
+            </div>
+
+            <v-table v-else hover density="compact" class="bg-surface px-1 mt-1 compact-table">
               <thead class="bg-grey-lighten-4">
                 <tr>
-                  <th class="font-weight-bold text-medium-emphasis" style="font-size: 10px; text-transform: uppercase;">PERMISSION</th>
-                  <th class="font-weight-bold text-medium-emphasis" style="font-size: 10px; text-transform: uppercase;">DESCRIPTION</th>
-                  <th class="text-center font-weight-bold text-medium-emphasis" style="width: 90px; font-size: 10px; text-transform: uppercase;">ALL</th>
-                  <th v-for="action in crudActions" :key="action.key" class="text-center font-weight-bold text-medium-emphasis" style="width: 90px; font-size: 10px; text-transform: uppercase;">
+                  <th class="font-weight-bold text-medium-emphasis" style="font-size:10px;text-transform:uppercase;">PERMISSION</th>
+                  <th class="font-weight-bold text-medium-emphasis" style="font-size:10px;text-transform:uppercase;">DESCRIPTION</th>
+                  <th class="text-center font-weight-bold text-medium-emphasis" style="width:90px;font-size:10px;text-transform:uppercase;">ALL</th>
+                  <th
+                    v-for="action in crudActions"
+                    :key="action.key"
+                    class="text-center font-weight-bold text-medium-emphasis"
+                    style="width:90px;font-size:10px;text-transform:uppercase;"
+                  >
                     {{ action.label }}
                   </th>
                 </tr>
@@ -78,25 +121,27 @@
                 <tr v-for="perm in currentRolePermissions" :key="perm.key">
                   <td class="font-weight-medium py-1">
                     <div class="d-flex align-center">
-                      <v-icon :icon="perm.icon" size="20" class="mr-3 text-medium-emphasis"></v-icon>
+                      <v-icon :icon="perm.icon" size="20" class="mr-3 text-medium-emphasis" />
                       <span class="table-cell-title font-weight-bold">{{ perm.module }}</span>
                     </div>
                   </td>
                   <td class="py-1 table-cell-copy text-medium-emphasis">{{ perm.description }}</td>
                   <td class="text-center py-1">
                     <v-checkbox
-                      :model-value="isAllChecked(perm.actions)"
-                      @update:model-value="toggleAllActions(perm.actions, $event)"
+                      :model-value="isAllChecked(perm)"
                       color="primary"
                       hide-details
                       density="compact"
                       true-icon="mdi-check-circle"
                       false-icon="mdi-checkbox-blank-circle-outline"
                       class="permission-checkbox justify-center"
-                    ></v-checkbox>
+                      :disabled="selectedRoleIsSystem"
+                      @update:model-value="toggleAllActions(perm, $event)"
+                    />
                   </td>
                   <td v-for="action in crudActions" :key="`${perm.key}-${action.key}`" class="text-center py-1">
                     <v-checkbox
+                      v-if="hasActionInModule(perm, action.apiAction)"
                       v-model="perm.actions[action.key]"
                       color="primary"
                       hide-details
@@ -104,17 +149,25 @@
                       true-icon="mdi-check-circle"
                       false-icon="mdi-checkbox-blank-circle-outline"
                       class="permission-checkbox justify-center"
-                    ></v-checkbox>
+                      :disabled="selectedRoleIsSystem"
+                    />
+                    <div v-else class="text-grey-lighten-1">—</div>
                   </td>
                 </tr>
               </tbody>
             </v-table>
 
-            <div class="pa-3 d-flex justify-space-between align-center border-t bg-grey-lighten-4 flex-wrap gap-2">
+            <div v-if="!selectedRoleIsSystem" class="pa-3 d-flex justify-space-between align-center border-t bg-grey-lighten-4 flex-wrap gap-2">
               <div class="section-copy text-medium-emphasis">
                 Checked permissions will be available to users assigned to this role.
               </div>
-              <v-btn color="primary" variant="flat" prepend-icon="mdi-content-save" @click="saveRolePermissions">
+              <v-btn
+                color="primary"
+                variant="flat"
+                prepend-icon="mdi-content-save"
+                :loading="savePermLoading"
+                @click="saveRolePermissions"
+              >
                 Save Permission Changes
               </v-btn>
             </div>
@@ -123,75 +176,204 @@
       </v-card>
     </v-col>
 
+    <!-- ── Create / Edit Role Dialog ── -->
     <v-dialog v-model="roleDialog" max-width="500px" rounded="lg">
       <v-card rounded="lg" elevation="0" border>
         <v-card-title class="dialog-title font-weight-bold pa-3 pb-2">
           {{ editingRoleId ? 'Edit Custom Role' : 'Create New Custom Role' }}
         </v-card-title>
         <v-card-text class="pa-3 pt-2">
-          <v-text-field v-model="newRoleName" class="compact-role-field" label="Role Name" variant="outlined" density="compact" placeholder="e.g., Security Analyst" :error-messages="roleNameError" @input="validateRoleName"></v-text-field>
-          <v-textarea v-model="newRoleDescription" class="compact-role-field" label="Role Description" variant="outlined" density="compact" rows="2"></v-textarea>
-          <v-alert v-if="selectedRoleForMatrix === 'system-super-admin' || selectedRoleForMatrix === 'system-manager'" type="info" variant="tonal" class="mt-2">
-            System roles cannot be modified. Create a custom role to define specific permissions.
+          <v-text-field
+            v-model="newRoleName"
+            class="compact-role-field"
+            label="Role Name"
+            variant="outlined"
+            density="compact"
+            placeholder="e.g., Security Analyst"
+            :error-messages="roleNameError"
+            @input="validateRoleName"
+          />
+          <v-textarea
+            v-model="newRoleDescription"
+            class="compact-role-field"
+            label="Role Description"
+            variant="outlined"
+            density="compact"
+            rows="2"
+          />
+          <v-alert v-if="roleStore.error" type="error" variant="tonal" class="mt-2" density="compact">
+            {{ roleStore.error }}
           </v-alert>
         </v-card-text>
         <v-card-actions class="pa-3 pt-0 gap-3">
-          <v-spacer></v-spacer>
-          <v-btn variant="text" @click="closeRoleDialog">Cancel</v-btn>
-          <v-btn color="primary" variant="flat" @click="saveCustomRole" :disabled="!newRoleName.trim()">
+          <v-spacer />
+          <v-btn variant="text" :disabled="roleStore.loading" @click="closeRoleDialog">Cancel</v-btn>
+          <v-btn
+            color="primary"
+            variant="flat"
+            :loading="roleStore.loading"
+            :disabled="!newRoleName.trim() || !!roleNameError"
+            @click="saveCustomRole"
+          >
             {{ editingRoleId ? 'Update Role' : 'Create Role' }}
           </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!-- ── Snackbar Feedback ── -->
+    <v-snackbar
+      v-model="snackbar.show"
+      :color="snackbar.color"
+      :timeout="3500"
+      location="bottom right"
+      rounded="lg"
+      elevation="4"
+    >
+      <div class="d-flex align-center gap-2">
+        <v-icon :icon="snackbar.color === 'success' ? 'mdi-check-circle' : 'mdi-alert-circle'" size="18" />
+        <span class="section-copy font-weight-medium">{{ snackbar.text }}</span>
+      </div>
+    </v-snackbar>
   </v-row>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, inject } from 'vue'
+import { ref, computed, onMounted, inject, watch } from 'vue'
+import { useRoleStore } from '@/stores/roleStore'
+import { usePermissionStore } from '@/stores/permissionStore'
 
-const crudActions = inject('crudActions')
+// ── Injected shared constants (UI-only) ──────────────────────────────────────
+const crudActions          = inject('crudActions')
 const basePermissionModules = inject('basePermissionModules')
-const rolePermissionsStore = inject('rolePermissionsStore')
-const customRoles = inject('customRoles')
-const usersList = inject('usersList')
 
-const selectedRoleForMatrix = ref('system-super-admin')
-const roleDialog = ref(false)
-const editingRoleId = ref(null)
-const newRoleName = ref('')
-const newRoleDescription = ref('')
-const roleNameError = ref('')
+// ── Pinia stores ─────────────────────────────────────────────────────────────
+const roleStore = useRoleStore()
+const permissionStore = usePermissionStore()
 
-const currentRolePermissions = ref([...rolePermissionsStore.value['system-super-admin']])
+// ── Local UI state ───────────────────────────────────────────────────────────
+const selectedRoleForMatrix = ref(null)
+const roleDialog            = ref(false)
+const editingRoleId         = ref(null)
+const newRoleName           = ref('')
+const newRoleDescription    = ref('')
+const roleNameError         = ref('')
+const deleteLoading         = ref(false)
+const savePermLoading       = ref(false)
 
-const roleOptions = computed(() => [
-  { id: 'system-super-admin', name: 'Super Admin (System)', isSystem: true },
-  { id: 'system-manager', name: 'Manager (System)', isSystem: true },
-  ...customRoles.value.map(r => ({ id: r.id, name: `${r.name} (Custom)`, isSystem: false }))
-])
+// Local permission matrix for the selected role
+const currentRolePermissions = ref([])
 
-const selectedRole = computed(() => roleOptions.value.find(role => role.id === selectedRoleForMatrix.value) || null)
-const selectedRoleName = computed(() => selectedRole.value?.name || 'Select Role')
-const selectedRoleIsSystem = computed(() => selectedRole.value?.isSystem ?? false)
+// Snackbar helper
+const snackbar = ref({ show: false, text: '', color: 'success' })
 
-const enabledPermissionsCount = computed(() => 
-  currentRolePermissions.value.reduce((total, permission) => total + countEnabledActions(permission.actions), 0)
+function notify(text, color = 'success') {
+  snackbar.value = { show: true, text, color }
+}
+
+// ── Computed ─────────────────────────────────────────────────────────────────
+
+/** Merge system roles (hardcoded) + custom roles from API */
+const roleOptions = computed(() => {
+  const systemRoles = [
+    { id: 'system-super-admin', name: 'Super Admin (System)', isSystem: true },
+    { id: 'system-manager',     name: 'Manager (System)',     isSystem: true },
+  ]
+  const apiRoles = roleStore.roles.map(r => ({
+    id:       String(r.id),
+    name:     `${r.name} (Custom)`,
+    isSystem: false,
+    _raw:     r,
+  }))
+  return [...systemRoles, ...apiRoles]
+})
+
+const selectedRole         = computed(() => roleOptions.value.find(r => String(r.id) === String(selectedRoleForMatrix.value)) ?? null)
+const selectedRoleName     = computed(() => selectedRole.value?.name ?? 'Select Role')
+const selectedRoleIsSystem = computed(() => selectedRole.value?.isSystem ?? true)
+
+const totalPossiblePermissions = computed(() => {
+  return currentRolePermissions.value.reduce((total, perm) => {
+    // Count how many actions are available for this module
+    const availableActions = crudActions.filter(a => hasActionInModule(perm, a.apiAction)).length
+    return total + availableActions
+  }, 0)
+})
+
+const enabledPermissionsCount = computed(() =>
+  currentRolePermissions.value.reduce((total, perm) => total + countEnabledActions(perm), 0)
 )
 
-function countEnabledActions(actions) {
-  return crudActions.reduce((total, action) => total + (actions[action.key] ? 1 : 0), 0)
+// ── Permission matrix helpers ─────────────────────────────────────────────────
+
+function hasActionInModule(perm, apiAction) {
+  return perm.rawPermissions.some(p => p.action === apiAction)
+}
+
+function countEnabledActions(perm) {
+  return crudActions.reduce((total, action) => {
+    return total + (perm.actions[action.key] ? 1 : 0)
+  }, 0)
 }
 
 function getEnabledPermissionCount(roleId) {
-  const permissions = rolePermissionsStore.value[roleId] || []
-  return permissions.reduce((total, permission) => total + countEnabledActions(permission.actions), 0)
+  // If it's the currently selected role, use currentRolePermissions
+  if (roleId === selectedRoleForMatrix.value) {
+    return enabledPermissionsCount.value
+  }
+  
+  // Otherwise, we'd need to calculate it from the role's permissions array
+  const role = roleStore.roles.find(r => String(r.id || r.role_id) === String(roleId))
+  if (!role) {
+    if (roleId === 'system-super-admin') return totalPossiblePermissions.value
+    if (roleId === 'system-manager') return Math.floor(totalPossiblePermissions.value / 2) // Mock
+    return 0
+  }
+  
+  return role.permissions?.length || 0
 }
 
+/** 
+ * Builds the matrix UI state for a role based on its permission IDs
+ */
 function loadRolePermissions() {
-  if (rolePermissionsStore.value[selectedRoleForMatrix.value]) {
-    currentRolePermissions.value = JSON.parse(JSON.stringify(rolePermissionsStore.value[selectedRoleForMatrix.value]))
-  }
+  if (!selectedRoleForMatrix.value) return
+  
+  const role = roleStore.roles.find(r => String(r.id || r.role_id) === String(selectedRoleForMatrix.value))
+  const rolePermissionIds = role?.permissions || []
+  
+  // System roles logic
+  const isSuperAdmin = selectedRoleForMatrix.value === 'system-super-admin'
+  const isManager = selectedRoleForMatrix.value === 'system-manager'
+
+  currentRolePermissions.value = basePermissionModules.value.map(module => {
+    const actions = {}
+    crudActions.forEach(action => {
+      const permission = module.permissions.find(p => p.action === action.apiAction)
+      if (permission) {
+        if (isSuperAdmin) {
+          actions[action.key] = true
+        } else if (isManager) {
+          // Mock manager logic: can view everything, can create/update some
+          actions[action.key] = action.key === 'read' || ['Asset Management', 'User Management'].includes(module.module)
+        } else {
+          // Custom role logic: check if permission_id is in role's array
+          actions[action.key] = rolePermissionIds.includes(permission.permission_id)
+        }
+      } else {
+        actions[action.key] = false
+      }
+    })
+
+    return {
+      key: module.key,
+      module: module.module,
+      icon: module.icon,
+      description: module.description,
+      actions: actions,
+      rawPermissions: module.permissions
+    }
+  })
 }
 
 function selectRole(roleId) {
@@ -199,101 +381,170 @@ function selectRole(roleId) {
   loadRolePermissions()
 }
 
-function isAllChecked(actions) {
-  return crudActions.every(action => !!actions[action.key])
+function isAllChecked(perm) {
+  return crudActions.every(action => {
+    if (hasActionInModule(perm, action.apiAction)) {
+      return !!perm.actions[action.key]
+    }
+    return true // Ignore unavailable actions
+  })
 }
 
-function toggleAllActions(actions, value) {
-  crudActions.forEach(action => { actions[action.key] = !!value })
-}
-
-function saveRolePermissions() {
-  rolePermissionsStore.value[selectedRoleForMatrix.value] = JSON.parse(JSON.stringify(currentRolePermissions.value))
-  
-  usersList.value.forEach(user => {
-    if (user.roleId === selectedRoleForMatrix.value) {
-      const enabledCount = currentRolePermissions.value.reduce((total, permission) => total + countEnabledActions(permission.actions), 0)
-      user.roleDesc = `${enabledCount} CRUD permissions enabled`
+function toggleAllActions(perm, value) {
+  crudActions.forEach(action => {
+    if (hasActionInModule(perm, action.apiAction)) {
+      perm.actions[action.key] = !!value
     }
   })
-  alert(`Permissions saved for ${selectedRoleName.value}`)
 }
 
+// ── Save permission changes ───────────────────────────────────────────────────
+async function saveRolePermissions() {
+  if (!selectedRoleForMatrix.value || selectedRoleIsSystem.value) return
+
+  const apiRole = roleStore.roles.find(r => String(r.id) === selectedRoleForMatrix.value)
+  if (!apiRole) return
+
+  savePermLoading.value = true
+  try {
+    // Collect real permission IDs from the matrix
+    const enabledIds = []
+    currentRolePermissions.value.forEach(module => {
+      crudActions.forEach(action => {
+        if (module.actions[action.key]) {
+          const permission = module.rawPermissions.find(p => p.action === action.apiAction)
+          if (permission) {
+            enabledIds.push(permission.permission_id)
+          }
+        }
+      })
+    })
+
+    await roleStore.updateRoleAction(apiRole.id, {
+      name:        apiRole.name,
+      description: apiRole.description,
+      permissions: enabledIds,
+    })
+    notify(`Permissions saved for ${selectedRoleName.value}`)
+  } catch (err) {
+    notify(roleStore.error ?? 'Failed to save permissions', 'error')
+  } finally {
+    savePermLoading.value = false
+  }
+}
+
+// ── Role dialog ───────────────────────────────────────────────────────────────
 function openRoleDialog(roleId = null) {
+  roleStore.clearError()
   editingRoleId.value = roleId
-  if (roleId) {
-    const role = customRoles.value.find(r => r.id === roleId)
-    if (role) {
-      newRoleName.value = role.name
-      newRoleDescription.value = role.description
-    }
+
+  if (roleId && !selectedRoleIsSystem.value) {
+    const apiRole = roleStore.roles.find(r => String(r.id) === roleId)
+    newRoleName.value        = apiRole?.name        ?? ''
+    newRoleDescription.value = apiRole?.description ?? ''
   } else {
-    newRoleName.value = ''
+    newRoleName.value        = ''
     newRoleDescription.value = ''
   }
+
   roleNameError.value = ''
-  roleDialog.value = true
+  roleDialog.value    = true
 }
 
 function validateRoleName() {
-  if (!newRoleName.value.trim()) {
+  const trimmed = newRoleName.value.trim()
+  if (!trimmed) {
     roleNameError.value = 'Role name is required'
-  } else if (customRoles.value.some(r => r.name.toLowerCase() === newRoleName.value.trim().toLowerCase() && r.id !== editingRoleId.value)) {
+  } else if (
+    roleStore.roles.some(
+      r => r.name.toLowerCase() === trimmed.toLowerCase() && String(r.id) !== editingRoleId.value
+    )
+  ) {
     roleNameError.value = 'A role with this name already exists'
   } else {
     roleNameError.value = ''
   }
 }
 
-function saveCustomRole() {
+async function saveCustomRole() {
+  validateRoleName()
   if (roleNameError.value || !newRoleName.value.trim()) return
-  const roleId = `custom-${newRoleName.value.trim().toLowerCase().replace(/\s+/g, '-')}`
-  
-  if (editingRoleId.value) {
-    const roleIndex = customRoles.value.findIndex(r => r.id === editingRoleId.value)
-    if (roleIndex !== -1) {
-      customRoles.value[roleIndex].name = newRoleName.value.trim()
-      customRoles.value[roleIndex].description = newRoleDescription.value.trim()
+
+  try {
+    if (editingRoleId.value) {
+      const apiRole = roleStore.roles.find(r => String(r.id) === editingRoleId.value)
+      await roleStore.updateRoleAction(apiRole.id, {
+        name:        newRoleName.value.trim(),
+        description: newRoleDescription.value.trim(),
+        permissions: apiRole?.permissions ?? [],
+      })
+      notify('Role updated successfully')
+    } else {
+      const newRole = await roleStore.createRole({
+        name:        newRoleName.value.trim(),
+        description: newRoleDescription.value.trim(),
+        permission:  [],
+      })
+      notify('Role created successfully')
+      closeRoleDialog()
+      if (newRole?.id) selectRole(String(newRole.id))
+      return
     }
-  } else {
-    customRoles.value.push({ id: roleId, name: newRoleName.value.trim(), description: newRoleDescription.value.trim() })
-    rolePermissionsStore.value[roleId] = JSON.parse(JSON.stringify(rolePermissionsStore.value['system-manager']))
+  } catch {
+    notify(roleStore.error ?? 'Operation failed', 'error')
+    return
   }
+
   closeRoleDialog()
-  selectedRoleForMatrix.value = editingRoleId.value || roleId
-  loadRolePermissions()
 }
 
-function deleteCustomRole() {
-  if (confirm('Are you sure you want to delete this custom role?')) {
-    const roleId = selectedRoleForMatrix.value
-    const roleIndex = customRoles.value.findIndex(r => r.id === roleId)
-    if (roleIndex !== -1) {
-      customRoles.value.splice(roleIndex, 1)
-      delete rolePermissionsStore.value[roleId]
-      
-      usersList.value.forEach(user => {
-        if (user.roleId === roleId) {
-          user.roleId = 'system-manager'
-          user.role = 'system-manager'
-          user.roleColor = 'grey-darken-3'
-          user.roleDesc = 'Restricted Access'
-        }
-      })
-      selectedRoleForMatrix.value = 'system-super-admin'
-      loadRolePermissions()
-    }
+async function deleteCustomRole() {
+  if (!confirm('Are you sure you want to delete this custom role?')) return
+
+  const apiRole = roleStore.roles.find(r => String(r.id) === selectedRoleForMatrix.value)
+  if (!apiRole) return
+
+  deleteLoading.value = true
+  try {
+    await roleStore.deleteRoleAction(apiRole.id)
+    notify('Role deleted successfully')
+    selectRole('system-super-admin')
+  } catch {
+    notify(roleStore.error ?? 'Failed to delete role', 'error')
+  } finally {
+    deleteLoading.value = false
   }
 }
 
 function closeRoleDialog() {
-  roleDialog.value = false
+  roleDialog.value    = false
   editingRoleId.value = null
-  newRoleName.value = ''
+  newRoleName.value        = ''
   newRoleDescription.value = ''
+  roleStore.clearError()
 }
 
-onMounted(() => loadRolePermissions())
+// ── Lifecycle & Watchers ──────────────────────────────────────────────────────
+onMounted(() => {
+  // If roles are already loaded, select default
+  if (roleStore.roles.length > 0) {
+    selectRole('system-super-admin')
+  }
+})
+
+// When basePermissionModules becomes available, reload if a role is selected
+watch(basePermissionModules, () => {
+  if (selectedRoleForMatrix.value) {
+    loadRolePermissions()
+  }
+}, { deep: true })
+
+// When roles are loaded/updated, refresh the matrix if it's the selected role
+watch(() => roleStore.roles, () => {
+  if (selectedRoleForMatrix.value && !selectedRoleIsSystem.value) {
+    loadRolePermissions()
+  }
+}, { deep: true })
 </script>
 
 <style scoped>
@@ -307,76 +558,39 @@ onMounted(() => loadRolePermissions())
 .border-e { border-right: 1px solid rgba(var(--v-border-color), var(--v-border-opacity)); }
 .dashboard-kicker { font-size: 9px; text-transform: uppercase; letter-spacing: 0.4px; }
 .role-panel { background: rgba(var(--v-theme-surface-variant), 0.18); }
-.role-list-item { width: 100%; border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity)); border-radius: 10px; padding: 12px; background: rgb(var(--v-theme-surface)); transition: all 0.2s ease; }
+.role-list-item {
+  width: 100%;
+  border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+  border-radius: 10px;
+  padding: 12px;
+  background: rgb(var(--v-theme-surface));
+  transition: all 0.2s ease;
+}
 .role-list-item:hover { border-color: rgba(var(--v-theme-primary), 0.45); transform: translateY(-1px); }
 .role-list-item.active { background: rgba(var(--v-theme-primary), 0.08); border-color: rgb(var(--v-theme-primary)); }
-.role-panel-copy {
-  font-size: 0.67rem;
-  line-height: 1.2;
-}
+.role-panel-copy { font-size: 0.67rem; line-height: 1.2; }
 .role-item-title { font-size: 0.72rem; line-height: 1.2; }
-.role-item-copy {
-  font-size: 0.68rem;
-  line-height: 1.2;
-}
-.dialog-title {
-  font-size: 0.84rem;
-  line-height: 1.2;
-}
-.compact-role-field :deep(.v-field__input) {
-  font-size: 0.7rem;
-  line-height: 1.2;
-}
-.compact-role-field :deep(.v-field__input::placeholder) {
-  font-size: 0.68rem;
-  opacity: 0.72;
-}
-.compact-role-field :deep(.v-label.v-field-label) {
-  font-size: 0.68rem;
-}
-.compact-role-field :deep(textarea) {
-  font-size: 0.7rem;
-  line-height: 1.25;
-}
-.compact-role-field :deep(.v-field) {
-  --v-input-control-height: 34px;
-}
-.table-cell-title {
-  font-size: 0.7rem;
-  line-height: 1.2;
-}
-.table-cell-copy {
-  font-size: 0.68rem;
-  line-height: 1.25;
-}
+.role-item-copy { font-size: 0.68rem; line-height: 1.2; }
+.dialog-title { font-size: 0.84rem; line-height: 1.2; }
+.compact-role-field :deep(.v-field__input) { font-size: 0.7rem; line-height: 1.2; }
+.compact-role-field :deep(.v-field__input::placeholder) { font-size: 0.68rem; opacity: 0.72; }
+.compact-role-field :deep(.v-label.v-field-label) { font-size: 0.68rem; }
+.compact-role-field :deep(textarea) { font-size: 0.7rem; line-height: 1.25; }
+.compact-role-field :deep(.v-field) { --v-input-control-height: 34px; }
+.table-cell-title { font-size: 0.7rem; line-height: 1.2; }
+.table-cell-copy { font-size: 0.68rem; line-height: 1.25; }
 .compact-table :deep(th),
-.compact-table :deep(td) {
-  padding-top: 5px;
-  padding-bottom: 5px;
-}
-.compact-table :deep(thead th) {
-  font-size: 9px !important;
-  min-height: 34px;
-}
-.permission-checkbox :deep(.v-selection-control) {
-  min-height: 22px;
-  justify-content: center;
-}
+.compact-table :deep(td) { padding-top: 5px; padding-bottom: 5px; }
+.compact-table :deep(thead th) { font-size: 9px !important; min-height: 34px; }
+.permission-checkbox :deep(.v-selection-control) { min-height: 22px; justify-content: center; }
 .permission-checkbox :deep(.v-selection-control__wrapper) {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
+  width: 22px; height: 22px; border-radius: 50%;
   border: 1px solid rgba(var(--v-theme-primary), 0.24);
   background: rgba(var(--v-theme-primary), 0.04);
   transition: all 0.18s ease;
 }
-.permission-checkbox :deep(.v-selection-control__input) {
-  width: 22px;
-  height: 22px;
-}
-.permission-checkbox :deep(.v-icon) {
-  font-size: 0.82rem;
-}
+.permission-checkbox :deep(.v-selection-control__input) { width: 22px; height: 22px; }
+.permission-checkbox :deep(.v-icon) { font-size: 0.82rem; }
 .permission-checkbox :deep(.v-selection-control:hover .v-selection-control__wrapper) {
   border-color: rgba(var(--v-theme-primary), 0.42);
   background: rgba(var(--v-theme-primary), 0.08);
