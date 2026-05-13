@@ -93,7 +93,7 @@ const patch = async <T = unknown>(
   payload: unknown = {},
   options: RequestOptions = {}
 ): Promise<T> => {
-  const { config, cleanup } = buildConfig('PUT', url, options)
+  const { config, cleanup } = buildConfig('PATCH', url, options)
   return executeRequest<T>(apiClient.patch(url, payload, config), cleanup)
 }
 
