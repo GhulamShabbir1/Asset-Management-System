@@ -2,7 +2,7 @@
   <v-container fluid class="pa-0 mx-auto history-view" style="max-width: 1400px;">
   
     <v-card rounded="lg" elevation="0" border class="mb-3 pa-3 bg-grey-lighten-4">
-      <v-row align="center" dense class="mx-n1">
+      <v-row align="center" density="compact" class="mx-n1">
         <v-col cols="12" md="4" class="px-2">
           <v-text-field
             class="compact-filter-field"

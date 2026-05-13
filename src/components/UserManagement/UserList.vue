@@ -177,6 +177,8 @@ const tableHeaders = [
 
 // FIXED: Computed property to handle filtering by Active/Deactivated
 const filteredUsersList = computed(() => {
+  // Active/Deactivated filtering only; role selection is not part of this filter
+  // to avoid showing all users when a custom role is chosen.
   if (activeFilter.value === 'Active') {
     return usersList.value.filter(user => user.isActive)
   }
@@ -191,9 +193,9 @@ function createCrudState(overrides = {}) {
 }
 
 function getRoleDisplayName(roleId) {
-  if (roleId === 'system-super-admin') return 'Super Admin'
-  if (roleId === 'system-manager') return 'Manager'
-  const customRole = customRoles.value.find(r => r.id === roleId)
+  if (String(roleId) === 'system-super-admin') return 'Super Admin'
+  if (String(roleId) === 'system-manager') return 'Manager'
+  const customRole = customRoles.value.find(r => String(r.id) === String(roleId))
   return customRole ? customRole.name : roleId
 }
 
