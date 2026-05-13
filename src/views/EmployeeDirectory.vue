@@ -1,107 +1,102 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
+import CreateEmployeeModal from '@/components/modals/CreateEmployeeModal.vue'
+import * as employeeService from '@/services/employeeService'
+import type { CreateEmployeePayload } from '@/services/employeeService'
+import { getAllDepartments } from '@/services/departmentService'
+import type { Department } from '@/services/departmentService'
 
+// Employee interface matching API response
 interface Employee {
-  id: string
+  id: string | number
   name: string
-  email: string
-  department: string
-  lastActivity: string
-  status: 'Active' | 'Inactive' | 'Action Required'
-  role: 'Administrator' | 'Manager' | 'Regular User'
-  image: string
+  father_name?: string
+  email?: string
+  contact_info?: string
+  department?: string
+  department_id?: number
+  address?: string
+  designation?: string
+  joining_date?: string
+  salary?: number
+  status: 'active' | 'inactive' | 'on_leave'
+  lastActivity?: string
+  role?: 'Administrator' | 'Manager' | 'Regular User'
+  image?: string
   hasAlert?: boolean
 }
 
+// UI state
 const searchQuery = ref('')
 const selectedDepartment = ref('All Departments')
 const selectedStatus = ref('All Statuses')
 const selectedRole = ref('All Roles')
 const selectedRows = ref<Employee[]>([])
 const filterMenu = ref(false)
+const createEmployeeDialog = ref(false)
 
-const departments = ['All Departments', 'Engineering', 'Product', 'Sales', 'HR']
-const statuses = ['All Statuses', 'Active', 'Inactive', 'Action Required']
+// Data state
+const employees = ref<Employee[]>([])
+const departments = ref<Department[]>([])
+const departmentMap = ref<Record<number, string>>({})
+
+// Loading and error states
+const isLoading = ref(false)
+const isLoadingDepartments = ref(false)
+const errorMessage = ref('')
+const successMessage = ref('')
+
+// Delete confirmation state
+const deleteConfirmDialog = ref(false)
+const employeeToDelete = ref<Employee | null>(null)
+const isDeleting = ref(false)
+
+// Edit state
+const editingEmployee = ref<(CreateEmployeePayload & { id?: number | string }) | undefined>()
+
+const statuses = ['All Statuses', 'active', 'inactive', 'on_leave']
 const roles = ['All Roles', 'Administrator', 'Manager', 'Regular User']
 
 const headers = [
   { title: 'Name', key: 'name', sortable: false },
   { title: 'Employee ID', key: 'id', sortable: false },
   { title: 'Department', key: 'department', sortable: false },
-  { title: 'Last Activity', key: 'lastActivity', sortable: false },
+  { title: 'Email', key: 'email', sortable: false },
   { title: 'Status', key: 'status', sortable: false },
   { title: 'Actions', key: 'actions', sortable: false, align: 'end' as const },
 ]
 
-const employees: Employee[] = [
-  {
-    id: 'EMP-2024-001',
-    name: 'Sarah Jenkins',
-    email: 'sarah.j@company.com',
-    department: 'Engineering',
-    lastActivity: '2 hours ago',
-    status: 'Active',
-    role: 'Manager',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCBapFrXGhtWu3i0xnGOOZRa-MsI-MLgXkLHdqeR0H8hX3V7VaEHqLXQXeYoQIAbL1oz6wblgrD2RX_OEd-xCvS6FxZMWWI85Zkh_YR6oUbNJ0vOaPP6J0tqf7YWNXyH6EkTwp7nIAyd7HR8_D5YL09ueQek_RA37XIyW1FkF_AbyPCr8QC4PNbdOGAtA0U3aSvZACp4qgXoTpy9WRa6UDKxn_10qUx2Y2iZAKCi2pzb9NAWqzH5G-GK8roZ-xs177DOV2HEdExp2aJ',
-  },
-  {
-    id: 'EMP-2024-045',
-    name: 'Marcus Thorne',
-    email: 'm.thorne@company.com',
-    department: 'Product',
-    lastActivity: 'Yesterday',
-    status: 'Active',
-    role: 'Regular User',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDhOlSjmxWo1Wqv5NaUEt8pZpVFj66rGMrhg87tPvFunZKLytIw5zfH_R-03LVzpsPSPe_nwNHJVGMeFx7lB8f5YiJbUsDa-Hmewf13P0qEJPqBjp5B2-IAuPHU1MiAdo6OUuDkX8rNwzjkxsnztgQ3PgiXKYCIXypJ4zmeCZYvA7-fgBrAIjAkepy0wUOnItXvJHeh0Xhhhvb-b0_xjSWbhcfvn5oqBu4bvb-v7i7dY8YUvifWNWzgZfMk4fHeP-vB42kzNWckgSKF',
-  },
-  {
-    id: 'EMP-2023-112',
-    name: 'Elena Rodriguez',
-    email: 'elena.r@company.com',
-    department: 'HR',
-    lastActivity: '5 days ago',
-    status: 'Action Required',
-    role: 'Administrator',
-    hasAlert: true,
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBXXcjJh6-HidYMOeQDQTLzfz5327iuJ4LyB-qmAlngfqkcvGWf1tiSa7T4CC_wJJWLto0nTBTY-MYhwN5uGGLnkGo0hT8wXaIJDfkWzvKUwAVO86eVZLtGQiD-G8UHSpj3IdJnJYY4PN2fb1okOhyBz-bzpli0zLAvFvPyJ6ZoDphgNnDGZPGtHCdYuZp13EtADrPY-NE0ZA43cVrI7p9echXXXuRzq_a_uXQ7VqIyYd96h3H8a7L96Bbnsgcx_NRzeIM8Bd-zM2Io',
-  },
-  {
-    id: 'EMP-2024-102',
-    name: 'David Chen',
-    email: 'd.chen@company.com',
-    department: 'Sales',
-    lastActivity: '1 month ago',
-    status: 'Inactive',
-    role: 'Manager',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBRzmh0W0QFsBZTmPRZAuK1YacRyJ4G2nlcUl8iXBApKdWayG7fBe__tC6vJyl_-BM54NTbfZkVEW9Emzsq9WVHpZIzfMQPyaZbbQqb8LCupCkCiw3O47IRQqn1AvJH7CE_lzPEe2pTPpI9uHsRSCFvX8k5jCDYfTy4BC7VnkoPnqqdHb2inLTwD_fzkDADUeGc7hPQ7IY6T43STEEHOB9qr8y8gUJXlbzQZd-lNQDhOtyktRWc5WnCE0b-C4D7GaW6gCE0B7sgv5Tp',
-  },
-  {
-    id: 'EMP-2024-089',
-    name: 'Sophie Muller',
-    email: 's.muller@company.com',
-    department: 'Engineering',
-    lastActivity: '4 hours ago',
-    status: 'Active',
-    role: 'Regular User',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAVaUVS_XdKcsnjDhtyD8vSfc8Fu1QllqE0LpXdJGF7RCA0oLLXUP_SbKX-K-545i_UsEWJdoEnjYYcqFC8aswm0cN9aWLeRhd9pirIuNPba58GEI5l0PoHp7gHLeWazTsK01GrWjWD716YWreszfkB1uAWucUZMt6pfh-89hzwvwWklAQC2BXS37a0QV0U1FvBu2Rz_Wun9Hs-QAj4FKUw9lghN8Vj_Ij6ETqdon25eQqRutG7AWrJ3QcfUVYAhNkUH6SSTOX8UDiX',
-  },
-]
+// Computed dynamic department list
+const departmentList = computed(() => {
+  return ['All Departments', ...departments.value.map(d => d.department_name)]
+})
 
+// Map employee status to display status
+const mapStatus = (status: string): Employee['status'] => {
+  if (status === 'active' || status === 'Active') return 'active'
+  if (status === 'inactive' || status === 'Inactive') return 'inactive'
+  if (status === 'on_leave' || status === 'Action Required') return 'on_leave'
+  return 'active'
+}
+
+// Filter employees based on search and filters
 const filteredEmployees = computed(() => {
   const query = searchQuery.value.trim().toLowerCase()
 
-  return employees.filter((employee) => {
+  return employees.value.filter((employee) => {
     const matchesSearch =
       query.length === 0 ||
       employee.name.toLowerCase().includes(query) ||
-      employee.email.toLowerCase().includes(query) ||
-      employee.id.toLowerCase().includes(query)
+      employee.email?.toLowerCase().includes(query) ||
+      String(employee.id).toLowerCase().includes(query)
 
     const matchesDepartment =
-      selectedDepartment.value === 'All Departments' || employee.department === selectedDepartment.value
+      selectedDepartment.value === 'All Departments' ||
+      employee.department === selectedDepartment.value
 
     const matchesStatus =
-      selectedStatus.value === 'All Statuses' || employee.status === selectedStatus.value
+      selectedStatus.value === 'All Statuses' ||
+      mapStatus(employee.status) === selectedStatus.value
 
     const matchesRole = selectedRole.value === 'All Roles' || employee.role === selectedRole.value
 
@@ -109,8 +104,9 @@ const filteredEmployees = computed(() => {
   })
 })
 
+// Get department color for chips
 const getDepartmentColor = (department: string) => {
-  const normalized = department.toLowerCase()
+  const normalized = department?.toLowerCase() || 'grey'
   if (normalized === 'engineering') return 'blue-darken-1'
   if (normalized === 'product') return 'grey-darken-3'
   if (normalized === 'sales') return 'deep-purple-darken-1'
@@ -118,23 +114,259 @@ const getDepartmentColor = (department: string) => {
   return 'grey'
 }
 
-const getStatusColor = (status: Employee['status']) => {
-  if (status === 'Active') return 'success'
-  if (status === 'Inactive') return 'grey-darken-1'
-  return 'error' 
+// Get status color
+const getStatusColor = (status: string) => {
+  const normalized = status?.toLowerCase() || 'active'
+  if (normalized === 'active') return 'success'
+  if (normalized === 'inactive') return 'grey-darken-1'
+  if (normalized === 'on_leave') return 'warning'
+  return 'grey'
 }
 
+// Format status for display
+const formatStatus = (status: string) => {
+  if (status === 'active') return 'Active'
+  if (status === 'inactive') return 'Inactive'
+  if (status === 'on_leave') return 'On Leave'
+  return status
+}
+
+// Fetch departments from API
+const fetchDepartments = async () => {
+  try {
+    isLoadingDepartments.value = true
+    const response = await getAllDepartments()
+    if (response?.data) {
+      departments.value = Array.isArray(response.data)
+        ? response.data
+        : response.data.data || []
+      
+      // Create department map for quick lookup
+      departmentMap.value = {}
+      departments.value.forEach(dept => {
+        departmentMap.value[dept.id] = dept.department_name
+      })
+    }
+  } catch (error) {
+    console.error('Failed to fetch departments:', error)
+  } finally {
+    isLoadingDepartments.value = false
+  }
+}
+
+// Fetch employees from API
+const fetchEmployees = async () => {
+  try {
+    isLoading.value = true
+    errorMessage.value = ''
+    
+    const response = await employeeService.getEmployees()
+    
+    if (response?.data) {
+      // Handle if response is array or has data property
+      const employeeList = Array.isArray(response.data) ? response.data : response.data
+      
+      // Map API response to employee interface
+      employees.value = employeeList.map(emp => {
+        // Map ID field - backend may use 'employee_id', 'id', or other variations
+        const employeeId = emp.employee_id || emp.id || emp.emp_id
+        
+        console.log('Mapping employee:', {
+          apiId: emp.id,
+          apiEmployeeId: emp.employee_id,
+          mappedId: employeeId,
+          name: emp.name,
+        })
+        
+        return {
+          id: employeeId,
+          name: emp.name,
+          father_name: emp.father_name,
+          email: emp.email,
+          contact_info: emp.contact_info,
+          department: departmentMap.value[emp.department_id] || 'Unknown',
+          department_id: emp.department_id,
+          address: emp.address,
+          designation: emp.designation,
+          joining_date: emp.joining_date,
+          salary: emp.salary,
+          status: emp.status,
+          lastActivity: new Date().toLocaleString(),
+          role: 'Regular User',
+          image: emp.image,
+        }
+      })
+    }
+  } catch (error) {
+    console.error('Failed to fetch employees:', error)
+    errorMessage.value = 'Failed to load employees. Please try again.'
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// Reset filters
 const resetFilters = () => {
   searchQuery.value = ''
   selectedDepartment.value = 'All Departments'
   selectedStatus.value = 'All Statuses'
   selectedRole.value = 'All Roles'
 }
+
+// Handle create employee
+const handleCreateEmployee = async (data: CreateEmployeePayload) => {
+  try {
+    isLoading.value = true
+    errorMessage.value = ''
+    successMessage.value = ''
+
+    if (editingEmployee.value?.id) {
+      // Update existing employee
+      await employeeService.updateEmployee(editingEmployee.value.id, data)
+      successMessage.value = 'Employee updated successfully!'
+      editingEmployee.value = undefined
+    } else {
+      // Create new employee
+      await employeeService.createEmployee(data)
+      successMessage.value = 'Employee created successfully!'
+    }
+
+    // Refresh employee list
+    await fetchEmployees()
+    createEmployeeDialog.value = false
+
+    // Clear success message after 3 seconds
+    setTimeout(() => {
+      successMessage.value = ''
+    }, 3000)
+  } catch (error) {
+    console.error('Failed to save employee:', error)
+    errorMessage.value = 'Failed to save employee. Please try again.'
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// Open create employee dialog
+const openCreateDialog = () => {
+  editingEmployee.value = undefined
+  createEmployeeDialog.value = true
+}
+
+// Open edit employee dialog
+const openEditDialog = (employee: Employee) => {
+  // Get the proper ID (handle different field names from backend)
+  const employeeId = employee.employee_id || employee.id || employee.emp_id
+  
+  editingEmployee.value = {
+    name: employee.name,
+    father_name: employee.father_name,
+    contact_info: employee.contact_info,
+    email: employee.email,
+    address: employee.address,
+    designation: employee.designation,
+    joining_date: employee.joining_date,
+    salary: employee.salary,
+    status: employee.status,
+    department_id: employee.department_id || 0,
+    id: employeeId,
+  }
+  createEmployeeDialog.value = true
+}
+
+// Open delete confirmation dialog
+const openDeleteConfirm = (employee: Employee) => {
+  employeeToDelete.value = employee
+  deleteConfirmDialog.value = true
+}
+
+// Confirm and delete employee
+const confirmDelete = async () => {
+  if (!employeeToDelete.value) return
+
+  try {
+    isDeleting.value = true
+    errorMessage.value = ''
+
+    // Get the proper employee ID (handle different field names)
+    const employeeId = employeeToDelete.value.employee_id || employeeToDelete.value.id || employeeToDelete.value.emp_id
+    
+    if (!employeeId || employeeId === 'undefined') {
+      throw new Error('Invalid employee ID. Employee may not have been properly loaded.')
+    }
+
+    console.log('Attempting to delete employee with ID:', employeeId, 'Full employee:', employeeToDelete.value)
+    
+    const response = await employeeService.deleteEmployee(employeeId)
+    
+    console.log('Delete response:', response)
+    
+    successMessage.value = 'Employee deleted successfully!'
+    
+    // Remove from local list
+    employees.value = employees.value.filter(
+      emp => {
+        const empId = emp.employee_id || emp.id || emp.emp_id
+        const deleteId = employeeToDelete.value?.employee_id || employeeToDelete.value?.id || employeeToDelete.value?.emp_id
+        return empId !== deleteId
+      }
+    )
+
+    // Clear success message after 3 seconds
+    setTimeout(() => {
+      successMessage.value = ''
+    }, 3000)
+  } catch (error: any) {
+    console.error('Delete error details:', {
+      error: error,
+      message: error?.message,
+      status: error?.status,
+      data: error?.data,
+      employee: employeeToDelete.value,
+    })
+    errorMessage.value = error?.message || 'Failed to delete employee. Please try again.'
+  } finally {
+    isDeleting.value = false
+    deleteConfirmDialog.value = false
+    employeeToDelete.value = null
+  }
+}
+
+// Lifecycle
+onMounted(async () => {
+  // Fetch departments first, then employees
+  await fetchDepartments()
+  await fetchEmployees()
+})
 </script>
 
 <template>
   <div class="w-100">
-    
+    <!-- Success message -->
+    <v-alert 
+      v-if="successMessage" 
+      type="success" 
+      variant="tonal" 
+      class="mb-4"
+      closable
+      @click:close="successMessage = ''"
+    >
+      {{ successMessage }}
+    </v-alert>
+
+    <!-- Error message -->
+    <v-alert 
+      v-if="errorMessage" 
+      type="error" 
+      variant="tonal" 
+      class="mb-4"
+      closable
+      @click:close="errorMessage = ''"
+    >
+      {{ errorMessage }}
+    </v-alert>
+
+    <!-- Search and Filter Bar -->
     <v-card outlined flat class="d-flex align-center pa-3 ga-4 flex-nowrap mb-4">
       <v-text-field
         v-model="searchQuery"
@@ -179,10 +411,11 @@ const resetFilters = () => {
               <div class="text-caption text-medium-emphasis mb-1">Department</div>
               <v-select
                 v-model="selectedDepartment"
-                :items="departments"
+                :items="departmentList"
                 variant="outlined"
                 density="compact"
                 hide-details
+                :loading="isLoadingDepartments"
               />
             </div>
 
@@ -230,6 +463,7 @@ const resetFilters = () => {
           prepend-icon="mdi-account-plus"
           class="text-none font-weight-bold rounded-md text-white"
           elevation="0"
+          @click="openCreateDialog"
         >
           Add Employee
         </v-btn>
@@ -246,7 +480,18 @@ const resetFilters = () => {
       </div>
     </v-card>
 
-    <v-card border elevation="0">
+    <!-- Loading state -->
+    <v-card v-if="isLoading" border elevation="0" class="pa-4">
+      <div class="d-flex align-center justify-center" style="height: 400px">
+        <div class="text-center">
+          <v-progress-circular indeterminate color="primary" class="mb-4" />
+          <div class="text-body-2">Loading employees...</div>
+        </div>
+      </div>
+    </v-card>
+
+    <!-- Data table -->
+    <v-card v-else border elevation="0">
       <v-data-table
         v-model="selectedRows"
         :headers="headers"
@@ -256,27 +501,36 @@ const resetFilters = () => {
         density="comfortable"
         :items-per-page="20"
         class="table-with-scroll"
+        :loading="isLoading"
       >
         <template #item.name="{ item }">
           <div class="d-flex align-center ga-3 py-2">
             <v-avatar :image="item.image" size="40" />
             <div>
               <div class="text-body-md font-weight-bold text-on-surface">{{ item.name }}</div>
-              <div class="text-caption text-on-surface-variant">{{ item.email }}</div>
+              <div class="text-caption text-on-surface-variant">{{ item.email || item.contact_info }}</div>
             </div>
           </div>
+        </template>
+
+        <template #item.id="{ item }">
+          <div class="text-caption">{{ item.id }}</div>
         </template>
 
         <template #item.department="{ item }">
           <v-chip
             size="small"
             variant="tonal"
-            :color="getDepartmentColor(item.department)"
+            :color="getDepartmentColor(item.department || '')"
             class="text-caption font-weight-bold"
             label
           >
-            {{ item.department.toUpperCase() }}
+            {{ item.department?.toUpperCase() || 'N/A' }}
           </v-chip>
+        </template>
+
+        <template #item.email="{ item }">
+          <div class="text-caption">{{ item.email || item.contact_info || '-' }}</div>
         </template>
 
         <template #item.status="{ item }">
@@ -287,33 +541,65 @@ const resetFilters = () => {
             class="text-caption text-uppercase font-weight-bold"
             label
           >
-            {{ item.status }}
+            {{ formatStatus(item.status) }}
           </v-chip>
         </template>
 
         <template #item.actions="{ item }">
           <div class="d-flex justify-end align-center ga-1">
             <v-btn
-              v-if="item.hasAlert"
-              icon="mdi-alert-circle-outline"
+              icon="mdi-pencil"
+              variant="text"
+              size="small"
+              color="primary"
+              @click="openEditDialog(item)"
+              title="Edit employee"
+            />
+            <v-btn
+              icon="mdi-delete"
               variant="text"
               size="small"
               color="error"
+              @click="openDeleteConfirm(item)"
+              title="Delete employee"
             />
-            <v-menu>
-              <template #activator="{ props }">
-                <v-btn v-bind="props" icon="mdi-dots-vertical" variant="text" size="small" />
-              </template>
-              <v-list density="compact">
-                <v-list-item title="View Details" />
-                <v-list-item title="Edit" />
-                <v-list-item title="Delete" />
-              </v-list>
-            </v-menu>
+          </div>
+        </template>
+
+        <template #bottom>
+          <div v-if="filteredEmployees.length === 0" class="d-flex align-center justify-center pa-8">
+            <div class="text-center">
+              <v-icon size="48" class="mb-4 text-medium-emphasis">mdi-folder-open</v-icon>
+              <div class="text-body-2 text-medium-emphasis">No employees found</div>
+            </div>
           </div>
         </template>
       </v-data-table>
     </v-card>
+
+    <!-- Delete confirmation dialog -->
+    <v-dialog v-model="deleteConfirmDialog" max-width="400px">
+      <v-card>
+        <v-card-title class="text-h6">Confirm Delete</v-card-title>
+        <v-card-text>
+          Are you sure you want to delete <strong>{{ employeeToDelete?.name }}</strong>? This action cannot be undone.
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn color="grey-darken-1" variant="text" @click="deleteConfirmDialog = false">Cancel</v-btn>
+          <v-btn color="error" variant="flat" :loading="isDeleting" @click="confirmDelete">
+            Delete
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Create/Edit Employee Modal -->
+    <CreateEmployeeModal 
+      v-model="createEmployeeDialog" 
+      :editing-employee="editingEmployee"
+      @submit="handleCreateEmployee" 
+    />
   </div>
 </template>
 

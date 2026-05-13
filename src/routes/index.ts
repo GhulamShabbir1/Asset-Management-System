@@ -74,14 +74,11 @@ const router = createRouter({
           name: 'history',
           component: () => import('@/views/HistoryView.vue'),
         },
-<<<<<<< HEAD
         // {
         //   path: 'reports',
         //   name: 'reports',
         //   component: () => import('@/views/ReportsView.vue'),
         // },
-=======
->>>>>>> origin
         {
           path: 'users',
           name: 'users',
