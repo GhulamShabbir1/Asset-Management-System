@@ -1,37 +1,26 @@
 <script setup lang="ts">
 import { computed, ref, onMounted, watch } from 'vue'
-import CreateAssignmentModal from '@/components/modals/CreateAssignModal.vue'
 import CreateAssetModal from '@/components/modals/CreateAssetModal.vue'
 import ServerPagination from '@/components/common/ServerPagination.vue'
-
-// Services
-import assetService, { type Asset, type CreateAssetPayload } from '@/services/assetService'
-import assignmentService, { type CheckoutPayload } from '@/services/assignmentService'
-
 import ConfirmDeleteModal from '@/components/modals/ConfirmDeleteModal.vue'
+import assetService, { type Asset, type CreateAssetPayload } from '@/services/assetService'
 
-// Delete Modal State
 const showDeleteModal = ref(false)
 const isDeleting = ref(false)
 const itemToDelete = ref<{ id: number | string, name: string } | null>(null)
 
-// Modal States
-const showAssignmentModal = ref(false)
 const showAssetModal = ref(false)
+const selectedAsset = ref<Asset | null>(null)
 
-// Table & Filter States
 const filters = ['All', 'Available', 'Assigned', 'Maintenance', 'Inactive']
 const activeFilter = ref('All')
 const assets = ref<Asset[]>([])
 const isLoading = ref(false)
 
-// Pagination States
 const currentPage = ref(1)
 const totalPages = ref(1)
 const totalAssetsCount = ref(0)
 const itemsPerPage = ref(15)
-
-// --- API Calls ---
 
 const fetchAssetsList = async () => {
   isLoading.value = true
@@ -50,26 +39,21 @@ const fetchAssetsList = async () => {
     if (response && response.success && response.data) {
       const responseData = response.data as any
       
-      // Bulletproof array extraction: checks for flat array, .data array, or .list array
       assets.value = Array.isArray(responseData) 
         ? responseData 
         : (responseData.data || responseData.list || [])
         
-      // Safely extract pagination totals
       const meta = responseData.meta || responseData
       totalAssetsCount.value = meta.total || assets.value.length
       totalPages.value = meta.last_page || meta.lastPage || 1
     }
   } catch (error: any) {
     console.error('Failed to fetch assets:', error)
-    const errorMsg = error.response?.data?.message || error.message
-    // Optional: alert(`Failed to load assets: ${errorMsg}`)
   } finally {
     isLoading.value = false
   }
 }
 
-// Reset page to 1 when changing filters
 watch(activeFilter, () => {
   currentPage.value = 1
   fetchAssetsList()
@@ -79,36 +63,27 @@ onMounted(() => {
   fetchAssetsList()
 })
 
-// --- Form Submissions ---
+const openCreateModal = () => {
+  selectedAsset.value = null
+  showAssetModal.value = true
+}
+
+const openEditModal = (asset: Asset) => {
+  selectedAsset.value = { ...asset }
+  showAssetModal.value = true
+}
 
 const handleAssetSave = async (data: CreateAssetPayload) => {
   try {
-    await assetService.createAsset(data)
-    showAssetModal.value = false
-    fetchAssetsList() // Refresh table
-  } catch (error) {
-    console.error('Failed to create asset:', error)
-  }
-}
-
-const handleAssignmentSave = async (data: CheckoutPayload) => {
-  try {
-    await assignmentService.checkoutAsset(data)
-    showAssignmentModal.value = false
-    fetchAssetsList() // Refresh table to update stock/status
-  } catch (error) {
-    console.error('Failed to assign asset:', error)
-  }
-}
-
-const deleteAsset = async (id: number | string) => {
-  if (confirm('Are you sure you want to delete this asset?')) {
-    try {
-      await assetService.deleteAsset(id)
-      fetchAssetsList()
-    } catch (error) {
-      console.error('Failed to delete asset:', error)
+    if (selectedAsset.value?.id) {
+      await assetService.updateAsset(selectedAsset.value.id, data)
+    } else {
+      await assetService.createAsset(data)
     }
+    showAssetModal.value = false
+    fetchAssetsList() 
+  } catch (error) {
+    console.error('Failed to save asset:', error)
   }
 }
 
@@ -119,11 +94,10 @@ const openDeleteModal = (id: number | string, name: string) => {
 
 const confirmDelete = async () => {
   if (!itemToDelete.value) return
-
   isDeleting.value = true
   try {
     await assetService.deleteAsset(itemToDelete.value.id)
-    fetchAssetsList() // Re-fetch the table data!
+    fetchAssetsList()
     showDeleteModal.value = false 
   } catch (error: any) {
     alert(`Delete Failed: ${error.message}`)
@@ -132,8 +106,6 @@ const confirmDelete = async () => {
     itemToDelete.value = null
   }
 }
-
-// --- UI Helpers ---
 
 const getStatusColor = (status: string) => {
   switch (status.toLowerCase()) {
@@ -148,32 +120,25 @@ const getStatusColor = (status: string) => {
 
 <template>
   <v-container fluid class="pa-0 mx-auto" style="max-width: 1400px;">
+    
     <div class="d-flex justify-space-between align-center mb-4">
-
-      <div class="d-flex align-center mb-2 mt-3">
+      <div class="d-flex align-center mb-2 mt-3 w-100 justify-end gap-3">
         <v-btn
-          color="primary" variant="tonal" size="small" prepend-icon="mdi-clipboard-account-outline" class="text-none font-weight-bold mr-3 rounded-md" elevation="0"
-          @click="showAssignmentModal = true"
-        >
-          Assign Assets
-        </v-btn>
-
-        <v-btn
-          variant="outlined" size="small" prepend-icon="mdi-download" class="text-none font-weight-bold mr-3 rounded-md" elevation="0"
+          variant="outlined" size="small" prepend-icon="mdi-download" class="text-none font-weight-bold rounded-md" elevation="0"
         >
           Export CSV
         </v-btn>
 
         <v-btn
           color="primary" variant="flat" size="small" prepend-icon="mdi-plus" class="text-none font-weight-bold rounded-md" elevation="0"
-          @click="showAssetModal = true"
+          @click="openCreateModal"
         >
           Add Asset
         </v-btn>
       </div>
     </div>
 
-    <v-card elevation="0" border class="rounded-lg mb-4">
+    <v-card elevation="0" border class="rounded-lg mb-8">
       <div class="d-flex align-center justify-space-between pa-4 border-b flex-wrap gap-3">
         <div class="d-flex align-center flex-wrap gap-2">
           <v-chip
@@ -203,7 +168,7 @@ const getStatusColor = (status: string) => {
       </div>
 
       <v-table hover>
-        <thead>
+        <thead class="bg-grey-lighten-4">
           <tr>
             <th class="font-weight-bold text-medium-emphasis text-caption px-4" style="text-transform: uppercase;">Asset ID</th>
             <th class="font-weight-bold text-medium-emphasis text-caption" style="text-transform: uppercase;">Asset Name</th>
@@ -232,10 +197,10 @@ const getStatusColor = (status: string) => {
         
         <tbody v-else>
           <tr v-for="item in assets" :key="item.id">
-            <td class="font-weight-bold text-caption px-4">{{ item.assetCode }}</td>
-            <td class="text-body-2 font-weight-medium">{{ item.assetName }}</td>
+            <td class="font-weight-bold text-caption px-4">{{ item.assetCode || item.asset_code }}</td>
+            <td class="text-body-2 font-weight-medium">{{ item.assetName || item.asset_name }}</td>
             <td class="text-body-2 text-medium-emphasis">{{ item.category?.name || 'N/A' }}</td>
-            <td class="text-body-2 text-medium-emphasis">{{ item.department?.name || 'N/A' }}</td>
+            <td class="text-body-2 text-medium-emphasis">{{ item.department?.name || item.department?.department_name || 'N/A' }}</td>
             <td>
               <v-chip size="small" variant="flat" :color="getStatusColor(item.status).bg" :class="[`text-${getStatusColor(item.status).text}`, 'font-weight-bold text-uppercase']">
                 {{ item.status }}
@@ -245,20 +210,13 @@ const getStatusColor = (status: string) => {
             <td class="text-right" style="min-width: 100px;">
               <v-tooltip text="Edit Asset" location="top">
                 <template #activator="{ props }">
-                  <v-btn v-bind="props" icon="mdi-pencil-outline" variant="text" size="small" color="primary" class="mr-1" />
+                  <v-btn v-bind="props" icon="mdi-pencil-outline" variant="text" size="small" color="primary" class="mr-1" @click="openEditModal(item)" />
                 </template>
               </v-tooltip>
 
               <v-tooltip text="Delete Asset" location="top">
                 <template #activator="{ props }">
-                  <v-btn 
-                    v-bind="props" 
-                    icon="mdi-trash-can-outline" 
-                    variant="text" 
-                    size="small" 
-                    color="error" 
-                    @click="openDeleteModal(item.id, item.asset_name)" 
-                  />
+                  <v-btn v-bind="props" icon="mdi-trash-can-outline" variant="text" size="small" color="error" @click="openDeleteModal(item.id, item.assetName || item.asset_name)" />
                 </template>
               </v-tooltip>
             </td>
@@ -275,10 +233,15 @@ const getStatusColor = (status: string) => {
         @change="fetchAssetsList"
       />
     </v-card>
-  </v-container>
 
-  <CreateAssignmentModal v-model="showAssignmentModal" @submit="handleAssignmentSave" />
-  <CreateAssetModal v-model="showAssetModal" @submit="handleAssetSave" />
+  </v-container>
+  
+  <CreateAssetModal 
+    v-model="showAssetModal" 
+    :edit-data="selectedAsset"
+    @submit="handleAssetSave" 
+  />
+  
   <ConfirmDeleteModal
     v-model="showDeleteModal"
     title="Delete Asset"

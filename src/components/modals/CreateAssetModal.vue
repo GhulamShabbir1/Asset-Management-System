@@ -3,7 +3,11 @@ import { ref, computed, watch } from 'vue'
 import categoryService from '@/services/categoryService'
 import departmentService from '@/services/departmentService'
 
-const props = defineProps<{ modelValue: boolean }>()
+const props = defineProps<{ 
+  modelValue: boolean
+  editData?: any // Pass asset data here if editing
+}>()
+
 const emit = defineEmits<{
   'update:modelValue': [value: boolean]
   'submit': [data: any]
@@ -50,12 +54,10 @@ const fetchCategories = async () => {
     if (response.success && response.data) {
       const catList = Array.isArray(response.data) ? response.data : (response.data.data || response.data.list || [])
       
-      // Force mapping to 'title' and 'value'
       categories.value = catList.map((cat: any) => ({
         title: cat.name || cat.category_name || 'Unnamed Category',
         value: cat.id
       }))
-      console.log('Mapped Categories:', categories.value)
     }
   } catch (error) {
     console.error('Failed to fetch categories:', error)
@@ -71,12 +73,10 @@ const fetchDepartments = async () => {
     if (response.success && response.data) {
       const depList = Array.isArray(response.data) ? response.data : (response.data.data || response.data.list || [])
       
-      // Force mapping to 'title' and 'value'
       departments.value = depList.map((dep: any) => ({
         title: dep.department_name || dep.name || 'Unnamed Department', 
         value: dep.id
       }))
-      console.log('Mapped Departments:', departments.value)
     }
   } catch (error) {
     console.error('Failed to fetch departments:', error)
@@ -85,6 +85,26 @@ const fetchDepartments = async () => {
   }
 }
 
+// Auto-fill form if editData is provided, otherwise reset
+watch(() => props.editData, (newVal) => {
+  if (newVal) {
+    form.value = {
+      asset_name: newVal.assetName || newVal.asset_name || '',
+      asset_code: newVal.assetCode || newVal.asset_code || '',
+      category_id: newVal.category?.id || newVal.category_id || null,
+      brand: newVal.brand || '',
+      total_quantity: newVal.totalQuantity || newVal.total_quantity || 1,
+      purchase_date: newVal.purchaseDate || newVal.purchase_date || '',
+      status: newVal.status ? newVal.status.toLowerCase() : 'available',
+      department_id: newVal.department?.id || newVal.department_id || null,
+      asset_image: null,
+      invoice_image: null
+    }
+  } else {
+    form.value = getInitialFormState()
+  }
+}, { immediate: true })
+
 watch(dialog, (isOpen) => {
   if (isOpen) {
     fetchCategories()
@@ -92,15 +112,8 @@ watch(dialog, (isOpen) => {
   }
 })
 
-const resetForm = () => {
-  form.value = getInitialFormState()
-}
-
 const close = () => {
   dialog.value = false
-  setTimeout(() => {
-    resetForm()
-  }, 300)
 }
 
 const save = () => {
@@ -118,7 +131,7 @@ const save = () => {
   <v-dialog v-model="dialog" max-width="650px" persistent>
     <v-card class="rounded-lg">
       <v-card-title class="d-flex justify-space-between align-center pa-4 border-b">
-        <span class="text-h6 font-weight-bold">Add New Asset</span>
+        <span class="text-h6 font-weight-bold">{{ props.editData ? 'Edit Asset' : 'Add New Asset' }}</span>
         <v-btn icon="mdi-close" variant="text" density="compact" @click="close"></v-btn>
       </v-card-title>
 
@@ -200,6 +213,7 @@ const save = () => {
                 </template>
               </v-select>
             </v-col>
+  
             <v-col cols="12" sm="6" class="pb-3">
               <div class="text-uppercase text-grey-darken-1 font-weight-bold mb-2" style="font-size: 10px; letter-spacing: 0.5px;">Brand</div>
               <v-text-field v-model="form.brand" placeholder="e.g. Apple, Dell" variant="outlined" density="compact" hide-details></v-text-field>
@@ -228,6 +242,7 @@ const save = () => {
                 hide-details
               ></v-select>
             </v-col>
+          
             <v-col cols="12" sm="6" class="pb-3">
               <div class="text-uppercase text-grey-darken-1 font-weight-bold mb-2" style="font-size: 10px; letter-spacing: 0.5px;">Department</div>
               
@@ -260,7 +275,9 @@ const save = () => {
       <v-card-actions class="pa-4 border-t pt-4">
         <v-spacer></v-spacer>
         <v-btn color="grey-darken-1" variant="text" class="text-none font-weight-medium mr-2" @click="close">Cancel</v-btn>
-        <v-btn color="primary" variant="flat" class="text-none font-weight-medium px-6 rounded-md" :disabled="!form.asset_name || !form.category_id || !form.department_id" @click="save">Save Asset</v-btn>
+        <v-btn color="primary" variant="flat" class="text-none font-weight-medium px-6 rounded-md" :disabled="!form.asset_name || !form.category_id || !form.department_id" @click="save">
+          {{ props.editData ? 'Update Asset' : 'Save Asset' }}
+        </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
