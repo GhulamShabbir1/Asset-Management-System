@@ -131,6 +131,38 @@ const formatStatus = (status: string) => {
   return status
 }
 
+const escapeCsvValue = (value: unknown) => {
+  const normalized = value == null ? '' : String(value)
+  return `"${normalized.replace(/"/g, '""')}"`
+}
+
+const exportEmployeesToCsv = () => {
+  const csvRows = [
+    ['Name', 'Employee ID', 'Department', 'Email', 'Status'],
+    ...filteredEmployees.value.map(employee => [
+      employee.name,
+      employee.id,
+      employee.department || 'N/A',
+      employee.email || employee.contact_info || '-',
+      formatStatus(employee.status),
+    ]),
+  ]
+
+  const csvContent = csvRows.map(row => row.map(escapeCsvValue).join(',')).join('\n')
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+  const downloadUrl = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+
+  link.href = downloadUrl
+  link.download = `employees-${new Date().toISOString().slice(0, 10)}.csv`
+  link.style.display = 'none'
+
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(downloadUrl)
+}
+
 // Fetch departments from API
 const fetchDepartments = async () => {
   try {
@@ -474,6 +506,7 @@ onMounted(async () => {
           prepend-icon="mdi-download"
           class="text-none font-weight-bold rounded-md"
           elevation="0"
+          @click="exportEmployeesToCsv"
         >
           Export CSV
         </v-btn>
