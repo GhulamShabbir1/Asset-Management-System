@@ -220,10 +220,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/authStore'
-import { validateEmail, validateRequired, validateOTP } from '../../utils/validation'
+import { toVuetifyRule, validateEmail, validateOTP, validateRequired } from '../../utils/validation'
 
 const router = useRouter()
 const authStore = useAuthStore()

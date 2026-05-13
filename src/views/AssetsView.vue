@@ -40,13 +40,24 @@ const fetchAssetsList = async () => {
     }
 
     const response = await assetService.getAssets(params)
-    if (response.success && response.data) {
-      assets.value = response.data.list
-      totalAssetsCount.value = response.data.meta.total
-      totalPages.value = response.data.meta.lastPage || 1
+    
+    if (response && response.success && response.data) {
+      const responseData = response.data as any
+      
+      // Bulletproof array extraction: checks for flat array, .data array, or .list array
+      assets.value = Array.isArray(responseData) 
+        ? responseData 
+        : (responseData.data || responseData.list || [])
+        
+      // Safely extract pagination totals
+      const meta = responseData.meta || responseData
+      totalAssetsCount.value = meta.total || assets.value.length
+      totalPages.value = meta.last_page || meta.lastPage || 1
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Failed to fetch assets:', error)
+    const errorMsg = error.response?.data?.message || error.message
+    // Optional: alert(`Failed to load assets: ${errorMsg}`)
   } finally {
     isLoading.value = false
   }

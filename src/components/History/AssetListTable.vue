@@ -64,7 +64,14 @@ defineProps<{
 
 const emit = defineEmits(['view-history'])
 
-const headers = [
+interface DataTableHeader {
+  title: string
+  key: string
+  align: 'start' | 'end' | 'center'
+  sortable?: boolean
+}
+
+const headers: DataTableHeader[] = [
   { title: 'ASSET DETAILS', key: 'asset', align: 'start' },
   { title: 'CATEGORY', key: 'category', align: 'start' },
   { title: 'CURRENT STATUS', key: 'status', align: 'start' },

@@ -38,6 +38,8 @@ const handleLogout = async () => {
 const navigationItems = [
   { title: 'Dashboard', icon: 'mdi-view-dashboard-outline', path: '/dashboard' },
   { title: 'Assets', icon: 'mdi-archive-outline', path: '/assets' },
+  { title: 'Categories', icon: 'mdi-shape-outline', path: '/categories' },
+  { title: 'Departments', icon: 'mdi-domain', path: '/departments' },
   { title: 'Employee Directory', icon: 'mdi-card-account-details-outline', path: '/employees' },
   { title: 'History', icon: 'mdi-history', path: '/history' },
   { title: 'User Management', icon: 'mdi-account-multiple-outline', path: '/users' },

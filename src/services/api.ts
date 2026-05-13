@@ -1,7 +1,7 @@
+import { handleApiError } from '@/utils/errorHandler'
 import type { AxiosProgressEvent, AxiosRequestConfig } from 'axios'
 import apiClient from './apiClient'
 import { createManagedSignal, createRequestKey } from './requestManager'
-import { handleApiError } from '@/utils/errorHandler'
 
 export interface RequestOptions {
   signal?: AbortSignal
@@ -88,6 +88,15 @@ const put = async <T = unknown>(
   return executeRequest<T>(apiClient.put(url, payload, config), cleanup)
 }
 
+const patch = async <T = unknown>(
+  url: string,
+  payload: unknown = {},
+  options: RequestOptions = {}
+): Promise<T> => {
+  const { config, cleanup } = buildConfig('PUT', url, options)
+  return executeRequest<T>(apiClient.patch(url, payload, config), cleanup)
+}
+
 const del = async <T = unknown>(url: string, options: RequestOptions = {}): Promise<T> => {
   const { config, cleanup } = buildConfig('DELETE', url, options)
   return executeRequest<T>(apiClient.delete(url, config), cleanup)
@@ -97,5 +106,6 @@ export default {
   get,
   post,
   put,
+  patch,
   delete: del,
 }

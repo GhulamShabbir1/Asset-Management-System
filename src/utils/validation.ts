@@ -219,3 +219,11 @@ export const isValidNumber = (value: any): boolean => {
 export const isValidEmail = (email: string): boolean => {
   return validateEmail(email).valid
 }
+
+/**
+ * Convert validation result to Vuetify rule format
+ * Returns true if valid, or error message if invalid
+ */
+export const toVuetifyRule = (result: ValidationResult): true | string => {
+  return result.valid ? true : (result.error || 'Invalid')
+}
