@@ -209,7 +209,7 @@
             </p>
           </div>
 
-          <v-row dense class="mt-1">
+          <v-row density="compact" class="mt-1">
             <v-col cols="6">
               <v-sheet color="rgba(255, 255, 255, 0.05)" rounded="lg" class="pa-3 border h-100" style="border-color: rgba(255,255,255,0.08) !important; backdrop-filter: blur(12px);">
                 <v-icon color="#4ae176" size="20" class="mb-2">mdi-speedometer</v-icon>

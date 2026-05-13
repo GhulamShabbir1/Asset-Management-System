@@ -172,7 +172,7 @@
             </div>
           </div>
 
-          <v-row dense class="mt-2 opacity-90">
+          <v-row density="compact" class="mt-2 opacity-90">
             <v-col cols="6">
               <div class="pa-4 rounded-lg h-100" style="background-color: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(12px);">
                 <v-icon color="success" size="24" class="mb-2">mdi-speedometer</v-icon>
