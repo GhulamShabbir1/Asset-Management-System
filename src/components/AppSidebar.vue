@@ -53,31 +53,31 @@ const navigationItems = [
     :rail="isRail"
     permanent
     color="white" 
-    width="220" 
+    width="198" 
     class="custom-drawer border-r"
   >
     <v-btn
       icon
-      size="24"
+      size="20"
       elevation="2"
       class="position-absolute bg-white border"
-      style="top: 24px; right: -12px; z-index: 1000;"
+      style="top: 18px; right: -10px; z-index: 1000;"
       @click="toggleRail"
     >
-      <v-icon size="16" color="black">{{ isRail ? 'mdi-chevron-right' : 'mdi-chevron-left' }}</v-icon>
+      <v-icon size="14" color="black">{{ isRail ? 'mdi-chevron-right' : 'mdi-chevron-left' }}</v-icon>
     </v-btn>
 
-    <div class="d-flex align-center pa-4" :class="isRail ? 'justify-center px-0' : ''" style="height: 64px;">
-      <v-avatar color="black" rounded="lg" size="32" :class="isRail ? '' : 'mr-3'">
-        <v-icon color="white" size="18">mdi-bookshelf</v-icon>
+    <div class="d-flex align-center pa-3" :class="isRail ? 'justify-center px-0' : ''" style="height: 56px;">
+      <v-avatar color="black" rounded="lg" size="28" :class="isRail ? '' : 'mr-2'">
+        <v-icon color="white" size="16">mdi-bookshelf</v-icon>
       </v-avatar>
       
-      <div v-if="!isRail" class="text-black text-h6 font-weight-bold tracking-tight">
+      <div v-if="!isRail" class="text-black font-weight-bold tracking-tight" style="font-size: 1.05rem;">
         Shelf
       </div>
     </div>
 
-    <v-list nav density="compact" class="px-2 pt-2">
+    <v-list nav density="compact" class="px-2 pt-1">
       <v-tooltip
         v-for="item in navigationItems"
         :key="item.path"
@@ -95,14 +95,14 @@ const navigationItems = [
             active-class="bg-primary-light"
             base-color="grey-darken-4"
             rounded="md"
-            class="mb-1 font-weight-medium text-body-2"
+            class="mb-1 font-weight-medium compact-nav-item"
           ></v-list-item>
         </template>
       </v-tooltip>
     </v-list>
 
     <template v-slot:append>
-      <div class="px-2 pb-3">
+      <div class="px-2 pb-2">
         <v-list nav density="compact" class="pa-0">
           
           <v-tooltip text="Settings" location="right" :disabled="!isRail">
@@ -116,7 +116,7 @@ const navigationItems = [
                 title="Settings"
                 base-color="grey-darken-4"
                 rounded="md"
-                class="mb-1 font-weight-medium text-body-2 cursor-pointer"
+                class="mb-1 font-weight-medium cursor-pointer compact-nav-item"
               ></v-list-item>
             </template>
           </v-tooltip>
@@ -131,7 +131,7 @@ const navigationItems = [
                 prepend-icon="mdi-logout"
                 title="Logout"
                 base-color="error"
-                class="font-weight-medium text-body-2 text-error rounded-md cursor-pointer mt-1 logout-item"
+                class="font-weight-medium text-error rounded-md cursor-pointer mt-1 logout-item compact-nav-item"
               ></v-list-item>
             </template>
           </v-tooltip>
@@ -143,6 +143,24 @@ const navigationItems = [
 </template>
 
 <style scoped>
+/* 10% smaller font for nav items */
+.compact-nav-item :deep(.v-list-item-title) {
+  font-size: 0.78rem !important;
+  line-height: 1.2;
+}
+
+/* 10% smaller icons for nav items */
+.compact-nav-item :deep(.v-list-item__prepend > .v-icon) {
+  font-size: 1.2rem !important; 
+}
+
+/* Tighter vertical spacing */
+.compact-nav-item {
+  min-height: 34px !important;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
 .custom-drawer {
   overflow: visible !important;
 }
