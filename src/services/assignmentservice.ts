@@ -24,14 +24,17 @@ export interface AssignmentRecord {
 }
 
 export const checkoutAsset = (payload: CheckoutPayload, options: RequestOptions = {}) => {
-  return api.post<{ success: boolean; message: string; data: AssignmentRecord }>('/assignments/checkout', payload, options)
+  // Updated to POST /api/assignments
+  return api.post<{ success: boolean; message: string; data: AssignmentRecord }>('/assignments', payload, options)
 }
 
 export const checkinAsset = (payload: CheckinPayload, options: RequestOptions = {}) => {
-  return api.put<{ success: boolean; message: string; data: AssignmentRecord }>('/assignments/checkin', payload, options)
+  // Updated to PATCH /api/assignments/return
+  return api.patch<{ success: boolean; message: string; data: AssignmentRecord }>('/assignments/return', payload, options)
 }
 
 export const getAssignmentHistory = (assetId?: string | number, options: RequestOptions = {}) => {
+  // Uses GET /api/assignments/history (or /api/assignments/history/{id} if checking a specific asset)
   const url = assetId ? `/assignments/history/${assetId}` : '/assignments/history'
   return api.get<{ success: boolean; message: string; data: AssignmentRecord[] }>(url, {}, options)
 }

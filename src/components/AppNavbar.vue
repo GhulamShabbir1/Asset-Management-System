@@ -11,6 +11,7 @@ const pageTitle = computed(() => {
   const titles: Record<string, string> = {
     'dashboard': 'Dashboard',
     'assets': 'Assets',
+    'assignments': 'Asset Assignments',
     'employees': 'Employee Directory',
     'categories': 'Categories',
     'departments': 'Departments',
@@ -27,10 +28,10 @@ const pageTitle = computed(() => {
 </script>
 
 <template>
-  <v-app-bar color="white" elevation="0" border="b" height="60">
+  <v-app-bar color="white" elevation="0" border="b" height="54">
     <div class="w-100 pr-2 pl-4 d-flex align-center">
 
-      <div class="font-weight-bold text-black pl-2 pl-md-0" style="letter-spacing: -0.5px; font-size: 1.5rem !important; line-height: 1;">
+      <div class="font-weight-bold text-black pl-2 pl-md-0" style="letter-spacing: -0.5px; font-size: 1.35rem !important; line-height: 1;">
         {{ pageTitle }}
       </div>
 
@@ -38,15 +39,15 @@ const pageTitle = computed(() => {
 
       <div class="d-flex align-center pr-2">
         <div class="text-right mr-3 d-none d-md-block" style="white-space: nowrap;">
-          <div class="text-body-2 font-weight-bold text-black" style="line-height: 1.2;">
+          <div class="font-weight-bold text-black" style="line-height: 1.2; font-size: 0.8rem;">
             {{ authStore.user?.name || 'Admin User' }}
           </div>
-          <div class="text-caption text-medium-emphasis" style="line-height: 1.2;">
+          <div class="text-medium-emphasis" style="line-height: 1.2; font-size: 0.68rem;">
             System Administrator
           </div>
         </div>
         
-        <v-avatar size="36" class="cursor-pointer border">
+        <v-avatar size="32" class="cursor-pointer border">
           <v-img src="https://i.pravatar.cc/150?img=11" alt="User Avatar"></v-img>
         </v-avatar>
       </div>
