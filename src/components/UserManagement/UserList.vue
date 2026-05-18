@@ -78,7 +78,7 @@
           <template v-slot:item.role="{ item }">
             <div class="d-flex flex-column align-start py-1">
               <v-chip :color="item.roleColor" size="small" class="font-weight-bold text-uppercase mb-1" variant="tonal">
-                {{ getRoleDisplayName(item.role) }}
+                {{ getRoleDisplayName(item.roleId || item.role) }}
               </v-chip>
               <span class="cell-copy text-medium-emphasis font-italic">{{ item.roleDesc }}</span>
             </div>
@@ -158,10 +158,19 @@
       </v-card>
     </v-dialog>
   </v-row>
+
+  <ConfirmDeleteModal
+    v-model="showDeleteModal"
+    title="Remove User Role"
+    :item-name="userToDelete?.name"
+    :is-loading="isDeleting"
+    @confirm="confirmDeleteUser"
+  />
 </template>
 
 <script setup>
 import { ref, computed, inject } from 'vue'
+import ConfirmDeleteModal from '@/components/modals/ConfirmDeleteModal.vue'
 import userRoleService from '@/services/userRoleService'
 
 const usersList = inject('usersList')
@@ -180,6 +189,9 @@ const userPermissionsDialog = ref(false)
 const selectedUser = ref(null)
 const userOverridePermissions = ref([])
 const userOverridesStore = ref({})
+const showDeleteModal = ref(false)
+const isDeleting = ref(false)
+const userToDelete = ref(null)
 
 function onUserAdded() {
   if (fetchUsers) fetchUsers()
@@ -258,15 +270,25 @@ function toggleUserStatus(user) {
 }
 
 
-async function deleteUser(user) {
-  if (confirm(`Are you sure you want to remove role assignment for ${user.name}?`)) {
-    try {
-      await userRoleService.deleteRole(user.id)
-      if (fetchUsers) await fetchUsers()
-    } catch (err) {
-      console.error('Failed to delete user role:', err)
-      alert('Failed to delete user role')
-    }
+function deleteUser(user) {
+  userToDelete.value = user
+  showDeleteModal.value = true
+}
+
+async function confirmDeleteUser() {
+  if (!userToDelete.value) return
+
+  isDeleting.value = true
+  try {
+    await userRoleService.deleteRole(userToDelete.value.id)
+    if (fetchUsers) await fetchUsers()
+    showDeleteModal.value = false
+  } catch (err) {
+    console.error('Failed to delete user role:', err)
+    alert('Failed to delete user role')
+  } finally {
+    isDeleting.value = false
+    userToDelete.value = null
   }
 }
 </script>

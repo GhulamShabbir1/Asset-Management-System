@@ -23,7 +23,7 @@
 
     <AddUserRoleModal 
       v-model="addUserModal" 
-      :roles="customRoles" 
+      :roles="assignableRoles" 
       @user-added="fetchUsers" 
     />
   </v-container>
@@ -102,6 +102,15 @@ const customRoles = computed(() =>
   }))
 )
 
+const assignableRoles = computed(() =>
+  roleStore.roles.map(r => ({
+    id: r.id || r.role_id,
+    name: r.name,
+    description: r.description ?? '',
+    isSystem: Boolean(r.is_system),
+  }))
+)
+
 // Local UI permission matrix (used by UserList override dialog only)
 const rolePermissionsStore = ref({
   'system-super-admin': [], 
@@ -141,8 +150,8 @@ const fetchUsers = async () => {
       avatar: user.profile_picture || user.avatar || `https://i.pravatar.cc/150?u=${user.id}`,
       username: user.username || user.email?.split('@')[0] || `user_${user.id}`,
       roleId: user.role_id || user.assigned_role?.role_id || user.role?.id || 'unassigned',
-      role: user.assigned_role?.name || user.role?.name || (user.role_id && user.role !== 'admin' ? user.role : (user.role_id ? 'Assigned' : 'unassigned')),
-      roleDesc: user.assigned_role?.description || user.role_description || (user.role_id ? 'Assigned System Role' : 'No role assigned'),
+      role: user.assigned_role?.name || user.role?.name || user.role || (user.role_id ? 'Assigned' : 'unassigned'),
+      roleDesc: user.assigned_role?.description || user.role_description || (user.role_id ? 'Assigned role' : 'No role assigned'),
       roleColor: (user.role_id || user.assigned_role || user.role) ? 'primary' : 'grey',
       isActive: user.is_active ?? true
     }))

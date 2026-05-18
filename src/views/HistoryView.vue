@@ -1,12 +1,11 @@
 <template>
   <v-container fluid class="pa-0 mx-auto history-view" style="max-width: 1400px;">
-  
     <v-card rounded="lg" elevation="0" border class="mb-3 pa-3 bg-grey-lighten-4">
       <v-row align="center" density="compact" class="mx-n1">
         <v-col cols="12" md="4" class="px-2">
           <v-text-field
-            class="compact-filter-field"
             v-model="searchQuery"
+            class="compact-filter-field"
             prepend-inner-icon="mdi-magnify"
             placeholder="Search by asset tag, name, or serial..."
             variant="outlined"
@@ -14,13 +13,13 @@
             hide-details
             bg-color="white"
             rounded="md"
-          ></v-text-field>
+          />
         </v-col>
         <v-col cols="12" sm="6" md="3" class="px-2">
           <v-select
-            class="compact-filter-field"
             v-model="selectedStatus"
-            :items="['All', 'Assigned', 'Available', 'Maintenance', 'Retired']"
+            class="compact-filter-field"
+            :items="statusOptions"
             :menu-props="{ contentClass: 'compact-select-menu' }"
             label="Filter by Status"
             variant="outlined"
@@ -28,13 +27,13 @@
             hide-details
             bg-color="white"
             rounded="md"
-          ></v-select>
+          />
         </v-col>
         <v-col cols="12" sm="6" md="3" class="px-2">
           <v-select
-            class="compact-filter-field"
             v-model="selectedCategory"
-            :items="['All', 'Hardware', 'Software', 'Peripherals', 'Furniture']"
+            class="compact-filter-field"
+            :items="availableCategories"
             :menu-props="{ contentClass: 'compact-select-menu' }"
             label="Filter by Category"
             variant="outlined"
@@ -42,92 +41,94 @@
             hide-details
             bg-color="white"
             rounded="md"
-          ></v-select>
+          />
         </v-col>
         <v-col cols="12" md="2" class="px-2 d-flex justify-end">
-          <v-btn color="primary" variant="tonal" prepend-icon="mdi-refresh" rounded="md" height="36" @click="resetFilters">
+          <v-btn
+            color="primary"
+            variant="tonal"
+            prepend-icon="mdi-refresh"
+            rounded="md"
+            height="36"
+            @click="resetFilters"
+          >
             Reset
           </v-btn>
         </v-col>
       </v-row>
     </v-card>
 
-    <AssetListTable 
-      :assets="filteredAssets" 
+    <div v-if="assetsLoading" class="d-flex justify-center py-10">
+      <v-progress-circular indeterminate color="primary" />
+    </div>
+
+    <AssetListTable
+      v-else
+      :assets="filteredAssets"
       :search="searchQuery"
-      @view-history="openHistoryModal" 
+      @view-history="openHistoryModal"
     />
 
-    <AssetHistoryModal 
-      v-model="isModalOpen" 
-      :asset="selectedAsset" 
-      :loading="modalLoading" 
-      :error-message="modalErrorMessage" 
-      :timeline-events="modalTimelineEvents" 
+    <AssetHistoryModal
+      v-model="isModalOpen"
+      :asset="selectedAsset"
+      :loading="modalLoading"
+      :error-message="modalErrorMessage"
+      :timeline-events="modalTimelineEvents"
     />
   </v-container>
 </template>
 
 <script setup lang="ts">
+import AssetListTable from '@/components/History/AssetListTable.vue'
+import AssetHistoryModal from '@/components/modals/AssetHistoryModal.vue'
+import assetService, { type Asset } from '@/services/assetService'
 import { getAssignmentHistory, type AssignmentRecord } from '@/services/assignmentService'
 import type { ApiError } from '@/utils/errorHandler'
-import { computed, ref } from 'vue'
-import AssetListTable from '../components/History/AssetListTable.vue'
-import AssetHistoryModal from '../components/modals/AssetHistoryModal.vue'
+import { computed, onMounted, ref } from 'vue'
 
-// --- State ---
+type HistoryAssetRow = {
+  id: string | number
+  tag: string
+  name: string
+  category: string
+  status: string
+  statusColor: string
+  assignedTo: string
+}
+
+type TimelineEvent = {
+  key?: string | number
+  title: string
+  date: string
+  employee?: string
+  notes: string
+  status?: string
+  returnedAt?: string
+}
+
+const statusOptions = ['All', 'Assigned', 'Available', 'Maintenance', 'Retired']
+
 const searchQuery = ref('')
 const selectedStatus = ref('All')
 const selectedCategory = ref('All')
+const availableCategories = ref<string[]>(['All'])
+const assetsLoading = ref(false)
+
+const allAssets = ref<HistoryAssetRow[]>([])
 
 const isModalOpen = ref(false)
-const selectedAsset = ref<any>(null)
-
+const selectedAsset = ref<HistoryAssetRow | null>(null)
 const modalLoading = ref(false)
 const modalErrorMessage = ref<string | null>(null)
-const modalTimelineEvents = ref<Array<{ key?: string | number; title: string; date: string; employee?: string; notes: string; status?: string; returnedAt?: string }>>([])
+const modalTimelineEvents = ref<TimelineEvent[]>([])
 
-// Used to prevent race conditions when user opens different assets quickly.
 let activeAbortController: AbortController | null = null
 
-// --- Mock Data ---
-// NOTE: History is now loaded from API, so the modal no longer depends on `asset.history`.
-const allAssets = ref([
-  {
-    id: 'AST-2024-001',
-    tag: 'TAG-8821',
-    name: 'MacBook Pro M3 - 14"',
-    category: 'Hardware',
-    status: 'Assigned',
-    statusColor: 'blue',
-    assignedTo: 'Sarah Jenkins',
-  },
-  {
-    id: 'AST-2024-002',
-    tag: 'TAG-9910',
-    name: 'Dell UltraSharp 32" Monitor',
-    category: 'Peripherals',
-    status: 'Available',
-    statusColor: 'success',
-    assignedTo: 'IT Stockroom',
-  },
-  {
-    id: 'AST-2024-003',
-    tag: 'TAG-4432',
-    name: 'Server Rack B-12',
-    category: 'Hardware',
-    status: 'Maintenance',
-    statusColor: 'error',
-    assignedTo: 'Datacenter',
-  },
-])
-
-// --- Filter Logic ---
 const filteredAssets = computed(() => {
   return allAssets.value.filter((asset) => {
     const matchStatus = selectedStatus.value === 'All' || asset.status === selectedStatus.value
     const matchCategory = selectedCategory.value === 'All' || asset.category === selectedCategory.value
-    // Search query is handled by the v-data-table component itself, so we only filter dropdowns here
     return matchStatus && matchCategory
   })
 })
@@ -138,63 +139,130 @@ function resetFilters() {
   selectedCategory.value = 'All'
 }
 
-function normalizeDate(value: unknown) {
-  if (!value) return '—'
-  if (typeof value === 'string') return value
-  try {
-    return new Date(value as any).toISOString()
-  } catch {
-    return '—'
+function getStatusColor(status: string) {
+  switch (String(status).toLowerCase()) {
+    case 'assigned':
+      return 'blue'
+    case 'available':
+      return 'success'
+    case 'maintenance':
+      return 'error'
+    case 'retired':
+    case 'inactive':
+      return 'grey-darken-2'
+    default:
+      return 'primary'
   }
 }
 
-function toTimelineEvent(record: AssignmentRecord) {
+function normalizeDate(value: unknown) {
+  if (!value) return '-'
+
+  const parsed = new Date(value as string | number | Date)
+  if (Number.isNaN(parsed.getTime())) {
+    return String(value)
+  }
+
+  return parsed.toLocaleString()
+}
+
+function extractArrayPayload<T>(payload: unknown): T[] {
+  if (Array.isArray(payload)) return payload
+  if (payload && typeof payload === 'object') {
+    const source = payload as Record<string, unknown>
+    if (Array.isArray(source.data)) return source.data as T[]
+    if (Array.isArray(source.list)) return source.list as T[]
+  }
+  return []
+}
+
+function toTimelineEvent(record: AssignmentRecord): TimelineEvent {
   const status = String(record.status ?? '').trim()
-
-  const titleBase = status || 'Assignment'
-  const qtyPart = typeof record.quantity === 'number' ? `Qty: ${record.quantity}` : ''
-
   const notesParts: string[] = []
-  if (qtyPart) notesParts.push(qtyPart)
+
+  if (typeof record.quantity === 'number') {
+    notesParts.push(`Qty: ${record.quantity}`)
+  }
 
   if (record.return_date) {
     notesParts.push(`Returned: ${normalizeDate(record.return_date)}`)
   }
 
-  notesParts.push(record.is_active ? 'Currently active' : 'Inactive')
+  notesParts.push(record.is_active ? 'Currently active' : 'Returned / inactive')
 
   return {
     key: record.assignment_id ?? `${record.asset_id}-${record.assign_date}`,
-    title: titleBase,
+    title: status || (record.is_active ? 'Assigned' : 'Returned'),
     date: normalizeDate(record.assign_date),
-    employee: typeof record.assigned_by === 'number' ? `Employee ID: ${record.assigned_by}` : 'Unknown',
-    notes: notesParts.join(' • ') || 'No details',
-    status: status,
+    employee: record.employee_id ? `Employee ID: ${record.employee_id}` : 'Unknown',
+    notes: notesParts.join(' | ') || 'No details',
+    status,
     returnedAt: record.return_date ? normalizeDate(record.return_date) : undefined,
   }
 }
 
+function toAssetRow(asset: Asset & Record<string, any>): HistoryAssetRow {
+  const status = String(asset.status || 'Unknown')
+  const assignedTo =
+    asset.assigned_to?.name ||
+    asset.employee?.name ||
+    asset.current_assignment?.employee?.name ||
+    asset.location ||
+    (status.toLowerCase() === 'available' ? 'Unassigned' : 'N/A')
+
+  return {
+    id: asset.id,
+    tag: asset.assetCode || asset.asset_code || `AST-${asset.id}`,
+    name: asset.assetName || asset.asset_name || 'Unnamed Asset',
+    category:
+      asset.category?.name ||
+      asset.category?.category_name ||
+      asset.category_name ||
+      'Uncategorized',
+    status,
+    statusColor: getStatusColor(status),
+    assignedTo,
+  }
+}
+
+async function fetchAssets() {
+  assetsLoading.value = true
+  try {
+    const response = await assetService.getAssets({ per_page: 500 })
+    const assetList = extractArrayPayload<Asset & Record<string, any>>((response as any)?.data)
+
+    allAssets.value = assetList.map(toAssetRow)
+
+    const categories = Array.from(
+      new Set(allAssets.value.map((asset) => asset.category).filter(Boolean))
+    ).sort((a, b) => a.localeCompare(b))
+
+    availableCategories.value = ['All', ...categories]
+  } catch (error) {
+    console.error('Failed to fetch assets for history:', error)
+    allAssets.value = []
+    availableCategories.value = ['All']
+  } finally {
+    assetsLoading.value = false
+  }
+}
+
 function getFriendlyErrorMessage(err: unknown) {
-  // `handleApiError` throws ApiError instances.
   const e = err as Partial<ApiError> & { message?: string; status?: number | null }
 
-  const status = e.status ?? null
-  if (status === 401) return 'Session expired. Please sign in again.'
-  if (e?.isNetworkError) return 'Unable to connect. Please check your internet connection.'
-  if (e?.isTimeout) return 'The request took too long. Please try again.'
-
-  // Backend might return a custom message.
-  if (e?.message && String(e.message).trim()) return String(e.message)
+  if (e.status === 401) return 'Session expired. Please sign in again.'
+  if (e.isNetworkError) return 'Unable to connect. Please check your internet connection.'
+  if (e.isTimeout) return 'The request took too long. Please try again.'
+  if (e.message && String(e.message).trim()) return String(e.message)
 
   return 'Failed to load assignment history. Please try again.'
 }
 
-async function openHistoryModal(asset: any) {
+async function openHistoryModal(asset: HistoryAssetRow) {
   selectedAsset.value = asset
   modalErrorMessage.value = null
   modalTimelineEvents.value = []
 
-  // Close-to-open race: cancel previous request immediately.
   activeAbortController?.abort()
   activeAbortController = new AbortController()
 
@@ -202,47 +270,36 @@ async function openHistoryModal(asset: any) {
   isModalOpen.value = true
 
   try {
-    // Stop if modal was closed while request in-flight.
-    if (!isModalOpen.value) return
-
     const rawAssetId = asset?.id
     if (rawAssetId === undefined || rawAssetId === null || rawAssetId === '') {
-      modalTimelineEvents.value = []
       modalErrorMessage.value = 'Invalid asset id.'
       return
     }
 
-    // API expects asset_id in path. If the app uses non-numeric ids, backend should still accept them.
-    const assetId = rawAssetId
-
-    const result = await getAssignmentHistory(assetId, {
+    const result = await getAssignmentHistory(rawAssetId, {
       signal: activeAbortController.signal,
       timeout: 30000,
     })
 
-    const records: AssignmentRecord[] = Array.isArray((result as any)?.data) ? (result as any).data : []
-
-    // Edge: success but empty array
+    const records = extractArrayPayload<AssignmentRecord>((result as any)?.data)
     modalTimelineEvents.value = records.map(toTimelineEvent)
-
-    // If backend returns newest first, timeline might look better reversed; do NOT assume.
   } catch (err) {
-    // Ignore cancellation.
-    const msg = String((err as any)?.message ?? '')
-    if (msg.toLowerCase().includes('cancel')) return
+    const message = String((err as any)?.message ?? '').toLowerCase()
+    if (message.includes('cancel')) return
 
     modalErrorMessage.value = getFriendlyErrorMessage(err)
   } finally {
-    // Only stop loading if this request is still the active one.
     modalLoading.value = false
   }
 }
+
+onMounted(() => {
+  fetchAssets()
+})
 </script>
 
 <style scoped>
 .history-view { padding-block: 2px 6px; }
-.page-title { font-size: 1.2rem; line-height: 1.1; }
-.page-subtitle { font-size: 0.76rem; line-height: 1.35; }
 .compact-filter-field :deep(.v-field__input) {
   font-size: 0.7rem;
   line-height: 1.2;

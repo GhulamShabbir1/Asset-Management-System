@@ -8,7 +8,7 @@
 
       <v-card-text class="pa-4 pt-0">
         <p class="text-caption text-medium-emphasis mb-4">
-          Search for a registered user and assign them a system role.
+          Search all registered users from the authenticated user list.
         </p>
 
         <!-- User Search -->
@@ -24,6 +24,7 @@
           variant="outlined"
           density="compact"
           color="primary"
+          no-data-text="No registered users found"
           class="mb-4 compact-autocomplete"
           return-object
         >
@@ -101,20 +102,27 @@ async function fetchUsersLocal() {
   try {
     const res = await authService.readUsers()
     console.log('Modal Local Fetch Response:', res)
+
     let data = []
-    if (res?.data?.users) data = res.data.users
-    else if (res?.users) data = res.users
-    else if (Array.isArray(res?.data)) data = res.data
-    else if (Array.isArray(res)) data = res
-    
+    if (res && typeof res === 'object') {
+      if (res?.data?.users && Array.isArray(res.data.users)) data = res.data.users
+      else if (res?.users && Array.isArray(res.users)) data = res.users
+      else if (res?.data?.data && Array.isArray(res.data.data)) data = res.data.data
+      else if (res?.data?.list && Array.isArray(res.data.list)) data = res.data.list
+      else if (Array.isArray(res?.data)) data = res.data
+      else if (Array.isArray(res)) data = res
+    }
+
     allUsers.value = data.map(u => ({
       id: u.id,
       name: u.name || u.email,
       email: u.email,
-      displayName: u.name ? `${u.name} (${u.email})` : u.email,
+      displayName: u.name
+        ? `${u.name} (${u.email})${u.assigned_role?.name ? ` - ${u.assigned_role.name}` : ''}`
+        : `${u.email}${u.assigned_role?.name ? ` - ${u.assigned_role.name}` : ''}`,
       avatar: u.profile_picture || u.avatar || null
     }))
-    console.log('Modal local users loaded:', allUsers.value.length)
+    console.log('Modal local users loaded from /auth/read:', allUsers.value.length)
   } catch (err) {
     error.value = 'Failed to load users'
   } finally {
@@ -126,28 +134,33 @@ async function fetchUsersLocal() {
 watch(showDialog, async (newVal) => {
   emit('update:modelValue', newVal)
   if (newVal) {
+    resetForm()
     await fetchUsersLocal()
   }
 })
 
 const roleOptions = computed(() => {
-  const systemRoles = [
-    { title: 'Super Admin', value: 'system-super-admin' },
-    { title: 'Manager', value: 'system-manager' }
-  ]
-  const custom = props.roles.map(r => ({ title: r.name, value: r.id }))
-  return [...systemRoles, ...custom]
+  return props.roles.map((role) => ({
+    title: role.isSystem ? `${role.name} (System)` : role.name,
+    value: role.id
+  }))
 })
 
 async function handleAssign() {
   if (!selectedUser.value || !selectedRoleId.value) return
+
+  const normalizedRoleId = Number(selectedRoleId.value)
+  if (!Number.isFinite(normalizedRoleId)) {
+    error.value = 'Please select a valid role.'
+    return
+  }
 
   isSubmitting.value = true
   error.value = null
   try {
     await userRoleService.assignRole({
       user_id: selectedUser.value.id,
-      role_id: selectedRoleId.value
+      role_id: normalizedRoleId
     })
     
     // Refresh the list in the parent
