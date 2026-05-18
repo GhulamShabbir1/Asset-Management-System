@@ -105,11 +105,28 @@ export const verifySignup = (data: VerifySignupPayload) =>
 export const resetPassword = (data: ResetPasswordPayload) =>
   api.post('/auth/reset-password', data)
 
+export interface UpdateProfilePayload {
+  name: string
+  profile_picture?: string | null
+}
+
+/**
+ * Get all registered users
+ */
+export const readUsers = (options: RequestOptions = {}) =>
+  api.get<AuthUser[]>('/auth/read', {}, options)
+
 /**
  * Update password (requires authentication token)
  */
 export const updatePassword = (data: UpdatePasswordPayload) =>
   api.patch('/auth/update-password', data)
+
+/**
+ * Update profile (requires authentication token)
+ */
+export const updateProfile = (data: UpdateProfilePayload) =>
+  api.put('/auth/update', data)
 
 export default {
   login,
@@ -120,4 +137,6 @@ export default {
   verifySignup,
   resetPassword,
   updatePassword,
+  updateProfile,
+  readUsers,
 }

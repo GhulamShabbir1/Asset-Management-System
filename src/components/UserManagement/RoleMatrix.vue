@@ -483,7 +483,7 @@ async function saveCustomRole() {
       const newRole = await roleStore.createRole({
         name:        newRoleName.value.trim(),
         description: newRoleDescription.value.trim(),
-        permission:  [],
+        permissions: [],
       })
       notify('Role created successfully')
       closeRoleDialog()
