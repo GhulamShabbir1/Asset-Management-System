@@ -19,7 +19,7 @@ export interface Role {
 export interface CreateRolePayload {
   name: string
   description: string
-  permission: number[]
+  permissions: number[]
 }
 
 /**

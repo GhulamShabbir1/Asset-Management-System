@@ -21,15 +21,22 @@
       </v-window-item>
     </v-window>
 
+    <AddUserRoleModal 
+      v-model="addUserModal" 
+      :roles="customRoles" 
+      @user-added="fetchUsers" 
+    />
   </v-container>
 </template>
 
 <script setup>
-import { ref, computed, provide, onMounted } from 'vue'
+import { ref, computed, provide, onMounted, watch } from 'vue'
 import { useRoleStore } from '@/stores/roleStore'
 import { usePermissionStore } from '@/stores/permissionStore'
 import RoleMatrix from '../components/UserManagement/RoleMatrix.vue'
 import UserList from '../components/UserManagement/UserList.vue'
+import AddUserRoleModal from '../components/modals/AddUserRoleModal.vue'
+import authService from '@/services/authService'
 
 // --- Tab State ---
 const activeTab = ref('roles')
@@ -96,20 +103,55 @@ const customRoles = computed(() =>
 )
 
 // Local UI permission matrix (used by UserList override dialog only)
-// Note: This still uses the hardcoded ones for system roles for now, 
-// but we could also drive it from API data if system roles are in API.
 const rolePermissionsStore = ref({
-  'system-super-admin': [], // Will be populated or handled differently
+  'system-super-admin': [], 
   'system-manager': [],
 })
 
-// Demo user list (replace with real user API when ready)
-const usersList = ref([
-  { id: 'user-1', name: 'Sarah Connor',  email: 'sarah.connor@enterprise.com',  avatar: 'https://i.pravatar.cc/150?u=sarah',  username: 's.connor',  roleId: 'system-super-admin', role: 'system-super-admin', roleDesc: 'Full Access across all modules',                  roleColor: 'primary',      isActive: true  },
-  { id: 'user-2', name: 'Marcus Wright', email: 'marcus.w@enterprise.com',       avatar: 'https://i.pravatar.cc/150?u=marcus', username: 'm.wright',  roleId: 'system-manager',     role: 'system-manager',     roleDesc: 'Restricted Access - User & Asset management',     roleColor: 'grey-darken-3',isActive: true  },
-  { id: 'user-3', name: 'Grace Harper',  email: 'grace.harper@enterprise.com',   avatar: 'https://i.pravatar.cc/150?u=grace',  username: 'g.harper',  roleId: 'custom-tech-ops',    role: 'custom-tech-ops',    roleDesc: 'Tech Ops: Asset management focus',                roleColor: 'warning',      isActive: true  },
-  { id: 'user-4', name: 'David Chen',    email: 'david.chen@enterprise.com',     avatar: 'https://i.pravatar.cc/150?u=david',  username: 'd.chen',    roleId: 'custom-compliance',  role: 'custom-compliance',  roleDesc: 'Compliance & audit log access',                   roleColor: 'info',         isActive: false },
-])
+const addUserModal = ref(false)
+
+// Demo user list (initialized empty, populated from API)
+const usersList = ref([])
+
+const fetchUsers = async () => {
+  try {
+    const res = await authService.readUsers()
+    console.log('User API Raw Response:', res)
+    
+    // Extremely robust extraction based on user-provided JSON
+    let data = []
+    if (res && typeof res === 'object') {
+      if (res.data && res.data.users && Array.isArray(res.data.users)) {
+        data = res.data.users
+      } else if (res.users && Array.isArray(res.users)) {
+        data = res.users
+      } else if (res.data && Array.isArray(res.data)) {
+        data = res.data
+      } else if (Array.isArray(res)) {
+        data = res
+      }
+    }
+
+    console.log('Extracted users array:', data)
+
+    usersList.value = data.map(user => ({
+      id: user.id,
+      name: user.name || 'Unknown User',
+      email: user.email || '',
+      avatar: user.profile_picture || user.avatar || `https://i.pravatar.cc/150?u=${user.id}`,
+      username: user.username || user.email?.split('@')[0] || `user_${user.id}`,
+      roleId: user.role_id || user.assigned_role?.role_id || user.role?.id || 'unassigned',
+      role: user.assigned_role?.name || user.role?.name || (user.role_id && user.role !== 'admin' ? user.role : (user.role_id ? 'Assigned' : 'unassigned')),
+      roleDesc: user.assigned_role?.description || user.role_description || (user.role_id ? 'Assigned System Role' : 'No role assigned'),
+      roleColor: (user.role_id || user.assigned_role || user.role) ? 'primary' : 'grey',
+      isActive: user.is_active ?? true
+    }))
+    
+    console.log('Mapped usersList:', usersList.value)
+  } catch (err) {
+    console.error('Failed to fetch users:', err)
+  }
+}
 
 // Provide to children
 provide('crudActions',           crudActions)
@@ -117,18 +159,28 @@ provide('basePermissionModules', basePermissionModules)
 provide('rolePermissionsStore',  rolePermissionsStore)
 provide('customRoles',           customRoles)
 provide('usersList',             usersList)
+provide('fetchUsers',            fetchUsers)
+provide('addUserModal',          addUserModal)
 
 // --- Lifecycle ---
 onMounted(async () => {
   await Promise.all([
     roleStore.fetchRoles(),
-    permissionStore.fetchGroupedPermissions()
+    permissionStore.fetchGroupedPermissions(),
+    fetchUsers()
   ])
+})
+
+watch(addUserModal, (newVal) => {
+  if (newVal) {
+    roleStore.fetchRoles()
+    fetchUsers()
+  }
 })
 
 // --- Summary stats (reactive to store) ---
 const summaryStats = ref([
-  { title: 'TOTAL USERS',      value: '1,284',                                            trend: '+12%', icon: 'mdi-account-group-outline', iconColor: 'blue-darken-2', bg: 'bg-blue-lighten-5' },
+  { title: 'TOTAL USERS',      value: computed(() => usersList.value.length),              trend: '+12%', icon: 'mdi-account-group-outline', iconColor: 'blue-darken-2', bg: 'bg-blue-lighten-5' },
   { title: 'ACTIVE ROLES',     value: computed(() => 2 + roleStore.roles.length),          subtitle: computed(() => `2 System / ${roleStore.roles.length} Custom`), subtitleClass: 'text-medium-emphasis', icon: 'mdi-shield-account-outline', iconColor: 'blue-darken-2', bg: 'bg-blue-lighten-5' },
   { title: 'ELEVATED ACCESS',  value: '42',  subtitle: 'Audit Req',  subtitleClass: 'text-primary', icon: 'mdi-shield-lock-outline',   iconColor: 'red-darken-2',  bg: 'bg-red-lighten-5'  },
   { title: 'ACCESS REQUESTS',  value: '8',   subtitle: 'Pending',    subtitleClass: 'text-error',   icon: 'mdi-alert-circle-outline',   iconColor: 'red-darken-2',  bg: 'bg-red-lighten-5', valueClass: 'text-error' },

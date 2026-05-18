@@ -165,20 +165,23 @@ const notify = (text, type = 'success') => {
 }
 
 const saveAllChanges = async () => {
-  // If user touched password fields, validate and call API
-  if (auth.value.newPassword || auth.value.currentPassword) {
-    const { valid } = await settingsForm.value.validate()
-    if (!valid) return
+  isSaving.value = true
+  let successCount = 0
 
-    isSaving.value = true
-    try {
+  try {
+    // 1. Handle Password Update if fields are filled
+    if (auth.value.newPassword || auth.value.currentPassword) {
+      const { valid } = await settingsForm.value.validate()
+      if (!valid) {
+        isSaving.value = false
+        return
+      }
+
       await authService.updatePassword({
         old_password: auth.value.currentPassword,
         new_password: auth.value.newPassword,
         confirm_password: auth.value.confirmPassword
       })
-      
-      notify('Password updated successfully')
       
       // Clear password fields after success
       auth.value.currentPassword = ''
@@ -188,18 +191,23 @@ const saveAllChanges = async () => {
       if (settingsForm.value) {
         settingsForm.value.resetValidation()
       }
-    } catch (error) {
-      notify(error.message || 'Failed to update password', 'error')
-    } finally {
-      isSaving.value = false
+      successCount++
     }
-  } else {
-    // Only profile changes (still mock for now as per previous instruction)
-    isSaving.value = true
-    setTimeout(() => {
-      isSaving.value = false
-      notify('Profile settings updated')
-    }, 800)
+
+    // 2. Handle Profile Update
+    await authService.updateProfile({
+      name: profile.value.fullName,
+      profile_picture: null // Image removed from UI as per previous request
+    })
+    successCount++
+
+    if (successCount > 0) {
+      notify('Settings updated successfully')
+    }
+  } catch (error) {
+    notify(error.message || 'Failed to update settings', 'error')
+  } finally {
+    isSaving.value = false
   }
 }
 </script>

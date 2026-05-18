@@ -84,7 +84,10 @@ export const useRoleStore = defineStore('role', () => {
     try {
       const response = await roleService.createRole(payload)
       const newRole = (response as any)?.data
-      roles.value.push(newRole)
+      if (newRole) {
+        newRole.id = newRole.id || newRole.role_id
+        roles.value.push(newRole)
+      }
       currentRole.value = newRole
       return newRole
     } catch (err) {
@@ -106,6 +109,9 @@ export const useRoleStore = defineStore('role', () => {
     try {
       const response = await roleService.updateRole(roleId, payload)
       const updatedRole = (response as any)?.data
+      if (updatedRole) {
+        updatedRole.id = updatedRole.id || updatedRole.role_id
+      }
 
       // Update in roles array
       const index = roles.value.findIndex((r) => r.id === roleId)

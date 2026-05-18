@@ -29,6 +29,17 @@
               </v-list>
             </v-menu>
 
+            <v-btn 
+              color="primary" 
+              variant="flat" 
+              prepend-icon="mdi-account-plus" 
+              size="small" 
+              rounded="md"
+              @click="addUserModal = true"
+            >
+              Add User
+            </v-btn>
+
           </div>
           
           <v-text-field
@@ -40,6 +51,7 @@
             style="max-width: 280px;" rounded="md" bg-color="white"
           ></v-text-field>
         </div>
+
 
         <v-data-table 
           class="user-list-table"
@@ -150,21 +162,28 @@
 
 <script setup>
 import { ref, computed, inject } from 'vue'
+import userRoleService from '@/services/userRoleService'
 
 const usersList = inject('usersList')
 const customRoles = inject('customRoles')
 const rolePermissionsStore = inject('rolePermissionsStore')
 const crudActions = inject('crudActions')
+const fetchUsers = inject('fetchUsers')
 
 // --- NEW/UPDATED STATE ---
 const searchQuery = ref('')
 const activeFilter = ref('All')
 const sortBy = ref([])
 
+const addUserModal = inject('addUserModal')
 const userPermissionsDialog = ref(false)
 const selectedUser = ref(null)
 const userOverridePermissions = ref([])
 const userOverridesStore = ref({})
+
+function onUserAdded() {
+  if (fetchUsers) fetchUsers()
+}
 
 // FIXED: Keys now match the data attributes ('name' and 'isActive')
 const tableHeaders = [
@@ -238,9 +257,16 @@ function toggleUserStatus(user) {
   user.isActive = !user.isActive
 }
 
-function deleteUser(user) {
-  if (confirm(`Are you sure you want to delete ${user.name}?`)) {
-    usersList.value = usersList.value.filter(existingUser => existingUser.id !== user.id)
+
+async function deleteUser(user) {
+  if (confirm(`Are you sure you want to remove role assignment for ${user.name}?`)) {
+    try {
+      await userRoleService.deleteRole(user.id)
+      if (fetchUsers) await fetchUsers()
+    } catch (err) {
+      console.error('Failed to delete user role:', err)
+      alert('Failed to delete user role')
+    }
   }
 }
 </script>
